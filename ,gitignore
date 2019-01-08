@@ -1,0 +1,7 @@
+*.log
+*.db*
+tts/
+*.swp
+core
+logs/
+temp/
