@@ -1,0 +1,119 @@
+esphomeyaml:
+  name: aquarium
+  platform: ESP8266
+  board: d1
+
+wifi:
+  ssid: 'HoppelLodge'
+  password: 'ThisIsGREEN!'
+
+mqtt:
+  broker: '192.168.111.250'
+  username: ''
+  password: ''
+
+# Enable logging
+logger:
+
+ota:
+
+# Example configuration entry
+#dallas:
+#  - pin: GPIO15
+#  - pin: D0
+
+# Individual sensors
+#sensor:
+#  - platform: dallas
+#    address: 0x1C0000031EDD2A28
+#    index: 0
+#    name: "TEMP_aquarium"
+
+switch:
+#   pin: D0
+  - platform: gpio
+    name: "AQ_D0"
+    pin: GPIO16
+    id: aq_d0
+
+#   pin: D1
+  - platform: gpio
+    pin: GPIO5
+    name: "AQ_D1_Relay_1"
+    id: aq_d1_relay_1
+
+#   pin: D2
+  - platform: gpio
+    pin: GPIO4
+    name: "AQ_D2_Relay_2"
+    id: aq_d2_relay_2
+
+#   pin: D3
+  - platform: gpio
+    name: "AQ_D3_Relay_3"
+    pin: GPIO0
+    id: aq_d3
+
+#   pin: D4
+  - platform: gpio
+    pin: GPIO2
+    name: "AQ_D4_LED"
+    id: aq_d4_led
+
+#   pin: D4 #D5
+  - platform: gpio
+    pin: GPIO14
+    name: "AQ_D5"
+    id: aq_d5
+
+#   pin: D6
+  - platform: gpio
+    pin: GPIO12
+    name: "AQ_D6"
+    id: aq_d6
+
+#   pin: D7
+  - platform: gpio
+    name: "AQ_D7"
+    pin: GPIO13
+    id: aq_d7
+
+#   pin: D8
+  - platform: gpio
+    pin: GPIO15
+    name: "AQ_D8"
+    id: aq_d8
+
+#binary_sensor:
+#  - platform: gpio
+#    name: "ManCave Window"
+#    pin:
+#      number: D8
+#      inverted: True
+#      mode: INPUT_PULLUP
+#    on_presslight:
+
+#light:
+#  - platform: fastled_clockless
+#    chipset: WS2812B
+#    pin: D2
+#    num_leds: 1
+#    rgb_order: BRG
+#    id: d2
+#    name: "FastLED WS2811 Light"
+
+#sensor:
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: "ManCave Humidity"
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: "ManCave Temperature"
+#

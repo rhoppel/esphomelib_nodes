@@ -1,0 +1,215 @@
+esphomeyaml:
+  name: wildcat
+  platform: ESP8266
+  board: d1
+
+wifi:
+  ssid: 'HoppelLodge'
+  password: 'ThisIsGREEN!'
+
+mqtt:
+  broker: '192.168.111.250'
+  username: ''
+  password: ''
+
+# Enable logging
+logger:
+
+ota:
+
+# DS18B20 configuration 
+#dallas:
+#  - pin: GPIO4
+#
+#sensor:
+#  - platform: dallas
+#    address: 0xBD031664CA82FF28
+#    name: "TEMP_Lodge`"
+
+light:
+  - platform: fastled_clockless
+    chipset: WS2812B
+#    pin: D2
+    pin: GPIO4
+    num_leds: 1
+    rgb_order: GRB
+    name: "Wildcat FastLED"
+
+#  Available Pin Modes:
+#  
+#  INPUT
+#  OUTPUT
+#  OUTPUT_OPEN_DRAIN
+#  ANALOG (only on ESP32)
+#  INPUT_PULLUP
+#  INPUT_PULLDOWN (only on ESP32)
+#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
+
+switch:
+#   pin: D0
+  - platform: gpio
+    name: "W_D0"
+    id: w_d0
+    pin: 
+        number: GPIO16  
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D1
+  - platform: gpio
+    name: "W_D1_button"
+    id: w_d1
+    pin:
+        number: GPIO5 
+        inverted: False
+        mode: INPUT_PULLUP
+
+#   pin: D2
+#  - platform: gpio
+#    name: "W_D2"
+#    id: w_d2
+#    pin: 
+#        number: GPIO4
+#        inverted: False
+#        mode: OUTPUT
+
+#   pin: D3
+#  - platform: gpio
+#    name: "W_D3"
+#    id: w_d3
+#    pin: 
+#        number: GPIO0  
+#        inverted: False
+#        mode: OUTPUT
+
+#   pin: D4
+  - platform: gpio
+    name: "W_D4_LED"
+    id: w_d4
+    pin:
+        number: GPIO2
+        inverted: True
+        mode: OUTPUT
+
+#   pin: D4 #D5
+  - platform: gpio
+    name: "W_D5"
+    id: w_d5
+    pin: 
+        number: GPIO14 
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D6
+  - platform: gpio
+    name: "W_D6"
+    id: w_d6
+    pin: 
+        number: GPIO12  
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D7
+  - platform: gpio
+    name: "W_D7"
+    id: w_d7
+    pin: 
+        number: GPIO13 
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D8
+  - platform: gpio
+    name: "W_D8"
+    id: w_d8
+    pin: 
+        number: GPIO15  
+        inverted: False
+        mode: OUTPUT
+
+binary_sensor:
+  - platform: gpio
+    name: "WildCat_Button"
+    pin:
+      number: GPIO0
+      inverted: True
+      mode: INPUT_PULLUP
+#    on_presslight:
+
+#light:
+#  - platform: fastled_clockless
+#    chipset: WS2812B
+#    pin: D2
+#    num_leds: 1
+#    rgb_order: BRG
+#    id: d2
+#    name: "FastLED WS2811 Light"
+
+#sensor:
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: "ManCave Humidity"
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: "ManCave Temperature"
+#
+
+#   WeMos D1mini Pins
+#   ==================
+#   Pin     Function        ESP-8266 Pin
+#   ---     ---------       -------------
+#   TX	    TXD             TXD
+#   RX	    RXD             RXD
+#   A0	    Analog input,   A0
+#           max 3.3V input
+#   D0	    IO              GPIO16
+#   D1	    IO, SCL         GPIO5
+#   D2	    IO, SDA         GPIO4
+#   D3	    IO, 10k Pull-up GPIO0
+#   D4	    IO, 10k Pull-up,
+#               BUILTIN_LED  GPIO2
+#   D5	    IO, SCK         GPIO14
+#   D6	    IO, MISO        GPIO12
+#   D7	    IO, MOSI        GPIO13
+#   D8	    IO, 10k         GPIO15
+#           Pull-down, SS
+#   G	    Ground          GND
+#   5V	    5V	-
+#   3V3	    3.3V            3.3V
+#   RST	    Reset           RST
+
+#  WeMos Modules
+#  =============
+#  Motor Shield    D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#                  RST	RST
+#                               VM: Motor power supply + (Max 15Vdc)
+#                               GND: Motor power supply -
+#                               1-A-2: Motor A
+#                               2-B-1: Motor B
+#  
+#  OLED Screen     D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#  
+#  DHT Shield      D1	SCL (I2C)
+#                  D2	SDA
+#  
+#  Relay           D1	Relay
+#  
+#  WS2812B RGB     D2	WS2812B
+#  
+#  1 Button        D3   Button
+#  
+#  DS18B20         D2   Temperature
+#
+#  SD Card         D5	CLK
+#                  D6	MISO
+#                  D7	MOSI
+#                  D8	CS   

@@ -1,0 +1,156 @@
+esphomeyaml:
+  name: garage
+  platform: ESP8266
+  board: d1
+
+wifi:
+  ssid: 'HoppelLodge'
+  password: 'ThisIsGREEN!'
+
+mqtt:
+  broker: '192.168.111.250'
+  username: ''
+  password: ''
+
+# Enable logging
+logger:
+
+ota:
+
+# Example configuration entry
+#dallas:
+#  - pin: GPIO15
+#  - pin: D0
+
+# Individual sensors
+#sensor:
+#  - platform: dallas
+#    address: 0x1C0000031EDD2A28
+#    index: 0
+#    name: "TEMP_aquarium"
+
+#  Available Pin Modes:
+#  
+#  INPUT
+#  OUTPUT
+#  OUTPUT_OPEN_DRAIN
+#  ANALOG (only on ESP32)
+#  INPUT_PULLUP
+#  INPUT_PULLDOWN (only on ESP32)
+#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
+
+switch:
+#   pin: D0
+  - platform: gpio
+    name: "G_D0"
+    id: g_D0
+    pin: 
+        number: GPIO16  
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D1
+  - platform: gpio
+    name: "G_D1_Relay"
+    id: g_D1
+    pin:
+        number: GPIO5 
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D2
+  - platform: gpio
+    name: "G_D2"
+    id: g_D2
+    pin: 
+        number: GPIO4
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D3
+  - platform: gpio
+    name: "G_D3"
+    id: g_D3
+    pin: 
+        number: GPIO0  
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D4
+  - platform: gpio
+    name: "G_D4_LED"
+    id: g_D4
+    pin:
+        number: GPIO2
+        inverted: True
+        mode: OUTPUT
+
+#   pin: D4 #D5
+  - platform: gpio
+    name: "G_D5"
+    id: g_D5
+    pin: 
+        number: GPIO14 
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D6
+  - platform: gpio
+    name: "G_D6"
+    id: g_D6
+    pin: 
+        number: GPIO12  
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D7
+  - platform: gpio
+    name: "G_D7"
+    id: g_D7
+    pin: 
+        number: GPIO13 
+        inverted: False
+        mode: OUTPUT
+
+#   pin: D8
+  - platform: gpio
+    name: "G_D8"
+    id: g_D8
+    pin: 
+        number: GPIO15  
+        inverted: False
+        mode: OUTPUT
+
+#binary_sensor:
+#  - platform: gpio
+#    name: "ManCave Window"
+#    pin:
+#      number: D8
+#      inverted: True
+#      mode: INPUT_PULLUP
+#    on_presslight:
+
+#light:
+#  - platform: fastled_clockless
+#    chipset: WS2812B
+#    pin: D2
+#    num_leds: 1
+#    rgb_order: BRG
+#    id: d2
+#    name: "FastLED WS2811 Light"
+
+#sensor:
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: "ManCave Humidity"
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: "ManCave Temperature"
+#
