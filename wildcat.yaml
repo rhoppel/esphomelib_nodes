@@ -1,4 +1,4 @@
-esphomeyaml:
+esphome:
   name: wildcat
   platform: ESP8266
   board: d1
