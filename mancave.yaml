@@ -1,4 +1,4 @@
-esphomeyaml:
+esphome:
   name: mancave
   platform: ESP8266
   board: d1
