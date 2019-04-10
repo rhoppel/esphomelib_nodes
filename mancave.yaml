@@ -11,6 +11,7 @@ mqtt:
   broker: '192.168.111.250'
   username: ''
   password: ''
+#  discovery: clean
 
 # Enable logging
 logger:

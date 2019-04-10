@@ -7,10 +7,13 @@ wifi:
   ssid: 'HoppelLodge'
   password: 'ThisIsGREEN!'
 
-mqtt:
-  broker: '192.168.111.250'
-  username: ''
-  password: ''
+#mqtt:
+#  broker: '192.168.111.250'
+#  username: ''
+#  password: ''
+#  discovery: clean
+
+api:
 
 # Enable logging
 logger:
