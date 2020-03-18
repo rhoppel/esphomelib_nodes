@@ -4,9 +4,9 @@ esphome:
   board: d1
 
 wifi:
-  ssid: 'HoppelLodge'
-  password: 'ThisIsGREEN!'
-
+  ssid: !secret lodge_ssid
+  password: !secret lodge_password
+  
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
@@ -47,9 +47,26 @@ light:
 #  INPUT_PULLUP
 #  INPUT_PULLDOWN (only on ESP32)
 #  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
+binary_sensor:
+  - platform: gpio
+    name: "W_D3_button"
+    pin:
+      number: GPIO0
+      inverted: True
+      mode: INPUT_PULLUP
+#    on_presslight:
+
+#   pin: D5
+  - platform: gpio
+    name: "W_D5_sense"
+    id: w_d5_sense
+    pin: 
+        number: GPIO14 
+        inverted: False
+        mode: INPUT_PULLUP
 
 switch:
-#   pin: D0
+#   pin: D0 [DEEP-SLEEP]
   - platform: gpio
     name: "W_D0"
     id: w_d0
@@ -58,16 +75,16 @@ switch:
         inverted: False
         mode: OUTPUT
 
-#   pin: D1
+#   pin: D1 [SCL/I2C]
   - platform: gpio
-    name: "W_D1_button"
+    name: "W_D1"
     id: w_d1
     pin:
         number: GPIO5 
         inverted: False
         mode: INPUT_PULLUP
 
-#   pin: D2
+#   pin: D2 [SDA/I2C]
 #  - platform: gpio
 #    name: "W_D2"
 #    id: w_d2
@@ -76,7 +93,7 @@ switch:
 #        inverted: False
 #        mode: OUTPUT
 
-#   pin: D3
+#   pin: D3  [OUTPUT-ONLY]
 #  - platform: gpio
 #    name: "W_D3"
 #    id: w_d3
@@ -85,7 +102,7 @@ switch:
 #        inverted: False
 #        mode: OUTPUT
 
-#   pin: D4
+#   pin: D4  [OUTPUT-ONLY]
   - platform: gpio
     name: "W_D4_LED"
     id: w_d4
@@ -94,7 +111,7 @@ switch:
         inverted: True
         mode: OUTPUT
 
-#   pin: D4 #D5
+#   pin: D5
   - platform: gpio
     name: "W_D5"
     id: w_d5
@@ -121,7 +138,7 @@ switch:
         inverted: False
         mode: OUTPUT
 
-#   pin: D8
+#   pin: D8  [OUTPUT-ONLY]
   - platform: gpio
     name: "W_D8"
     id: w_d8
@@ -129,15 +146,6 @@ switch:
         number: GPIO15  
         inverted: False
         mode: OUTPUT
-
-binary_sensor:
-  - platform: gpio
-    name: "WildCat_Button"
-    pin:
-      number: GPIO0
-      inverted: True
-      mode: INPUT_PULLUP
-#    on_presslight:
 
 #light:
 #  - platform: fastled_clockless
