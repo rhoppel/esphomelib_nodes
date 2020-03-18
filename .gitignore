@@ -6,7 +6,6 @@
 **/.piolibdeps/
 **/lib/
 **/src/
-**/platformio.ini
 /secrets.yaml
 /.esphome/
 *.json
