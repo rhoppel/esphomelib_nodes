@@ -4,9 +4,9 @@ esphome:
   board: d1
 
 wifi:
-  ssid: 'HoppelLodge'
-  password: 'ThisIsGREEN!'
-
+  ssid: !secret lodge_ssid
+  password: !secret lodge_password
+  
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
