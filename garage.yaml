@@ -42,16 +42,6 @@ ota:
 #  INPUT_PULLDOWN (only on ESP32)
 #  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
 
-binary_sensor:
-#   pin: D5
-  - platform: gpio
-    name: "G_D5_Garage_Open"
-    id: g_D5_sense
-    pin: 
-        number: GPIO14 
-        inverted: False
-        mode: INPUT_PULLUP
-        
 switch:
 #   pin: D0
   - platform: gpio
@@ -134,6 +124,25 @@ switch:
         inverted: False
         mode: OUTPUT
 
+binary_sensor:
+#   pin: D5
+  - platform: gpio
+    name: "G_D5_Garage_Open"
+    device_class: garage_door
+    id: g_D5_sense
+    pin: 
+        number: GPIO14 
+        inverted: False
+        mode: INPUT_PULLUP
+    filters:
+      - delayed_on_off: 100ms
+    on_press:
+      then:
+        - switch.turn_off: g_D4
+    on_release:
+      then:
+        - switch.turn_on: g_D4    
+        
 #light:
 #  - platform: fastled_clockless
 #    chipset: WS2812B
