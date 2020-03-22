@@ -1,179 +1,254 @@
+# ======================================================
+# WeMoS D1 Mini / ESPhome Template
+# v.1
+# changelog:
+#   inital: 4/1/2020
+# ======================================================
+substitutions:
+  devicename: wildcat
+  upper_devicename: Wildcat
+  pin_prefix_upper: W_D
+  pin_prefix: w_d
+
 esphome:
-  name: wildcat
+  name: $devicename
   platform: ESP8266
   board: d1
-
+# ======================================================
 wifi:
-  ssid: !secret lodge_ssid
-  password: !secret lodge_password
-  
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password  
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
 #  password: ''
 #  discovery: clean
+# ----------------------------------------------------
+api:       # enable API communication
+logger:    # enable logging
+  level: DEBUG      # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+ota:       # enable OTA over the air updates
 
-api:
-  
-# Enable logging
-logger:
-
-ota:
-
-# DS18B20 configuration 
-#dallas:
-#  - pin: GPIO4
-#
-#sensor:
-#  - platform: dallas
-#    address: 0xBD031664CA82FF28
-#    name: "TEMP_Lodge`"
-
-light:
-  - platform: fastled_clockless
-    chipset: WS2812B
-#    pin: D2
-    pin: GPIO4
-    num_leds: 1
-    rgb_order: GRB
-    name: "Wildcat FastLED"
-
-#  Available Pin Modes:
-#  
-#  INPUT
-#  OUTPUT
-#  OUTPUT_OPEN_DRAIN
-#  ANALOG (only on ESP32)
-#  INPUT_PULLUP
-#  INPUT_PULLDOWN (only on ESP32)
-#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
-binary_sensor:
-  - platform: gpio
-    name: "W_D3_button"
-    pin:
-      number: GPIO0
-      inverted: True
-      mode: INPUT_PULLUP
-#    on_presslight:
-
-#   pin: D5
-  - platform: gpio
-    name: "W_D5_sense"
-    id: w_d5_sense
-    pin: 
-        number: GPIO14 
-        inverted: False
-        mode: INPUT_PULLUP
-
+# ======================================================
+# OUTPUTS
+# ======================================================
 switch:
-#   pin: D0 [DEEP-SLEEP]
-  - platform: gpio
-    name: "W_D0"
-    id: w_d0
-    pin: 
-        number: GPIO16  
-        inverted: False
-        mode: OUTPUT
 
-#   pin: D1 [SCL/I2C]
-  - platform: gpio
-    name: "W_D1"
-    id: w_d1
-    pin:
-        number: GPIO5 
-        inverted: False
-        mode: INPUT_PULLUP
-
-#   pin: D2 [SDA/I2C]
+# PIN: D0 [DEEP-SLEEP]
 #  - platform: gpio
-#    name: "W_D2"
-#    id: w_d2
+#    name: "${pin_prefix_upper}0"
+#    id: ${pin_prefix}0
+#    pin: 
+#        number: GPIO16
+#        inverted: False
+#        mode: OUTPUT
+# PIN: D1 [SCL/I2C]
+#  - platform: gpio
+#    name: "${pin_prefix_upper}1"
+#    id: ${pin_prefix}1
+#    pin:
+#        number: GPIO5
+#        inverted: False
+#        mode: INPUT_PULLUP
+# PIN: D2 [SDA/I2C]
+#  - platform: gpio
+#    name: "${pin_prefix_upper}2"
+#    id: ${pin_prefix}2
 #    pin: 
 #        number: GPIO4
 #        inverted: False
 #        mode: OUTPUT
-
-#   pin: D3  [OUTPUT-ONLY]
+# PIN: D3  [OUTPUT-ONLY]
 #  - platform: gpio
-#    name: "W_D3"
-#    id: w_d3
+#    name: "${pin_prefix_upper}3"
+#    id: ${pin_prefix}3
 #    pin: 
-#        number: GPIO0  
+#        number: GPIO0
 #        inverted: False
 #        mode: OUTPUT
-
-#   pin: D4  [OUTPUT-ONLY]
+# PIN: D4  [LED / OUTPUT-ONLY]
   - platform: gpio
-    name: "W_D4_LED"
-    id: w_d4
+    name: "${pin_prefix_upper}4_LED"
+    id: ${pin_prefix}4
     pin:
         number: GPIO2
         inverted: True
         mode: OUTPUT
-
-#   pin: D5
+# PIN: D5
   - platform: gpio
-    name: "W_D5"
-    id: w_d5
+    name: "${pin_prefix_upper}5"
+    id: ${pin_prefix}5
     pin: 
-        number: GPIO14 
+        number: GPIO14
         inverted: False
         mode: OUTPUT
-
-#   pin: D6
+# PIN: D6
   - platform: gpio
-    name: "W_D6"
-    id: w_d6
+    name: "${pin_prefix_upper}6"
+    id: ${pin_prefix}6
     pin: 
-        number: GPIO12  
+        number:  GPIO12
         inverted: False
         mode: OUTPUT
-
-#   pin: D7
+# PIN: D7
   - platform: gpio
-    name: "W_D7"
-    id: w_d7
+    name: "${pin_prefix_upper}7"
+    id: ${pin_prefix}7
     pin: 
-        number: GPIO13 
+        number: GPIO13
         inverted: False
         mode: OUTPUT
-
-#   pin: D8  [OUTPUT-ONLY]
+# PIN: D8  [OUTPUT-ONLY]
   - platform: gpio
-    name: "W_D8"
-    id: w_d8
+    name: "${pin_prefix_upper}8"
+    id: ${pin_prefix}8
     pin: 
         number: GPIO15  
         inverted: False
-        mode: OUTPUT
+        mode: OUTPUT    
 
+# ======================================================
+# INPUTS
+# ======================================================
+binary_sensor:
+
+# WeMos 1-Button Shield
+# PINS:  D3[GPIO0] GND
+  - platform: gpio
+    name: "${pin_prefix_upper}3_button"
+    pin:
+      number: GPIO0
+      inverted: false
+      mode: INPUT_PULLUP
+    filters:
+      - delayed_on_off: 10ms
+    on_press:     # Turn on internal Blue LED
+      then:
+        - switch.turn_off: ${pin_prefix}4 
+    on_release:   # Turn off internal Blue LED
+      then:
+        - switch.turn_on: ${pin_prefix}4
+#    on_double_click:  # Toggle RGB LED state
+#      min_length: 50ms
+#      max_length: 250ms
+#      then:
+#        - light.toggle: rgb_light
+# -------------------------------------------------------
+# reed switch sensor
+#   PIN: D5
+#  - platform: gpio
+#    name: "${pin_prefix_upper}5_sense"
+#    device_class: door
+#    id: ${pin_prefix}5_sense
+#    pin: 
+#        number: GPIO14 
+#        inverted: False
+#        mode: INPUT_PULLUP
+# -------------------------------------------------------
+text_sensor:
+  - platform: homeassistant
+    id: ha_title
+    entity_id: input_text.title_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_status
+    entity_id: input_select.status_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_1
+    entity_id: input_text.msg_1_$devicename
+    internal: true
+# -------------------------------------------------------
+sensor:
+  - platform: homeassistant
+    id: ha_temperature
+    entity_id: sensor.temperature_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_number
+    entity_id: input_number.number_$devicename
+    internal: true
+
+# -------------------------------------------------------
+# [Temperature] DS18B20 configuration 
+  - platform: dallas
+    address: 0x810416846B52FF28
+#    index: 0
+    name: temperature_$devicename
+    id: tp1
+dallas:            
+  - pin: D7
+    id: dallas_hub
+    update_interval: 120s  
+
+# ======================================================
+# DISPLAYs
+# ======================================================
+# WeMos WS2812B RGB Shield
+# LED SIZE: 5050   colors: 16777216  Voltage: 5V
+# PINS  D2 [GPIO4] ; 5V ; GND
+#
 #light:
 #  - platform: fastled_clockless
 #    chipset: WS2812B
-#    pin: D2
+#    id: rgb_light
+#    pin: GPIO4
 #    num_leds: 1
-#    rgb_order: BRG
-#    id: d2
-#    name: "FastLED WS2811 Light"
-
-#sensor:
-#  - platform: dht
-#    pin: D9
-#    humidity:
-#      name: "ManCave Humidity"
-#      on_value_range:
-#        - above: 65.0
-#          then:
-#            - switch.turn_on: d1
-#        - below: 50.0
-#          then:
-#            - switch.turn_off: d1
-#    temperature:
-#      name: "ManCave Temperature"
-#
-
-#   WeMos D1mini Pins
-#   ==================
+#    rgb_order: GRB
+#    name: "$devicename FastLED"
+# ----------------------------------------------------
+# WeMos OLED Shield 1.1
+# Description: 64x48 pixels (0.66” Across) OLED Shield with I2C
+# Operating Voltage: 3.3V
+# Driver IC: SSD1306
+# IIC Address: 0x3C or 0x3D
+# PINS D1[SCL] ; D2[SDA] ; 3.3V; GND
+font:
+  - file: "arial.ttf"
+    id: font_small
+    size: 10
+  - file: "arial.ttf"
+    id: font_normal
+    size: 14
+  - file: "arial.ttf"
+    id: font_large
+    size: 32
+i2c:
+  scl: GPIO5                  # D1
+  sda: GPIO4                  # D2
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+    reset_pin: GPIO16       # D0
+    address: 0x3C
+    id: this_display
+    pages:
+      - id: page1
+        lambda: |-
+          it.printf(32, 10, id(font_normal), TextAlign::CENTER, "%s", id(ha_status).state.c_str());
+          it.rectangle(0, 0, 64, 19);
+          it.printf(0, 37, id(font_large), "%.1f", id(ha_temperature).state);
+      - id: page2
+        lambda: |-
+          it.printf(32,  0, id(font_small), TextAlign::TOP_CENTER, "%s", id(ha_title).state.c_str());
+          it.printf(32, 17, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+          it.printf(32, 37, id(font_large), TextAlign::CENTER, "%.0f", id(ha_number).state);
+      - id: page3
+        lambda: |-
+          it.printf(32,  7, id(font_normal), TextAlign::CENTER, "%s", id(ha_status).state.c_str());
+          it.printf(32, 15, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+          it.printf(32, 25, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+          it.printf(32, 35, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+          it.printf(32, 45, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: this_display
+      - component.update: this_display 
+  
+# =======================================================
+#   WeMos D1 Mini Pins
+# =======================================================
 #   Pin     Function        ESP-8266 Pin
 #   ---     ---------       -------------
 #   TX	    TXD             TXD
@@ -195,16 +270,28 @@ switch:
 #   5V	    5V	-
 #   3V3	    3.3V            3.3V
 #   RST	    Reset           RST
-
+# -------------------------------------------------------
+# PIN CONFIGURATION
+# -------------------------------------------------------
+#  Available Pin Modes:
+#  
+#  INPUT
+#  OUTPUT
+#  OUTPUT_OPEN_DRAIN
+#  ANALOG (only on ESP32)
+#  INPUT_PULLUP
+#  INPUT_PULLDOWN (only on ESP32)
+#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
+# =======================================================
 #  WeMos Modules
-#  =============
+# =======================================================
 #  Motor Shield    D1	SCL (I2C)
 #                  D2	SDA (I2C)
 #                  RST	RST
-#                               VM: Motor power supply + (Max 15Vdc)
-#                               GND: Motor power supply -
-#                               1-A-2: Motor A
-#                               2-B-1: Motor B
+#                  VM: Motor power supply + (Max 15Vdc)
+#                  GND: Motor power supply -
+#                  1-A-2: Motor A
+#                  2-B-1: Motor B
 #  
 #  OLED Screen     D1	SCL (I2C)
 #                  D2	SDA (I2C)
@@ -216,11 +303,38 @@ switch:
 #  
 #  WS2812B RGB     D2	WS2812B
 #  
-#  1 Button        D3   Button
-#  
 #  DS18B20         D2   Temperature
+#
+#  1 Button        D3   Button
 #
 #  SD Card         D5	CLK
 #                  D6	MISO
 #                  D7	MOSI
 #                  D8	CS   
+# =======================================================
+# SAMPLE INTEGRATIONS
+# =======================================================
+#light:
+#  - platform: fastled_clockless
+#    chipset: WS2812B
+#    pin: D2
+#    num_leds: 1
+#    rgb_order: BRG
+#    id: d2
+#    name: "FastLED WS2811 Light"
+# =======================================================
+#sensor:
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: "ManCave Humidity"
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: "ManCave Temperature"
+#
