@@ -5,10 +5,16 @@
 #   inital: 4/1/2020
 # ======================================================
 substitutions:
+  version: "0.5.0"
   devicename: wildcat
   upper_devicename: Wildcat
   pin_prefix_upper: W_D
   pin_prefix: w_d
+# screen constants
+  w:  "64"  # width of screen
+  w2: "32"  # width / 2
+  h:  "48"  # height of screen
+  h2: "24"  # height /2
 
 esphome:
   name: $devicename
@@ -17,169 +23,297 @@ esphome:
 # ======================================================
 wifi:
   ssid:     !secret wifi_ssid
-  password: !secret wifi_password  
+  password: !secret wifi_password
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
 #  password: ''
 #  discovery: clean
 # ----------------------------------------------------
-api:       # enable API communication
-logger:    # enable logging
-  level: DEBUG      # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
-ota:       # enable OTA over the air updates
+api: # enable API communication
+logger: # enable logging
+  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+ota: # enable OTA over the air updates
 
 # ======================================================
 # OUTPUTS
 # ======================================================
 switch:
-
-# PIN: D0 [DEEP-SLEEP]
-#  - platform: gpio
-#    name: "${pin_prefix_upper}0"
-#    id: ${pin_prefix}0
-#    pin: 
-#        number: GPIO16
-#        inverted: False
-#        mode: OUTPUT
-# PIN: D1 [SCL/I2C]
-#  - platform: gpio
-#    name: "${pin_prefix_upper}1"
-#    id: ${pin_prefix}1
-#    pin:
-#        number: GPIO5
-#        inverted: False
-#        mode: INPUT_PULLUP
-# PIN: D2 [SDA/I2C]
-#  - platform: gpio
-#    name: "${pin_prefix_upper}2"
-#    id: ${pin_prefix}2
-#    pin: 
-#        number: GPIO4
-#        inverted: False
-#        mode: OUTPUT
-# PIN: D3  [OUTPUT-ONLY]
-#  - platform: gpio
-#    name: "${pin_prefix_upper}3"
-#    id: ${pin_prefix}3
-#    pin: 
-#        number: GPIO0
-#        inverted: False
-#        mode: OUTPUT
-# PIN: D4  [LED / OUTPUT-ONLY]
+  # PIN: D0 [DEEP-SLEEP]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}0"
+  #    id: ${pin_prefix}0
+  #    pin:
+  #        number: GPIO16
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D1 [SCL/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}1"
+  #    id: ${pin_prefix}1
+  #    pin:
+  #        number: GPIO5
+  #        inverted: False
+  #        mode: INPUT_PULLUP
+  # PIN: D2 [SDA/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}2"
+  #    id: ${pin_prefix}2
+  #    pin:
+  #        number: GPIO4
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D3  [OUTPUT-ONLY]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}3"
+  #    id: ${pin_prefix}3
+  #    pin:
+  #        number: GPIO0
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D4  [LED / OUTPUT-ONLY]
   - platform: gpio
     name: "${pin_prefix_upper}4_LED"
     id: ${pin_prefix}4
     pin:
-        number: GPIO2
-        inverted: True
-        mode: OUTPUT
-# PIN: D5
+      number: GPIO2
+      inverted: True
+      mode: OUTPUT
+  # PIN: D5
   - platform: gpio
     name: "${pin_prefix_upper}5"
     id: ${pin_prefix}5
-    pin: 
-        number: GPIO14
-        inverted: False
-        mode: OUTPUT
-# PIN: D6
+    pin:
+      number: GPIO14
+      inverted: False
+      mode: OUTPUT
+  # PIN: D6
   - platform: gpio
     name: "${pin_prefix_upper}6"
     id: ${pin_prefix}6
-    pin: 
-        number:  GPIO12
-        inverted: False
-        mode: OUTPUT
-# PIN: D7
-  - platform: gpio
-    name: "${pin_prefix_upper}7"
-    id: ${pin_prefix}7
-    pin: 
-        number: GPIO13
-        inverted: False
-        mode: OUTPUT
-# PIN: D8  [OUTPUT-ONLY]
+    pin:
+      number: GPIO12
+      inverted: False
+      mode: OUTPUT
+#  # PIN: D7
+#  - platform: gpio
+#    name: "${pin_prefix_upper}7"
+#    id: ${pin_prefix}7
+#    pin:
+#      number: GPIO13
+#      inverted: False
+#      mode: OUTPUT
+  # PIN: D8  [OUTPUT-ONLY]
   - platform: gpio
     name: "${pin_prefix_upper}8"
     id: ${pin_prefix}8
-    pin: 
-        number: GPIO15  
-        inverted: False
-        mode: OUTPUT    
+    pin:
+      number: GPIO15
+      inverted: False
+      mode: OUTPUT
 
 # ======================================================
 # INPUTS
 # ======================================================
-binary_sensor:
 
-# WeMos 1-Button Shield
-# PINS:  D3[GPIO0] GND
+binary_sensor:
+  - platform: homeassistant
+    id: static_screen
+    entity_id: input_boolean.static_screen_$devicename
+    internal: true
+  # WeMos 1-Button Shield
+  # PINS:  D3[GPIO0] GND
   - platform: gpio
     name: "${pin_prefix_upper}3_button"
     pin:
       number: GPIO0
       inverted: false
       mode: INPUT_PULLUP
-    filters:
-      - delayed_on_off: 10ms
-    on_press:     # Turn on internal Blue LED
-      then:
-        - switch.turn_off: ${pin_prefix}4 
-    on_release:   # Turn off internal Blue LED
-      then:
-        - switch.turn_on: ${pin_prefix}4
-#    on_double_click:  # Toggle RGB LED state
-#      min_length: 50ms
-#      max_length: 250ms
+#    filters:
+#      - delayed_on_off: 10ms
+#    on_press: # Turn on internal Blue LED
 #      then:
-#        - light.toggle: rgb_light
-# -------------------------------------------------------
+#        - switch.turn_off: ${pin_prefix}4
+##        - light.turn_on: "flash"
+#    on_release: # Turn off internal Blue LED
+#      then:
+#        - switch.turn_on: ${pin_prefix}4
+#        - light.turn_off: "flash"
+    on_click:
+      min_length: 20ms
+      max_length: 250ms
+      then:
+        - switch.toggle: ${pin_prefix}5
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.lava
+    on_double_click:  # Toggle aquarium switch
+      min_length: 100ms
+      max_length: 350ms
+      then:
+        - switch.toggle: ${pin_prefix}4
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.aquarium
+# ---------------------------------------v----------------
 # reed switch sensor
-#   PIN: D5
+# PIN: D5
 #  - platform: gpio
 #    name: "${pin_prefix_upper}5_sense"
 #    device_class: door
 #    id: ${pin_prefix}5_sense
-#    pin: 
-#        number: GPIO14 
+#    pin:
+#        number: GPIO14
 #        inverted: False
 #        mode: INPUT_PULLUP
 # -------------------------------------------------------
 text_sensor:
   - platform: homeassistant
+    id: page_selection
+    entity_id: input_select.screen_$devicename
+    on_value:
+      then:
+        - display.page.show: page_time
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'cycle'
+            then: 
+              display.page.show_next: this_display
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'room_temperature'
+            then: 
+              display.page.show: page_room_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'temperature'
+            then: 
+              display.page.show: page_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_ha'
+            then: 
+              display.page.show: page_image_ha
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_fish'
+            then: 
+              display.page.show: page_image_fish
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'page_1'
+            then: 
+              display.page.show: page_1
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'page_2'
+            then: 
+              display.page.show: page_2
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'page_3'
+#            then: 
+#              display.page.show: page_3
+        - component.update: this_display
+
+  - platform: homeassistant
     id: ha_title
     entity_id: input_text.title_$devicename
     internal: true
   - platform: homeassistant
-    id: ha_status
-    entity_id: input_select.status_$devicename
+    id: ha_title_2
+    entity_id: input_text.title_2_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg
+    entity_id: input_text.msg_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_title_3
+    entity_id: input_text.title_3_$devicename
     internal: true
   - platform: homeassistant
     id: ha_msg_1
     entity_id: input_text.msg_1_$devicename
     internal: true
-# -------------------------------------------------------
-sensor:
   - platform: homeassistant
-    id: ha_temperature
-    entity_id: sensor.temperature_$devicename
+    id: ha_msg_2
+    entity_id: input_text.msg_2_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_3
+    entity_id: input_text.msg_3_$devicename
+    internal: true
+# -------------------------------------------------------
+time:
+  - platform: homeassistant
+    id: ha_time
+sensor:
+  # Screen Selection
+  - platform: homeassistant
+    id: ha_screen
+    entity_id: input_number.screen_$devicename
     internal: true
   - platform: homeassistant
     id: ha_number
     entity_id: input_number.number_$devicename
     internal: true
-
-# -------------------------------------------------------
-# [Temperature] DS18B20 configuration 
+#  - platform: homeassistant
+#    id: ha_temperature
+#    entity_id: sensor.temperature_$devicename
+#    internal: true
+  - platform: homeassistant
+    id: ha_room_temperature
+    entity_id: sensor.lodge_thermostat_temperature
+    internal: true
+  # -------------------------------------------------------
+  #  Temperature / Humidity Sensor
+  #  - platform: dht
+  #    pin: D9
+  #    humidity:
+  #      name: $upper_devicename Humidity"
+  #      on_value_range:
+  #        - above: 65.0
+  #          then:
+  #            - switch.turn_on: d1
+  #        - below: 50.0
+  #          then:
+  #            - switch.turn_off: d1
+  #    temperature:
+  #      name: $upper_devicename Temperature
+  # -------------------------------------------------------
+  # [Temperature] DS18B20 configuration
   - platform: dallas
     address: 0x810416846B52FF28
-#    index: 0
+    #    index: 0
     name: temperature_$devicename
     id: tp1
-dallas:            
+#       Convert Centrigrade to Farenheit
+    filters:
+      - lambda: return x * (9.0/5.0) + 32.0;
+    unit_of_measurement: "°F"
+dallas:
   - pin: D7
     id: dallas_hub
-    update_interval: 120s  
+    update_interval: 120s
 
 # ======================================================
 # DISPLAYs
@@ -188,7 +322,18 @@ dallas:
 # LED SIZE: 5050   colors: 16777216  Voltage: 5V
 # PINS  D2 [GPIO4] ; 5V ; GND
 #
-#light:
+# ----------------------------------------------------
+output:
+  - platform: esp8266_pwm
+    pin: GPIO2   # pin D4 [LED}]
+    frequency: 5 Hz
+    id: "flash_Blue_LED"
+light:
+  - platform: monochromatic
+    output: "flash_Blue_LED"
+    name: "flash"
+
+# ----------------------------------------------------
 #  - platform: fastled_clockless
 #    chipset: WS2812B
 #    id: rgb_light
@@ -211,41 +356,138 @@ font:
     id: font_normal
     size: 14
   - file: "arial.ttf"
+    id: font_time
+    size: 21
+  - file: "arial.ttf"
     id: font_large
     size: 32
+image:
+  - file: "esphome_2a_54_48.png"
+    id: image_ha
+  - file: "fish_48_48.png"
+    id: image_fish
+  - file: "fish_36_28.png"
+    id: image_fish_2
+#    resize: 48x48
 i2c:
-  scl: GPIO5                  # D1
-  sda: GPIO4                  # D2
+  scl: GPIO5 # D1
+  sda: GPIO4 # D2
 display:
   - platform: ssd1306_i2c
     model: "SSD1306 64x48"
-    reset_pin: GPIO16       # D0
+    reset_pin: GPIO16 # D0
     address: 0x3C
     id: this_display
     pages:
-      - id: page1
+#      - id: blank
+#        lambda: |-
+#          it.clear();
+      - id: page_time
         lambda: |-
-          it.printf(32, 10, id(font_normal), TextAlign::CENTER, "%s", id(ha_status).state.c_str());
-          it.rectangle(0, 0, 64, 19);
-          it.printf(0, 37, id(font_large), "%.1f", id(ha_temperature).state);
-      - id: page2
+          it.strftime(0, 0, id(font_normal), "%A",     id(ha_time).now());
+          it.strftime(8, 14, id(font_normal), "%b-%d", id(ha_time).now());
+          it.strftime(3, 28, id(font_time), "%I:%M", id(ha_time).now());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_temperature
         lambda: |-
-          it.printf(32,  0, id(font_small), TextAlign::TOP_CENTER, "%s", id(ha_title).state.c_str());
-          it.printf(32, 17, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
-          it.printf(32, 37, id(font_large), TextAlign::CENTER, "%.0f", id(ha_number).state);
-      - id: page3
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "%s", id(ha_title).state.c_str());
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.printf( 0, 37, id(font_large),                 "%.1f", id(tp1).state);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_room_temperature
         lambda: |-
-          it.printf(32,  7, id(font_normal), TextAlign::CENTER, "%s", id(ha_status).state.c_str());
-          it.printf(32, 15, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
-          it.printf(32, 25, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
-          it.printf(32, 35, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
-          it.printf(32, 45, id(font_small), TextAlign::CENTER, id(ha_msg_1).state.c_str());
+          it.printf($w2,  5, id(font_small), TextAlign::CENTER,    "%s",id(ha_title_2).state.c_str());
+          it.printf($w2, 16, id(font_small), TextAlign::CENTER,             id(ha_msg).state.c_str());
+          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "%.1f", id(ha_room_temperature).state);
+          it.line(0, 0,  $w, 0);
+          it.line(0, 22, $w, 22);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_ha
+        lambda: |-
+          it.image(5, 0, id(image_ha));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_fish
+        lambda: |-
+          it.image(5, 0, id(image_fish));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_1
+        lambda: |-
+          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title_3).state.c_str());
+          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.line(0, 16, $w, 16);
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_2
+        lambda: |-
+          it.printf( 3,  10, id(font_small), " width: %i", it.get_width());
+          it.printf( 3,  20, id(font_small), "height: %i", it.get_height());
+          it.printf($w2, 30, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_version
+        lambda: |-
+          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,   "Version:");
+          it.printf( 0, 37, id(font_time),  "${version}");
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_3              # an attempt at animation
+#        lambda: |-
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#          it.image(5, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(8, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(11, 0,id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(14, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(17, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(20, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(23, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
 interval:
-  - interval: 5s
+  - interval: 3s
     then:
-      - display.page.show_next: this_display
-      - component.update: this_display 
-  
+      - if:
+          condition:
+            text_sensor.state:
+              id: page_selection
+              state: 'cycle'
+          then:
+            - display.page.show_next: this_display
+            - component.update: this_display
 # =======================================================
 #   WeMos D1 Mini Pins
 # =======================================================
@@ -274,7 +516,7 @@ interval:
 # PIN CONFIGURATION
 # -------------------------------------------------------
 #  Available Pin Modes:
-#  
+#
 #  INPUT
 #  OUTPUT
 #  OUTPUT_OPEN_DRAIN
@@ -292,17 +534,17 @@ interval:
 #                  GND: Motor power supply -
 #                  1-A-2: Motor A
 #                  2-B-1: Motor B
-#  
+#
 #  OLED Screen     D1	SCL (I2C)
 #                  D2	SDA (I2C)
-#  
+#
 #  DHT Shield      D1	SCL (I2C)
 #                  D2	SDA
-#  
+#
 #  Relay           D1	Relay
-#  
+#
 #  WS2812B RGB     D2	WS2812B
-#  
+#
 #  DS18B20         D2   Temperature
 #
 #  1 Button        D3   Button
@@ -310,31 +552,5 @@ interval:
 #  SD Card         D5	CLK
 #                  D6	MISO
 #                  D7	MOSI
-#                  D8	CS   
+#                  D8	CS
 # =======================================================
-# SAMPLE INTEGRATIONS
-# =======================================================
-#light:
-#  - platform: fastled_clockless
-#    chipset: WS2812B
-#    pin: D2
-#    num_leds: 1
-#    rgb_order: BRG
-#    id: d2
-#    name: "FastLED WS2811 Light"
-# =======================================================
-#sensor:
-#  - platform: dht
-#    pin: D9
-#    humidity:
-#      name: "ManCave Humidity"
-#      on_value_range:
-#        - above: 65.0
-#          then:
-#            - switch.turn_on: d1
-#        - below: 50.0
-#          then:
-#            - switch.turn_off: d1
-#    temperature:
-#      name: "ManCave Temperature"
-#
