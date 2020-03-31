@@ -5,3 +5,5 @@ tts/
 core
 logs/
 temp/
+icons/Archive/*
+fonts/Archive/*
