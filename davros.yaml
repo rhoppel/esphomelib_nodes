@@ -673,13 +673,16 @@ font:
   - file: fonts/$font
     id: font_normal
     size: 14
-    glyphs: '$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+    glyphs: '¢$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
   - file: fonts/$font
     id: font_large
     size: 22
   - file: fonts/$font_number
     id: font_temperature
-    size: 32
+#    size: 32
+    size: 27
+    glyphs: '¢$%-_.:°0123456789'
+
 image:
   - file: icons/esphome_54_48.png
     id: image_ha
@@ -743,16 +746,16 @@ display:
           it.draw_pixel_at($w - 1, $h - 1);
       - id: page_temperature
         lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Davros");
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_temperature), "%.1f", id(temperature_sensor_1).state);
+          it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(temperature_sensor_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_room_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(ha_room_temperature).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "°", id(ha_room_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -760,7 +763,7 @@ display:
       - id: page_outside_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_outside_temperature).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f"  "°", id(ha_outside_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -776,7 +779,7 @@ display:
       - id: page_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(comed_price).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "¢", id(comed_price).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
