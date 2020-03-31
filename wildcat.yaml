@@ -5,11 +5,12 @@
 #   inital: 4/1/2020
 # ======================================================
 substitutions:
-  version: "0.5.0"
+  version: "0.6.5"
   devicename: wildcat
   upper_devicename: Wildcat
   pin_prefix_upper: W_D
   pin_prefix: w_d
+
 # screen constants
   w:  "64"  # width of screen
   w2: "32"  # width / 2
@@ -19,7 +20,8 @@ substitutions:
 esphome:
   name: $devicename
   platform: ESP8266
-  board: d1
+  board: d1_mini
+  
 # ======================================================
 wifi:
   ssid:     !secret wifi_ssid
@@ -36,17 +38,72 @@ logger: # enable logging
 ota: # enable OTA over the air updates
 
 # ======================================================
+#   WeMOS D1 mini PIN Usage
+# ======================================================
+# insert the following into a Markdown page
+# ------------------------------------------------------
+# # Wildcat [esphome]
+# ### 192.168.111.116
+#                          ___________
+#                    [RST] |Reset  RX| [RX]
+#            PhotoResistor |A0     TX| [TX]
+#                      [O] |D0     D1| [SCL] OLED
+#                      [O] |D5     D2| [SDA] OLED
+#               Buzzer [O] |D6     D3| [I]   pushbutton
+#    OneWire Thermmtr  [S] |D7     D4| [O]   Blue LED
+#             RGB LED  [L] |D8      G| GND
+#                          |3V3    5V| +5V
+#                          |_________|
+#        I/input O/output L/light S/sensor SCL/SDA/I2C bus
+#                             _________________
+#                       [RST] |Reset        RX| [RXD]
+#    PhotoResistor [Max 3.3V] |A0           TX| [TXD]
+#                  [O/GPIO16] |D0           D1| [SCL/GPIO5] OLED
+#                  [O/GPIO14] |D5           D2| [SDA/GPIO4] OLED
+#           Buzzer [O/GPIO12] |D6      [PU] D3| [I/GPIO0]   pushbutton
+# OneWire Thermmtr [T/GPIO13] |D7  [PU,LED] D4| [O/GPIO2]   Blue LED
+#         RGB LED  [L/GPIO15] |D8 [PD]       G| Ground
+#                       3.3V  |3V3          5V| +5V
+#                             |_______________|
+#  Available Pin Modes:
+#  INPUT / OUTPUT / OPEN_DRAIN / #  INPUT_PULLUP 
+#  INPUT_PULLDOWN (only on ESP8266 and only on GPIO16)
+
+# =======================================================
+#  WeMos Modules
+# =======================================================
+#  Motor Shield    D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#                  RST	RST
+#                  VM: Motor power supply + (Max 15Vdc)
+#                  GND: Motor power supply -
+#                  1-A-2: Motor A
+#                  2-B-1: Motor B
+#  OLED Screen     D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#  DHT Shield      D1	SCL (I2C)
+#                  D2	SDA
+#  Relay           D1	Relay
+#  WS2812B RGB     D2	WS2812B
+#  DS18B20         D2   Temperature
+#  1 Button        D3   Button
+#  SD Card         D5	CLK
+#                  D6	MISO
+#                  D7	MOSI
+#                  D8	CS
+
+# ======================================================
 # OUTPUTS
 # ======================================================
 switch:
   # PIN: D0 [DEEP-SLEEP]
-  #  - platform: gpio
-  #    name: "${pin_prefix_upper}0"
-  #    id: ${pin_prefix}0
-  #    pin:
-  #        number: GPIO16
-  #        inverted: False
-  #        mode: OUTPUT
+  - platform: gpio
+    name: "${pin_prefix_upper}0"
+    id: ${pin_prefix}0
+    pin:
+        number: GPIO16
+        inverted: False
+        mode: OUTPUT
   # PIN: D1 [SCL/I2C]
   #  - platform: gpio
   #    name: "${pin_prefix_upper}1"
@@ -87,13 +144,13 @@ switch:
       number: GPIO14
       inverted: False
       mode: OUTPUT
-  # PIN: D6
+  # PIN: D6  [BUZZER]
   - platform: gpio
     name: "${pin_prefix_upper}6"
     id: ${pin_prefix}6
     pin:
       number: GPIO12
-      inverted: False
+      inverted: true
       mode: OUTPUT
 #  # PIN: D7
 #  - platform: gpio
@@ -103,14 +160,14 @@ switch:
 #      number: GPIO13
 #      inverted: False
 #      mode: OUTPUT
-  # PIN: D8  [OUTPUT-ONLY]
-  - platform: gpio
-    name: "${pin_prefix_upper}8"
-    id: ${pin_prefix}8
-    pin:
-      number: GPIO15
-      inverted: False
-      mode: OUTPUT
+#  # PIN: D8  [OUTPUT-ONLY]
+#  - platform: gpio
+#    name: "${pin_prefix_upper}8"
+#    id: ${pin_prefix}8
+#    pin:
+#      number: GPIO15
+#      inverted: False
+#      mode: OUTPUT
 
 # ======================================================
 # INPUTS
@@ -131,14 +188,52 @@ binary_sensor:
       mode: INPUT_PULLUP
 #    filters:
 #      - delayed_on_off: 10ms
-#    on_press: # Turn on internal Blue LED
-#      then:
-#        - switch.turn_off: ${pin_prefix}4
-##        - light.turn_on: "flash"
+    on_press: 
+      then:
+#        - switch.turn_off: ${pin_prefix}4   # Turn on internal Blue LED
+#        - light.turn_on: "flash"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'room_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "outside_temperature"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'outside_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "temperature"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "time"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'time'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "room_temperature"
+        - lambda: |-
+            id(page_selection).publish_state(id(next_page).state);
+
 #    on_release: # Turn off internal Blue LED
-#      then:
 #        - switch.turn_on: ${pin_prefix}4
-#        - light.turn_off: "flash"
+##        - light.turn_off: "flash"
     on_click:
       min_length: 20ms
       max_length: 250ms
@@ -157,6 +252,7 @@ binary_sensor:
             service: switch.toggle
             data:
               entity_id: switch.aquarium
+
 # ---------------------------------------v----------------
 # reed switch sensor
 # PIN: D5
@@ -169,7 +265,10 @@ binary_sensor:
 #        inverted: False
 #        mode: INPUT_PULLUP
 # -------------------------------------------------------
+
 text_sensor:
+  - platform: template
+    id: next_page
   - platform: homeassistant
     id: page_selection
     entity_id: input_select.screen_$devicename
@@ -190,6 +289,13 @@ text_sensor:
                 state: 'room_temperature'
             then: 
               display.page.show: page_room_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'outside_temperature'
+            then: 
+              display.page.show: page_outside_temperature
         - if:
             condition:
               text_sensor.state:
@@ -225,6 +331,13 @@ text_sensor:
                 state: 'page_2'
             then: 
               display.page.show: page_2
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'version'
+            then: 
+              display.page.show: page_version
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -262,6 +375,7 @@ text_sensor:
     id: ha_msg_3
     entity_id: input_text.msg_3_$devicename
     internal: true
+
 # -------------------------------------------------------
 time:
   - platform: homeassistant
@@ -284,6 +398,10 @@ sensor:
     id: ha_room_temperature
     entity_id: sensor.lodge_thermostat_temperature
     internal: true
+  - platform: homeassistant
+    id: ha_outside_temperature
+    entity_id:  sensor.dark_sky_apparent_temperature
+    internal: true
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
   #  - platform: dht
@@ -299,6 +417,7 @@ sensor:
   #            - switch.turn_off: d1
   #    temperature:
   #      name: $upper_devicename Temperature
+
   # -------------------------------------------------------
   # [Temperature] DS18B20 configuration
   - platform: dallas
@@ -318,29 +437,29 @@ dallas:
 # ======================================================
 # DISPLAYs
 # ======================================================
+#output:
+#  - platform: esp8266_pwm
+#    pin: GPIO2   # pin D4 [LED}]
+#    frequency: 5 Hz
+#    id: "flash_Blue_LED"
+
+light:
+#  - platform: monochromatic
+#    output: "flash_Blue_LED"
+#    name: "flash"
+
+# ----------------------------------------------------
 # WeMos WS2812B RGB Shield
 # LED SIZE: 5050   colors: 16777216  Voltage: 5V
 # PINS  D2 [GPIO4] ; 5V ; GND
-#
 # ----------------------------------------------------
-output:
-  - platform: esp8266_pwm
-    pin: GPIO2   # pin D4 [LED}]
-    frequency: 5 Hz
-    id: "flash_Blue_LED"
-light:
-  - platform: monochromatic
-    output: "flash_Blue_LED"
-    name: "flash"
-
-# ----------------------------------------------------
-#  - platform: fastled_clockless
-#    chipset: WS2812B
-#    id: rgb_light
-#    pin: GPIO4
-#    num_leds: 1
-#    rgb_order: GRB
-#    name: "$devicename FastLED"
+  - platform: fastled_clockless
+    chipset: WS2812B
+    id: rgb_light
+    pin: GPIO15       # pin D8
+    num_leds: 1
+    rgb_order: GRB
+    name: "FastLED $devicename"
 # ----------------------------------------------------
 # WeMos OLED Shield 1.1
 # Description: 64x48 pixels (0.66” Across) OLED Shield with I2C
@@ -375,7 +494,7 @@ i2c:
 display:
   - platform: ssd1306_i2c
     model: "SSD1306 64x48"
-    reset_pin: GPIO16 # D0
+#    reset_pin: GPIO16 # D0
     address: 0x3C
     id: this_display
     pages:
@@ -393,19 +512,26 @@ display:
           it.draw_pixel_at($w - 1, $h - 1);
       - id: page_temperature
         lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "%s", id(ha_title).state.c_str());
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_large),                 "%.1f", id(tp1).state);
+          it.printf( 0, 37, id(font_large), "%.1f", id(tp1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_room_temperature
         lambda: |-
-          it.printf($w2,  5, id(font_small), TextAlign::CENTER,    "%s",id(ha_title_2).state.c_str());
-          it.printf($w2, 16, id(font_small), TextAlign::CENTER,             id(ha_msg).state.c_str());
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
           it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "%.1f", id(ha_room_temperature).state);
-          it.line(0, 0,  $w, 0);
-          it.line(0, 22, $w, 22);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_outside_temperature
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
+          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "%.1f", id(ha_outside_temperature).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_image_ha
@@ -444,8 +570,8 @@ display:
           it.draw_pixel_at($w - 1, $h - 1);
       - id: page_version
         lambda: |-
-          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,   "Version:");
-          it.printf( 0, 37, id(font_time),  "${version}");
+          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
+          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -488,69 +614,5 @@ interval:
           then:
             - display.page.show_next: this_display
             - component.update: this_display
-# =======================================================
-#   WeMos D1 Mini Pins
-# =======================================================
-#   Pin     Function        ESP-8266 Pin
-#   ---     ---------       -------------
-#   TX	    TXD             TXD
-#   RX	    RXD             RXD
-#   A0	    Analog input,   A0
-#           max 3.3V input
-#   D0	    IO              GPIO16
-#   D1	    IO, SCL         GPIO5
-#   D2	    IO, SDA         GPIO4
-#   D3	    IO, 10k Pull-up GPIO0
-#   D4	    IO, 10k Pull-up,
-#               BUILTIN_LED  GPIO2
-#   D5	    IO, SCK         GPIO14
-#   D6	    IO, MISO        GPIO12
-#   D7	    IO, MOSI        GPIO13
-#   D8	    IO, 10k         GPIO15
-#           Pull-down, SS
-#   G	    Ground          GND
-#   5V	    5V	-
-#   3V3	    3.3V            3.3V
-#   RST	    Reset           RST
-# -------------------------------------------------------
-# PIN CONFIGURATION
-# -------------------------------------------------------
-#  Available Pin Modes:
 #
-#  INPUT
-#  OUTPUT
-#  OUTPUT_OPEN_DRAIN
-#  ANALOG (only on ESP32)
-#  INPUT_PULLUP
-#  INPUT_PULLDOWN (only on ESP32)
-#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
-# =======================================================
-#  WeMos Modules
-# =======================================================
-#  Motor Shield    D1	SCL (I2C)
-#                  D2	SDA (I2C)
-#                  RST	RST
-#                  VM: Motor power supply + (Max 15Vdc)
-#                  GND: Motor power supply -
-#                  1-A-2: Motor A
-#                  2-B-1: Motor B
-#
-#  OLED Screen     D1	SCL (I2C)
-#                  D2	SDA (I2C)
-#
-#  DHT Shield      D1	SCL (I2C)
-#                  D2	SDA
-#
-#  Relay           D1	Relay
-#
-#  WS2812B RGB     D2	WS2812B
-#
-#  DS18B20         D2   Temperature
-#
-#  1 Button        D3   Button
-#
-#  SD Card         D5	CLK
-#                  D6	MISO
-#                  D7	MOSI
-#                  D8	CS
-# =======================================================
+
