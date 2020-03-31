@@ -552,6 +552,10 @@ sensor:
     id: ha_outside_temperature
     entity_id:  sensor.dark_sky_apparent_temperature
     internal: true
+  - platform: homeassistant
+    id: comed_price
+    entity_id:  sensor.comed_price
+
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
   #  - platform: dht
@@ -669,6 +673,7 @@ font:
   - file: fonts/$font
     id: font_normal
     size: 14
+    glyphs: '$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
   - file: fonts/$font
     id: font_large
     size: 22
@@ -684,7 +689,8 @@ image:
     id: image_fish_2
   - file: icons/NU_30_48_2.png
     id: image_nu
-  - file: icons/techDogs_64_18.png
+#  - file: icons/techDogs_64_18.png
+  - file: icons/techDogs_64_18_mod.png
     id: image_techdogs
   - file: icons/is_head_bw_41_48.png
     id: image_redbird
@@ -754,7 +760,7 @@ display:
       - id: page_outside_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(ha_outside_temperature).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_outside_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -767,6 +773,14 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_comed_price
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(comed_price).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_image_techdogs
         lambda: |-
           it.image(0, 0, id(image_techdogs));
