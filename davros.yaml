@@ -687,9 +687,32 @@ image:
   - file: icons/techDogs_64_18.png
     id: image_techdogs
   - file: icons/is_head_bw_41_48.png
-#  - file: is_head_bw_reverse_48.png
     id: image_redbird
-#    resize: 48x48
+  - file: icons/weather-sunset.png
+    id: image_sunset
+  - file: icons/weather-sunset-up.png
+    id: image_sunrise
+  - file: icons/thermometer.png
+    id: image_thermometer
+  - file: icons/thermostat.png
+    id: image_thermostat
+  - file: icons/temperature-fahrenheit.png
+    id: image_fahrenheit
+  - file: icons/weather-night.png
+    id: image_weather_night
+  - file: icons/theme-light-dark.png
+    id: image_theme_light_dark
+  - file: icons/weather-sunny.png
+    id: image_theme_weather_sunny
+  - file: icons/weather-partly-cloudy.png
+    id: image_weather_partly_cloudy
+  - file: icons/weather-pouring.png
+    id: image_weather_pouring
+  - file: icons/home-thermometer.png
+    id: image_home_thermometer
+  - file: icons/flash.png
+    id: image_flash
+
 i2c:
   scl: GPIO5 # D1
   sda: GPIO4 # D2
@@ -744,6 +767,13 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_techdogs
+        lambda: |-
+          it.image(0, 0, id(image_techdogs));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
@@ -772,13 +802,84 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_techdogs
+      - id: page_image_sunset
         lambda: |-
-          it.image(0, 16, id(image_techdogs));
+          it.image(8, 0, id(image_sunset));
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_sunrise
+        lambda: |-
+          it.image(8, 0, id(image_sunrise));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_thermometer
+        lambda: |-
+          it.image(8, 0, id(image_thermometer));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_thermostat
+        lambda: |-
+          it.image(8, 0, id(image_thermostat));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_fahrenheit
+        lambda: |-
+          it.image(8, 0, id(image_fahrenheit));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_weather_night
+        lambda: |-
+          it.image(8, 0, id(image_weather_night));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_theme_light_dark
+        lambda: |-
+          it.image(8, 0, id(image_theme_light_dark));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_theme_weather_sunny
+        lambda: |-
+          it.image(8, 0, id(image_theme_weather_sunny));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_weather_partly_cloudy
+        lambda: |-
+          it.image(8, 0, id(image_weather_partly_cloudy));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_home_thermometer
+        lambda: |-
+          it.image(8, 0, id(image_home_thermometer));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_flash
+        lambda: |-
+          it.image(8, 0, id(image_flash));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_1
         lambda: |-
           it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title_3).state.c_str());
