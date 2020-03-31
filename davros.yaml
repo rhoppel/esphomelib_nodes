@@ -553,8 +553,11 @@ sensor:
     entity_id:  sensor.dark_sky_apparent_temperature
     internal: true
   - platform: homeassistant
-    id: comed_price
+    id: ha_comed_price
     entity_id:  sensor.comed_price
+  - platform: homeassistant
+    id: ha_thermostat
+    entity_id:  sensor.lodge_thermostat_target
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -746,7 +749,7 @@ display:
           it.draw_pixel_at($w - 1, $h - 1);
       - id: page_temperature
         lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${devicename}");
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(temperature_sensor_1).state);
@@ -756,6 +759,14 @@ display:
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "°", id(ha_room_temperature).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_thermostat
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "°", id(ha_thermostat).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -779,7 +790,7 @@ display:
       - id: page_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "¢", id(comed_price).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "¢", id(ha_comed_price).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
