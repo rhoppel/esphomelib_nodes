@@ -1,0 +1,829 @@
+# ======================================================
+# WeMoS D1 Mini / ESPhome Template
+# v.1
+# changelog:
+#   inital: 4/1/2020
+# ======================================================
+# Changelog
+# ----
+# - 0.7.1 add light effects to rgb_light
+# - 0.7.1 add NU logo
+# - 0.7.1 added font substitution/ changed "font" to lucon.ttf
+# ---
+substitutions:
+  version: "0.7.1"
+  devicename: davros
+  upper_devicename: Davros
+  pin_prefix_upper: D_D
+  pin_prefix: d_d
+  font: lucon.ttf
+  font_number: arial.ttf
+
+# screen constants
+  w:  "64"  # width of screen
+  w2: "32"  # width / 2
+  h:  "48"  # height of screen
+  h2: "24"  # height /2
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: d1_mini
+  
+# ======================================================
+wifi:
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password
+#mqtt:
+#  broker: '192.168.111.250'
+#  username: ''
+#  password: ''
+#  discovery: clean
+# ----------------------------------------------------
+api: # enable API communication
+logger: # enable logging
+  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+ota: # enable OTA over the air updates
+
+# ======================================================
+#   WeMOS D1 mini PIN Usage
+# ======================================================
+# insert the following into a Markdown page
+# ------------------------------------------------------
+# # Wildcat [esphome]
+# ### 192.168.111.116
+#                          ___________
+#                    [RST] |Reset  RX| [RX]
+#            PhotoResistor |A0     TX| [TX]
+#                      [O] |D0     D1| [SCL] OLED
+#                      [O] |D5     D2| [SDA] OLED
+#               Buzzer [O] |D6     D3| [I]   pushbutton
+#    OneWire Thermmtr  [S] |D7     D4| [O]   Blue LED
+#             RGB LED  [L] |D8      G| GND
+#                          |3V3    5V| +5V
+#                          |_________|
+#        I/input O/output L/light S/sensor SCL/SDA/I2C bus
+#                             _________________
+#                       [RST] |Reset        RX| [RXD]
+#    PhotoResistor [Max 3.3V] |A0           TX| [TXD]
+#                  [O/GPIO16] |D0           D1| [SCL/GPIO5] OLED
+#                  [O/GPIO14] |D5           D2| [SDA/GPIO4] OLED
+#           Buzzer [O/GPIO12] |D6      [PU] D3| [I/GPIO0]   pushbutton
+# OneWire Thermmtr [T/GPIO13] |D7  [PU,LED] D4| [O/GPIO2]   Blue LED
+#         RGB LED  [L/GPIO15] |D8 [PD]       G| Ground
+#                       3.3V  |3V3          5V| +5V
+#                             |_______________|
+#  Available Pin Modes:
+#  INPUT / OUTPUT / OUTPUT_OPEN_DRAIN / #  INPUT_PULLUP 
+#  INPUT_PULLDOWN (only on ESP8266 and only on GPIO16)
+
+# =======================================================
+#  WeMos Modules
+# =======================================================
+#  Motor Shield    D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#                  RST	RST
+#                  VM: Motor power supply + (Max 15Vdc)
+#                  GND: Motor power supply -
+#                  1-A-2: Motor A
+#                  2-B-1: Motor B
+#  OLED Screen     D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#  DHT Shield      D1	SCL (I2C)
+#                  D2	SDA
+#  Relay           D1	Relay
+#  WS2812B RGB     D2	WS2812B
+#  DS18B20         D2   Temperature
+#  1 Button        D3   Button
+#  SD Card         D5	CLK
+#                  D6	MISO
+#                  D7	MOSI
+#                  D8	CS
+
+# ======================================================
+# OUTPUTS
+# ======================================================
+switch:
+  # PIN: D0 [DEEP-SLEEP]
+  - platform: gpio
+    name: "${pin_prefix_upper}0"
+    id: ${pin_prefix}0
+    pin:
+        number: GPIO16
+        inverted: False
+        mode: OUTPUT
+  # PIN: D1 [SCL/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}1"
+  #    id: ${pin_prefix}1
+  #    pin:
+  #        number: GPIO5
+  #        inverted: False
+  #        mode: INPUT_PULLUP
+  # PIN: D2 [SDA/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}2"
+  #    id: ${pin_prefix}2
+  #    pin:
+  #        number: GPIO4
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D3  [OUTPUT-ONLY]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}3"
+  #    id: ${pin_prefix}3
+  #    pin:
+  #        number: GPIO0
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D4  [LED / OUTPUT-ONLY]
+  - platform: gpio
+    name: "${pin_prefix_upper}4_LED"
+    id: ${pin_prefix}4
+    pin:
+      number: GPIO2
+      inverted: True
+      mode: OUTPUT
+  # PIN: D5
+  - platform: gpio
+    name: "${pin_prefix_upper}5"
+    id: ${pin_prefix}5
+    pin:
+      number: GPIO14
+      inverted: False
+      mode: OUTPUT
+  # PIN: D6  [BUZZER]
+  - platform: gpio
+    name: "${pin_prefix_upper}6"
+    id: ${pin_prefix}6
+    pin:
+      number: GPIO12
+      inverted: true
+      mode: OUTPUT_OPEN_DRAIN
+#  # PIN: D7
+#  - platform: gpio
+#    name: "${pin_prefix_upper}7"
+#    id: ${pin_prefix}7
+#    pin:
+#      number: GPIO13
+#      inverted: False
+#      mode: OUTPUT
+#  # PIN: D8  [OUTPUT-ONLY]
+#  - platform: gpio
+#    name: "${pin_prefix_upper}8"
+#    id: ${pin_prefix}8
+#    pin:
+#      number: GPIO15
+#      inverted: False
+#      mode: OUTPUT
+
+# ======================================================
+# INPUTS
+# ======================================================
+
+binary_sensor:
+  - platform: homeassistant
+    id: static_screen
+    entity_id: input_boolean.static_screen_$devicename
+    internal: true
+  # WeMos 1-Button Shield
+  # PINS:  D3[GPIO0] GND
+  - platform: gpio
+    name: "${pin_prefix_upper}3_button"
+    pin:
+      number: GPIO0
+      inverted: false
+      mode: INPUT_PULLUP
+#    filters:
+#      - delayed_on_off: 10ms
+    on_press: 
+      then:
+#        - switch.turn_off: ${pin_prefix}4   # Turn on internal Blue LED
+#        - light.turn_on: "flash"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'room_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "outside_temperature"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'outside_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "temperature"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "time"
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'time'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: "room_temperature"
+        - lambda: |-
+            id(page_selection).publish_state(id(next_page).state);
+
+#    on_release: # Turn off internal Blue LED
+#        - switch.turn_on: ${pin_prefix}4
+##        - light.turn_off: "flash"
+    on_click:
+      min_length: 20ms
+      max_length: 150ms
+      then:
+        - switch.toggle: ${pin_prefix}5
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.lava
+    on_double_click:  # Toggle aquarium switch
+      min_length: 150ms
+      max_length: 350ms
+      then:
+        - switch.toggle: ${pin_prefix}4
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.aquarium
+
+# ---------------------------------------v----------------
+# reed switch sensor
+# PIN: D5
+#  - platform: gpio
+#    name: "${pin_prefix_upper}5_sense"
+#    device_class: door
+#    id: ${pin_prefix}5_sense
+#    pin:
+#        number: GPIO14
+#        inverted: False
+#        mode: INPUT_PULLUP
+# -------------------------------------------------------
+
+text_sensor:
+  - platform: template
+    id: "next_page"
+    internal: true
+  - platform: homeassistant
+    id: page_selection
+    internal: true
+    entity_id: input_select.screen_$devicename
+    on_value:
+      then:
+        - display.page.show: page_time
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'cycle'
+            then: 
+              display.page.show_next: this_display
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'room_temperature'
+            then: 
+              display.page.show: page_room_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'outside_temperature'
+            then: 
+              display.page.show: page_outside_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'temperature'
+            then: 
+              display.page.show: page_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_ha'
+            then: 
+              display.page.show: page_image_ha
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_fish'
+            then: 
+              display.page.show: page_image_fish
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_nu'
+            then: 
+              display.page.show: page_image_nu
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_redbird'
+            then: 
+              display.page.show: page_image_redbird
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_techdogs'
+            then: 
+              display.page.show: page_image_techdogs
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'page_1'
+            then: 
+              display.page.show: page_1
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'page_2'
+            then: 
+              display.page.show: page_2
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'version'
+            then: 
+              display.page.show: page_version
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'page_3'
+#            then: 
+#              display.page.show: page_3
+        - component.update: this_display
+
+  - platform: homeassistant
+    internal: true
+    id: light_effects_selection
+    entity_id: input_select.light_effects_$devicename
+    on_value:
+      then:
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'strobe'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: strobe
+#                  brightness: 1.0
+#                  red: 1.0
+#                  green: 1.0
+#                  blue: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'random'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: random
+#                  brightness: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'flicker'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: flicker
+#                  brightness: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'blue'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 0.0
+                  green: 0.0
+                  blue: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'green'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 0.0
+                  green: 1.0
+                  blue: 0.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'red'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 1.0
+                  green: 0.0
+                  blue: 0.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'white'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 1.0
+                  green: 1.0
+                  blue: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'purple'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 0.5
+                  green: 0.0
+                  blue: 1.0
+  - platform: homeassistant
+    id: ha_title
+    entity_id: input_text.title_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_title_2
+    entity_id: input_text.title_2_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg
+    entity_id: input_text.msg_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_title_3
+    entity_id: input_text.title_3_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_1
+    entity_id: input_text.msg_1_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_2
+    entity_id: input_text.msg_2_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_3
+    entity_id: input_text.msg_3_$devicename
+    internal: true
+
+# -------------------------------------------------------
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  # Screen Selection
+  - platform: homeassistant
+    id: ha_screen
+    entity_id: input_number.screen_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_number
+    entity_id: input_number.number_$devicename
+    internal: true
+#  - platform: homeassistant
+#    id: ha_temperature
+#    entity_id: sensor.temperature_$devicename
+#    internal: true
+  - platform: homeassistant
+    id: ha_room_temperature
+    entity_id: sensor.lodge_thermostat_temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_outside_temperature
+    entity_id:  sensor.dark_sky_apparent_temperature
+    internal: true
+  # -------------------------------------------------------
+  #  Temperature / Humidity Sensor
+  #  - platform: dht
+  #    pin: D9
+  #    humidity:
+  #      name: $upper_devicename Humidity"
+  #      on_value_range:
+  #        - above: 65.0
+  #          then:
+  #            - switch.turn_on: d1
+  #        - below: 50.0
+  #          then:
+  #            - switch.turn_off: d1
+  #    temperature:
+  #      name: $upper_devicename Temperature
+
+  # -------------------------------------------------------
+  # [Temperature] DS18B20 configuration
+  - platform: dallas
+#    address: 0x810416846B52FF28
+    address: 0x440416640685FF28
+    #    index: 0
+    name: temperature_1_$devicename
+    id: temperature_sensor_1
+#       Convert Centrigrade to Farenheit
+    filters:
+      - lambda: return x * (9.0/5.0) + 32.0;
+    unit_of_measurement: "°F"
+dallas:
+  - pin: D7
+    id: dallas_hub
+    update_interval: 120s
+
+# ======================================================
+# DISPLAYs
+# ======================================================
+#output:
+#  - platform: esp8266_pwm
+#    pin: GPIO2   # pin D4 [LED}]
+#    frequency: 5 Hz
+#    id: "flash_Blue_LED"
+
+light:
+#  - platform: monochromatic
+#    output: "flash_Blue_LED"
+#    name: "flash"
+
+# ----------------------------------------------------
+# WeMos WS2812B RGB Shield
+# LED SIZE: 5050   colors: 16777216  Voltage: 5V
+# PINS  D2 [GPIO4] ; 5V ; GND
+# ----------------------------------------------------
+  - platform: fastled_clockless
+    chipset: WS2812B
+    id: rgb_light
+    pin: GPIO15       # pin D8
+    num_leds: 1
+    rgb_order: GRB
+    name: "FastLED $devicename"
+    effects:
+ 
+      - strobe:
+      - random:
+      - flicker:
+      - lambda:
+          name: Custom Effect 1
+          update_interval: 1s
+          lambda: |-
+            static int state = 0;
+            auto call = id(rgb_light).turn_on();
+            // Transtion of 1000ms = 1s
+            call.set_transition_length(1000);
+            if (state == 0) {
+              call.set_rgb(1.0, 1.0, 1.0);
+            } else if (state == 1) {
+              call.set_rgb(1.0, 0.0, 1.0);
+            } else if (state == 2) {
+              call.set_rgb(0.0, 0.0, 1.0);
+            } else {
+              call.set_rgb(1.0, 0.0, 0.0);
+            }
+            call.perform();
+            state += 1;
+            if (state == 4)
+              state = 0;
+#      - white:
+#          name: White
+#          colors: 
+#            red: 1.0
+#            green: 1.0
+#            blue: 1.0
+#      - blue:
+#      - green:
+#      - orange:
+#      - purple:
+#      - red:
+#      - yellow:
+
+
+
+# ----------------------------------------------------
+# WeMos OLED Shield 1.1
+# Description: 64x48 pixels (0.66” Across) OLED Shield with I2C
+# Operating Voltage: 3.3V
+# Driver IC: SSD1306
+# IIC Address: 0x3C or 0x3D
+# PINS D1[SCL] ; D2[SDA] ; 3.3V; GND
+font:
+  - file: $font_number
+    id: font_time
+    size: 21
+  - file: $font
+    id: font_small
+    size: 10
+  - file: $font
+    id: font_normal
+    size: 14
+  - file: $font
+    id: font_large
+    size: 22
+  - file: $font_number
+    id: font_temperature
+    size: 32
+image:
+  - file: "esphome_2a_54_48.png"
+    id: image_ha
+  - file: "fish_48_48.png"
+    id: image_fish
+  - file: "fish_36_28.png"
+    id: image_fish_2
+  - file: NU__48_2.png
+    id: image_nu
+  - file: techDogs_48.png
+    id: image_techdogs
+  - file: is_head_bw_48.png
+#  - file: is_head_bw_reverse_48.png
+    id: image_redbird
+#    resize: 48x48
+i2c:
+  scl: GPIO5 # D1
+  sda: GPIO4 # D2
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+#    reset_pin: GPIO16 # D0
+    address: 0x3C
+    id: this_display
+    pages:
+#      - id: blank
+#        lambda: |-
+#          it.clear();
+      - id: page_time
+        lambda: |-
+          it.strftime(0, 0, id(font_normal), "%A",     id(ha_time).now());
+          it.strftime(8, 14, id(font_normal), "%b-%d", id(ha_time).now());
+          it.strftime(3, 28, id(font_time), "%I:%M", id(ha_time).now());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_temperature
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Davros");
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.printf( 0, 37, id(font_temperature), "%.1f", id(temperature_sensor_1).state);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_room_temperature
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(ha_room_temperature).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_outside_temperature
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f", id(ha_outside_temperature).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_version
+        lambda: |-
+          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
+          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_ha
+        lambda: |-
+          it.image(5, 0, id(image_ha));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_fish
+        lambda: |-
+          it.image(5, 0, id(image_fish));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_nu
+        lambda: |-
+          it.image(16, 0, id(image_nu));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_redbird
+        lambda: |-
+          it.image(16, 0, id(image_redbird));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_techdogs
+        lambda: |-
+          it.image(0, 16, id(image_techdogs));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_1
+        lambda: |-
+          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title_3).state.c_str());
+          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.line(0, 16, $w, 16);
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_2
+        lambda: |-
+          it.printf( 3,  10, id(font_small), " width: %i", it.get_width());
+          it.printf( 3,  20, id(font_small), "height: %i", it.get_height());
+          it.printf($w2, 30, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_3
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "techDogs");
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.line(0, 20, $w, 20);
+          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_3              # an attempt at animation
+#        lambda: |-
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#          it.image(5, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(8, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(11, 0,id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(14, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(17, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(20, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+#          it.image(23, 0, id(image_fish_2));
+#          id(this_display).update();
+#          it.clear();
+interval:
+  - interval: 3s
+    then:
+      - if:
+          condition:
+            text_sensor.state:
+              id: page_selection
+              state: 'cycle'
+          then:
+            - display.page.show_next: this_display
+            - component.update: this_display
+#
+
