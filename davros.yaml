@@ -361,6 +361,27 @@ text_sensor:
                 state: 'image_redbird'
             then: 
               display.page.show: page_image_redbird
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'comed'
+            then: 
+              display.page.show: page_comed_price
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'sunrise'
+            then: 
+              display.page.show: page_sunrise
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'sunset'
+            then: 
+              display.page.show: page_sunset
 #        - if:
 #            condition:
 #              text_sensor.state:
