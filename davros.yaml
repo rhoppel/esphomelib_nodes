@@ -191,10 +191,17 @@ switch:
 # ======================================================
 
 binary_sensor:
+
+  - platform: homeassistant
+    id: alarm
+    entity_id: input_boolean.alarm_$devicename
+    internal: true
+
   - platform: homeassistant
     id: static_screen
     entity_id: input_boolean.static_screen_$devicename
     internal: true
+
   # WeMos 1-Button Shield
   # PINS:  D3[GPIO0] GND
   - platform: gpio
@@ -409,7 +416,7 @@ text_sensor:
                 id: page_selection
                 state: 'page_2'
             then: 
-              display.page.show: page_3
+              display.page.show: page_2
         - if:
             condition:
               text_sensor.state:
@@ -417,13 +424,13 @@ text_sensor:
                 state: 'version'
             then: 
               display.page.show: page_image_home_thermometer
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: page_selection
-#                state: 'page_3'
-#            then: 
-#              display.page.show: page_3
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'page_3'
+            then: 
+              display.page.show: page_3
         - component.update: this_display
 
   - platform: homeassistant
@@ -578,6 +585,10 @@ time:
 
 sensor:
   # Screen Selection
+  - platform: homeassistant
+    id: ha_aquarium
+    entity_id: sensor.temperature_wildcat
+    internal: true
   - platform: homeassistant
     id: ha_screen
     entity_id: input_number.screen_$devicename
@@ -758,8 +769,6 @@ image:
     id: image_thermometer
   - file: icons/thermostat.png
     id: image_thermostat
-  - file: icons/temperature-fahrenheit.png
-    id: image_fahrenheit
   - file: icons/weather-night.png
     id: image_weather_night
   - file: icons/theme-light-dark.png
@@ -776,6 +785,10 @@ image:
     id: image_flash
   - file: icons/alarm-light.png
     id: image_alarm_light
+  - file: icons/alarm-light-outline.png
+    id: image_alarm_light_outline
+  - file: icons/pool.png
+    id: image_pool
 
 i2c:
   scl: GPIO5 # D1
@@ -847,28 +860,30 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
-#      - id: page_image_fahrenheit
-#        lambda: |-
-#          it.image(8, 0, id(image_fahrenheit));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
-
-      - id: page_image_fish
-        lambda: |-
-          it.image(5, 0, id(image_fish));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-
       - id: page_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(temperature_sensor_1).state);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_fish
+        lambda: |-
+          it.image(5, 0, id(image_fish));
+          it.rectangle(0, 0, 64, 48);
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_aquarium_temperature
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(ha_aquarium).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
@@ -1010,15 +1025,17 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-#      - id: page_2
-#
-#          it.printf( 3,  10, id(font_small), " width: %i", it.get_width());
-#          it.printf( 3,  20, id(font_small), "height: %i", it.get_height());
-#          it.printf($w2, 30, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_2
+        lambda: |-
+          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
+          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
+          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_3
         lambda: |-
@@ -1067,6 +1084,23 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
+      - id: page_image_alarm_outline
+        lambda: |-
+          it.image(8, 0, id(image_alarm_light_outline));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_pool
+        lambda: |-
+          it.image(8, 0, id(image_pool));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+
 interval:
   - interval: 3s
     then:
@@ -1074,7 +1108,7 @@ interval:
           condition:
             text_sensor.state:
               id: page_selection
-              state: 'cycle'
+              state: cycle
           then:
             - display.page.show_next: this_display
             - component.update: this_display
