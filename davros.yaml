@@ -9,12 +9,13 @@
 # 
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
 #       - fix screen advancing 
-# 0.7.1 - add light effects to rgb_light
+#       - add more graphics; rearrange screens
+# v0.71 - add light effects to rgb_light
 #          add NU logo
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.7.2"
+  version: "v0.8"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -27,6 +28,12 @@ substitutions:
   w2: "32"  # width / 2
   h:  "48"  # height of screen
   h2: "24"  # height /2
+
+sun:
+#  latitude: 42.3308673°
+#  longitude: -87.98°
+  latitude:   42.3308
+  longitude: -87.9935
 
 esphome:
   name: $devicename
@@ -277,6 +284,17 @@ binary_sensor:
 # -------------------------------------------------------
 
 text_sensor:
+  - platform: sun
+    name: Sun Next Sunrise
+    type: sunrise
+    internal: true
+    id: sunrise
+  - platform: sun
+    name: Sun Next Sunset
+    type: sunset
+    internal: true
+    id: sunset
+
   - platform: template
     id: "next_page"
     internal: true
@@ -343,13 +361,13 @@ text_sensor:
                 state: 'image_redbird'
             then: 
               display.page.show: page_image_redbird
-        - if:
-            condition:
-              text_sensor.state:
-                id: page_selection
-                state: 'image_techdogs'
-            then: 
-              display.page.show: page_image_techdogs
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'image_techdogs'
+#            then: 
+#              display.page.show: page_image_techdogs
         - if:
             condition:
               text_sensor.state:
@@ -363,14 +381,14 @@ text_sensor:
                 id: page_selection
                 state: 'page_2'
             then: 
-              display.page.show: page_2
+              display.page.show: page_3
         - if:
             condition:
               text_sensor.state:
                 id: page_selection
                 state: 'version'
             then: 
-              display.page.show: page_version
+              display.page.show: page_image_home_thermometer
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -558,6 +576,12 @@ sensor:
   - platform: homeassistant
     id: ha_thermostat
     entity_id:  sensor.lodge_thermostat_target
+#  - platform: homeassistant
+#    id: ha_sunset
+#    entity_id:  sensor.sunset
+#  - platform: homeassistant
+#    id: ha_sunrise
+#    entity_id:  sensor.sunrise
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -619,7 +643,7 @@ light:
     rgb_order: GRB
     name: "FastLED $devicename"
     effects:
- 
+
       - strobe:
       - random:
       - flicker:
@@ -657,8 +681,6 @@ light:
 #      - red:
 #      - yellow:
 
-
-
 # ----------------------------------------------------
 # WeMos OLED Shield 1.1
 # Description: 64x48 pixels (0.66” Across) OLED Shield with I2C
@@ -684,7 +706,7 @@ font:
     id: font_temperature
 #    size: 32
     size: 27
-    glyphs: '¢$%-_.:°0123456789'
+    glyphs: '¢$% -_.:°0123456789'
 
 image:
   - file: icons/esphome_54_48.png
@@ -740,13 +762,77 @@ display:
 #          it.clear();
       - id: page_time
         lambda: |-
-          it.strftime(0, 0, id(font_normal), "%A",     id(ha_time).now());
+          it.strftime(0, 0,  id(font_normal), "%A",    id(ha_time).now());
           it.strftime(8, 14, id(font_normal), "%b-%d", id(ha_time).now());
-          it.strftime(3, 28, id(font_time), "%I:%M", id(ha_time).now());
+          it.strftime(3, 28, id(font_time),   "%I:%M", id(ha_time).now());
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_sunrise
+        lambda: |-
+          it.image(8, 0, id(image_sunrise));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_sunrise
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
+          it.printf(5, 25, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_sunset
+        lambda: |-
+          it.image(8, 0, id(image_sunset));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_sunset
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
+          it.printf(5, 25, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_thermometer
+        lambda: |-
+          it.image(8, 0, id(image_thermometer));
+          it.print(0, 0, id(font_normal),  "°F");
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+#      - id: page_image_fahrenheit
+#        lambda: |-
+#          it.image(8, 0, id(image_fahrenheit));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_fish
+        lambda: |-
+          it.image(5, 0, id(image_fish));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
@@ -755,6 +841,15 @@ display:
           it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(temperature_sensor_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_home_thermometer
+        lambda: |-
+          it.image(8, -5, id(image_home_thermometer));
+          it.print(20, 40, id(font_small), "${version}");
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_room_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -763,6 +858,15 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_thermostat
+        lambda: |-
+          it.image(8, 0, id(image_thermostat));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
@@ -771,6 +875,14 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_theme_light_dark
+        lambda: |-
+          it.image(8, 0, id(image_theme_light_dark));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_outside_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
@@ -779,10 +891,17 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_version
+#      - id: page_version
+#        lambda: |-
+#          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
+#          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_flash
         lambda: |-
-          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
-          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
+          it.image(8, 0, id(image_flash));
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -790,18 +909,19 @@ display:
       - id: page_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "¢", id(ha_comed_price).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
+          it.printf(55,30,id(font_normal), "¢");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_techdogs
-        lambda: |-
-          it.image(0, 0, id(image_techdogs));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_image_techdogs
+#        lambda: |-
+#          it.image(0, 0, id(image_techdogs));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
@@ -809,13 +929,7 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_fish
-        lambda: |-
-          it.image(5, 0, id(image_fish));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_image_nu
         lambda: |-
           it.image(16, 0, id(image_nu));
@@ -830,83 +944,30 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_sunset
-        lambda: |-
-          it.image(8, 0, id(image_sunset));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_sunrise
-        lambda: |-
-          it.image(8, 0, id(image_sunrise));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_thermometer
-        lambda: |-
-          it.image(8, 0, id(image_thermometer));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_thermostat
-        lambda: |-
-          it.image(8, 0, id(image_thermostat));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_fahrenheit
-        lambda: |-
-          it.image(8, 0, id(image_fahrenheit));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_weather_night
-        lambda: |-
-          it.image(8, 0, id(image_weather_night));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_theme_light_dark
-        lambda: |-
-          it.image(8, 0, id(image_theme_light_dark));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_theme_weather_sunny
-        lambda: |-
-          it.image(8, 0, id(image_theme_weather_sunny));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_weather_partly_cloudy
-        lambda: |-
-          it.image(8, 0, id(image_weather_partly_cloudy));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_home_thermometer
-        lambda: |-
-          it.image(8, 0, id(image_home_thermometer));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_flash
-        lambda: |-
-          it.image(8, 0, id(image_flash));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#
+#      - id: page_image_weather_night
+#        lambda: |-
+#          it.image(8, 0, id(image_weather_night));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#
+#      - id: page_image_theme_weather_sunny
+#        lambda: |-
+#          it.image(8, 0, id(image_theme_weather_sunny));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#
+#      - id: page_image_weather_partly_cloudy
+#        lambda: |-
+#          it.image(8, 0, id(image_weather_partly_cloudy));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_1
         lambda: |-
@@ -919,15 +980,15 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_2
-        lambda: |-
-          it.printf( 3,  10, id(font_small), " width: %i", it.get_width());
-          it.printf( 3,  20, id(font_small), "height: %i", it.get_height());
-          it.printf($w2, 30, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_2
+#
+#          it.printf( 3,  10, id(font_small), " width: %i", it.get_width());
+#          it.printf( 3,  20, id(font_small), "height: %i", it.get_height());
+#          it.printf($w2, 30, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_3
         lambda: |-
