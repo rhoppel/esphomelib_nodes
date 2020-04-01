@@ -382,6 +382,13 @@ text_sensor:
                 state: 'sunset'
             then: 
               display.page.show: page_sunset
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'alarm'
+            then: 
+              display.page.show: page_image_alarm
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -767,6 +774,8 @@ image:
     id: image_home_thermometer
   - file: icons/flash.png
     id: image_flash
+  - file: icons/alarm-light.png
+    id: image_alarm_light
 
 i2c:
   scl: GPIO5 # D1
@@ -1049,6 +1058,15 @@ display:
 #          it.image(23, 0, id(image_fish_2));
 #          id(this_display).update();
 #          it.clear();
+
+      - id: page_image_alarm
+        lambda: |-
+          it.image(8, 0, id(image_alarm_light));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
 interval:
   - interval: 3s
     then:
