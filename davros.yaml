@@ -6,7 +6,7 @@
 # ======================================================
 # Changelog
 # ---
-# 
+# 0.8   - add alarm graphics and sound
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
 #       - fix screen advancing 
 #       - add more graphics; rearrange screens
@@ -15,7 +15,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "v0.8"
+  version: "v0.8.3"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -161,6 +161,12 @@ switch:
       number: GPIO14
       inverted: False
       mode: OUTPUT
+    on_turn_on:
+      then:
+        - script.execute: beep_dot
+    on_turn_off:
+        - script.execute: beep_dash
+
   # PIN: D6  [BUZZER]
   - platform: gpio
     name: "${pin_prefix_upper}6"
@@ -192,11 +198,24 @@ switch:
 
 binary_sensor:
 
+  - platform: template
+    id: blink
+    internal: true
+
   - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
     internal: true
-
+    on_press:
+      then:
+        - light.turn_on:   
+            id: rgb_light
+            effect: strobe
+    on_release:
+        - light.turn_off:   
+            id: rgb_light
+        - light.turn_on:   
+            id: rgb_light
   - platform: homeassistant
     id: static_screen
     entity_id: input_boolean.static_screen_$devicename
@@ -789,6 +808,8 @@ image:
     id: image_alarm_light_outline
   - file: icons/pool.png
     id: image_pool
+  - file: icons/dice-5.png
+    id: image_dice_5
 
 i2c:
   scl: GPIO5 # D1
@@ -960,13 +981,13 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: page_image_techdogs
-#        lambda: |-
-#          it.image(0, 0, id(image_techdogs));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_techdogs
+        lambda: |-
+          it.image(0, 0, id(image_techdogs));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
@@ -985,6 +1006,13 @@ display:
       - id: page_image_redbird
         lambda: |-
           it.image(16, 0, id(image_redbird));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_image_dice_5
+        lambda: |-
+          it.image(8, 0, id(image_dice_5));
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -1102,16 +1130,56 @@ display:
 
 
 interval:
-  - interval: 3s
+  - interval: 2s
+    then:
+      - if: 
+          condition:
+            binary_sensor.is_off: alarm
+          then: 
+            - if:
+                condition:
+                  text_sensor.state:
+                    id: page_selection
+                    state: cycle
+                then:
+                  - display.page.show_next: this_display
+                  - component.update: this_display
+
+
+  - interval: 400ms
     then:
       - if:
           condition:
-            text_sensor.state:
-              id: page_selection
-              state: cycle
+            binary_sensor.is_on: alarm
           then:
-            - display.page.show_next: this_display
-            - component.update: this_display
+            - script.execute: beep_dot
+            - display.page.show: !lambda |-
+                if (id(blink).state) {
+                  id(blink).publish_state(false);
+                  return id(page_image_alarm);
+                } else {
+                  id(blink).publish_state(true);
+                  return id(page_image_alarm_outline);
+                }
+      - component.update: this_display
+
+#  - interval: 100ms
+#    then:
+#      lambda: |-
+#        if (id(alarm).state){        
+#          it.show_page(
+#            if (id(blink).state) {
+#              id(blink).publish_state(false);
+#              return id(page_image_alarm);
+#            } 
+#            else {
+#              id(blink).publish_state(true);
+#              return id(page_image_alarm_outline);
+#            }
+#          )
+#        }
+#      - component.update: this_display
+
 #  - interval: 2min
 #    then:
 #      - text_sensor.template.publish:
@@ -1120,3 +1188,47 @@ interval:
 #      - lambda: |-
 #          id(page_selection).publish_state(id(next_page).state);
 
+script:
+  - id: beep_dot
+    then:
+      - switch.turn_on: ${pin_prefix}6
+      - delay: 100ms
+      - switch.turn_off: ${pin_prefix}6
+
+  - id: beep_dash
+    then:
+      - switch.turn_on: ${pin_prefix}6
+      - delay: 450ms
+      - switch.turn_off: ${pin_prefix}6
+ 
+
+#  - id: beep_s 
+#    then:
+#      - script.wait: beep_dot
+#      - script.execute: beep_dot
+#      - script.wait: beep_dot
+#      - script.execute: beep_dot
+#      - script.wait: beep_dot
+#      - script.execute: beep_dot
+#      - script.wait: beep_dot
+#
+#  - id: beep_o 
+#    then:
+#      - script.wait: beep_dash
+#      - script.execute: beep_dash
+#      - script.wait: beep_dash
+#      - script.execute: beep_dash
+#      - script.wait: beep_dash
+#      - script.execute: beep_dash
+#      - script.wait: beep_dash
+#
+#  - id: beep_sos
+#    then:
+#      - script.wait: beep_s
+#      - script.wait: beep_o
+#      - script.execute: beep_s  
+#      - script.wait: beep_s
+#      - script.execute: beep_o  
+#      - script.wait: beep_o
+#      - script.execute: beep_s  
+#      - script.wait: beep_s
