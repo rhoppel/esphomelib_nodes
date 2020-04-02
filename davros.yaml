@@ -7,6 +7,8 @@
 # Changelog
 # ---
 # 0.8   - add alarm graphics and sound
+#       - add room and outdoor humidity
+#       - change version page
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
 #       - fix screen advancing 
 #       - add more graphics; rearrange screens
@@ -15,7 +17,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "v0.8.3"
+  version: "0.8c"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -239,11 +241,20 @@ binary_sensor:
             condition:
               text_sensor.state:
                 id: page_selection
+                state: 'cycle'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: 'page_image_aquarium'
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
                 state: 'room_temperature'
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: "outside_temperature"
+                  state: 'outside_temperature'
         - if:
             condition:
               text_sensor.state:
@@ -252,7 +263,7 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: "temperature"
+                  state: 'temperature'
         - if:
             condition:
               text_sensor.state:
@@ -261,7 +272,7 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: "time"
+                  state: 'time'
         - if:
             condition:
               text_sensor.state:
@@ -270,7 +281,7 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: "room_temperature"
+                  state: 'room_temperature'
         - lambda: |-
             id(page_selection).publish_state(id(next_page).state);
 
@@ -281,11 +292,11 @@ binary_sensor:
       min_length: 20ms
       max_length: 150ms
       then:
-        - switch.toggle: ${pin_prefix}5
+#        - switch.toggle: ${pin_prefix}5
         - homeassistant.service:
             service: switch.toggle
             data:
-              entity_id: switch.lava
+              entity_id: switch.aquarium
     on_double_click:  # Toggle aquarium switch
       min_length: 200ms
       max_length: 500ms
@@ -294,7 +305,7 @@ binary_sensor:
         - homeassistant.service:
             service: switch.toggle
             data:
-              entity_id: switch.aquarium
+              entity_id: switch.lava
 
 # ---------------------------------------v----------------
 # reed switch sensor
@@ -322,7 +333,7 @@ text_sensor:
     id: sunset
 
   - platform: template
-    id: "next_page"
+    id: 'next_page'
     internal: true
   - platform: homeassistant
     id: page_selection
@@ -338,6 +349,13 @@ text_sensor:
                 state: 'cycle'
             then: 
               display.page.show_next: this_display
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'version'
+            then: 
+              display.page.show: page_image_home_thermometer
         - if:
             condition:
               text_sensor.state:
@@ -370,23 +388,45 @@ text_sensor:
             condition:
               text_sensor.state:
                 id: page_selection
-                state: 'image_fish'
+                state: 'image_aquarium'
             then: 
-              display.page.show: page_image_fish
+              display.page.show: page_image_aquarium
         - if:
             condition:
               text_sensor.state:
                 id: page_selection
-                state: 'image_nu'
+                state: 'aquarium_temperature'
             then: 
-              display.page.show: page_image_nu
+              display.page.show: page_aquarium_temperature
         - if:
             condition:
               text_sensor.state:
                 id: page_selection
-                state: 'image_redbird'
+                state: 'outdoor_humidity'
             then: 
-              display.page.show: page_image_redbird
+              display.page.show: page_outdoor_humidity
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'room_humidity'
+            then: 
+              display.page.show: page_room_humidity
+
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'image_nu'
+#            then: 
+#              display.page.show: page_image_nu
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'image_redbird'
+#            then: 
+#              display.page.show: page_image_redbird
         - if:
             condition:
               text_sensor.state:
@@ -436,13 +476,6 @@ text_sensor:
                 state: 'page_2'
             then: 
               display.page.show: page_2
-        - if:
-            condition:
-              text_sensor.state:
-                id: page_selection
-                state: 'version'
-            then: 
-              display.page.show: page_image_home_thermometer
         - if:
             condition:
               text_sensor.state:
@@ -604,6 +637,14 @@ time:
 
 sensor:
   # Screen Selection
+
+  - platform: homeassistant
+    id: ha_room_humidity
+    entity_id: sensor.lodge_thermostat_humidity
+  - platform: homeassistant
+    id: ha_outdoor_humidity
+    entity_id: sensor.dark_sky_humidity
+    internal: true
   - platform: homeassistant
     id: ha_aquarium
     entity_id: sensor.temperature_wildcat
@@ -646,7 +687,7 @@ sensor:
   #  - platform: dht
   #    pin: D9
   #    humidity:
-  #      name: $upper_devicename Humidity"
+  #      name: $upper_devicename Humidity'
   #      on_value_range:
   #        - above: 65.0
   #          then:
@@ -668,7 +709,7 @@ sensor:
 #       Convert Centrigrade to Farenheit
     filters:
       - lambda: return x * (9.0/5.0) + 32.0;
-    unit_of_measurement: "°F"
+    unit_of_measurement: '°F'
 dallas:
   - pin: D7
     id: dallas_hub
@@ -681,12 +722,12 @@ dallas:
 #  - platform: esp8266_pwm
 #    pin: GPIO2   # pin D4 [LED}]
 #    frequency: 5 Hz
-#    id: "flash_Blue_LED"
+#    id: 'flash_Blue_LED'
 
 light:
 #  - platform: monochromatic
-#    output: "flash_Blue_LED"
-#    name: "flash"
+#    output: 'flash_Blue_LED'
+#    name: 'flash'
 
 # ----------------------------------------------------
 # WeMos WS2812B RGB Shield
@@ -699,7 +740,7 @@ light:
     pin: GPIO15       # pin D8
     num_leds: 1
     rgb_order: GRB
-    name: "FastLED $devicename"
+    name: 'FastLED $devicename'
     effects:
 
       - strobe:
@@ -773,13 +814,7 @@ image:
     id: image_fish
   - file: icons/fish_36_28.png
     id: image_fish_2
-  - file: icons/NU_30_48_2.png
-    id: image_nu
-#  - file: icons/techDogs_64_18.png
-  - file: icons/techDogs_64_18_mod.png
-    id: image_techdogs
-  - file: icons/is_head_bw_41_48.png
-    id: image_redbird
+
   - file: icons/weather-sunset.png
     id: image_sunset
   - file: icons/weather-sunset-up.png
@@ -788,28 +823,41 @@ image:
     id: image_thermometer
   - file: icons/thermostat.png
     id: image_thermostat
-  - file: icons/weather-night.png
-    id: image_weather_night
-  - file: icons/theme-light-dark.png
-    id: image_theme_light_dark
-  - file: icons/weather-sunny.png
-    id: image_theme_weather_sunny
-  - file: icons/weather-partly-cloudy.png
-    id: image_weather_partly_cloudy
-  - file: icons/weather-pouring.png
-    id: image_weather_pouring
-  - file: icons/home-thermometer.png
-    id: image_home_thermometer
+
+
   - file: icons/flash.png
     id: image_flash
   - file: icons/alarm-light.png
     id: image_alarm_light
   - file: icons/alarm-light-outline.png
     id: image_alarm_light_outline
-  - file: icons/pool.png
-    id: image_pool
-  - file: icons/dice-5.png
-    id: image_dice_5
+  - file: icons/theme-light-dark.png
+    id: image_theme_light_dark
+
+
+#  - file: icons/NU_30_48_2.png
+#    id: image_nu
+##  - file: icons/techDogs_64_18.png
+#  - file: icons/techDogs_64_18_mod.png
+#    id: image_techdogs
+#  - file: icons/is_head_bw_41_48.png
+#    id: image_redbird
+#
+#  - file: icons/weather-night.png
+#    id: image_weather_night
+#
+#  - file: icons/weather-sunny.png
+#    id: image_theme_weather_sunny
+#  - file: icons/weather-partly-cloudy.png
+#    id: image_weather_partly_cloudy
+#  - file: icons/weather-pouring.png
+#    id: image_weather_pouring
+  - file: icons/home-thermometer.png
+    id: image_home_thermometer
+#  - file: icons/pool.png
+#    id: image_pool
+#  - file: icons/dice-5.png
+#    id: image_dice_5
 
 i2c:
   scl: GPIO5 # D1
@@ -824,11 +872,28 @@ display:
 #      - id: blank
 #        lambda: |-
 #          it.clear();
+
       - id: page_time
         lambda: |-
           it.strftime(0, 0,  id(font_normal), "%A",    id(ha_time).now());
           it.strftime(8, 14, id(font_normal), "%b-%d", id(ha_time).now());
           it.strftime(3, 28, id(font_time),   "%I:%M", id(ha_time).now());
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_3
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
+          it.line(0, 0, $w, 0);
+          it.line(0, 21, $w, 21);
+          it.line(0, 23, $w, 23);
+          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
+
+      - id: page_image_ha
+        lambda: |-
+          it.image(5, 0, id(image_ha));
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -890,7 +955,7 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_fish
+      - id: page_image_aquarium
         lambda: |-
           it.image(5, 0, id(image_fish));
           it.rectangle(0, 0, 64, 48);
@@ -910,8 +975,9 @@ display:
 
       - id: page_image_home_thermometer
         lambda: |-
-          it.image(8, -5, id(image_home_thermometer));
-          it.print(20, 40, id(font_small), "${version}");
+          it.image(  6, 0, id(image_home_thermometer));
+          it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
+          it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -924,6 +990,13 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
+      - id: page_room_humidity
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_room_humidity).state);
+          it.print(55,17,id(font_normal), "%");
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
 
       - id: page_image_thermostat
         lambda: |-
@@ -955,6 +1028,15 @@ display:
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f"  "°", id(ha_outside_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
+
+      - id: page_outdoor_humidity
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_outdoor_humidity).state);
+          it.print(55,17,id(font_normal), "%");
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
+
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 #      - id: page_version
@@ -972,6 +1054,7 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
@@ -981,42 +1064,38 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_techdogs
-        lambda: |-
-          it.image(0, 0, id(image_techdogs));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_ha
-        lambda: |-
-          it.image(5, 0, id(image_ha));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_nu
-        lambda: |-
-          it.image(16, 0, id(image_nu));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_redbird
-        lambda: |-
-          it.image(16, 0, id(image_redbird));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_dice_5
-        lambda: |-
-          it.image(8, 0, id(image_dice_5));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+
+
+#      - id: page_image_techdogs
+#        lambda: |-
+#          it.image(0, 0, id(image_techdogs));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+
+#      - id: page_image_nu
+#        lambda: |-
+#          it.image(16, 0, id(image_nu));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_image_redbird
+#        lambda: |-
+#          it.image(16, 0, id(image_redbird));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_image_dice_5
+#        lambda: |-
+#          it.image(8, 0, id(image_dice_5));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 #
 #      - id: page_image_weather_night
 #        lambda: |-
@@ -1065,17 +1144,7 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_3
-        lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
-          it.line(0, 20, $w, 20);
-          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+
 #      - id: page_3              # an attempt at animation
 #        lambda: |-
 #          it.draw_pixel_at(     0,      0);
@@ -1120,15 +1189,15 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_pool
-        lambda: |-
-          it.image(8, 0, id(image_pool));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_image_pool
+#        lambda: |-
+#          it.image(8, 0, id(image_pool));
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
-
+# Display Updating
 interval:
   - interval: 2s
     then:
@@ -1145,7 +1214,7 @@ interval:
                   - display.page.show_next: this_display
                   - component.update: this_display
 
-
+# Alarm 
   - interval: 400ms
     then:
       - if:
