@@ -9,6 +9,7 @@
 # 0.8   - add alarm graphics and sound
 #       - add room and outdoor humidity
 #       - change version page
+#       - fixed switch changing display pages
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
 #       - fix screen advancing 
 #       - add more graphics; rearrange screens
@@ -17,7 +18,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.8c"
+  version: "0.8d"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -245,7 +246,25 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: 'page_image_aquarium'
+                  state: image_aquarium
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: image_aquarium
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: temperature
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: room_temperature
         - if:
             condition:
               text_sensor.state:
@@ -263,12 +282,12 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: 'temperature'
+                  state: 'version'
         - if:
             condition:
               text_sensor.state:
                 id: page_selection
-                state: 'temperature'
+                state: 'version'
             then: 
               - text_sensor.template.publish:
                   id: next_page
@@ -281,9 +300,13 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: 'room_temperature'
+                  state: 'cycle'
         - lambda: |-
-            id(page_selection).publish_state(id(next_page).state);
+            id(page_selection).publish_state(id(next_page).state.c_str());
+        - component.update: this_display
+        - logger.log: 
+            format: "The new page_selection state is %s"
+            args: [ 'id(page_selection).state.c_str()' ]
 
 #    on_release: # Turn off internal Blue LED
 #        - switch.turn_on: ${pin_prefix}4
@@ -349,6 +372,7 @@ text_sensor:
                 state: 'cycle'
             then: 
               display.page.show_next: this_display
+#        - script.execute: cycle_after_delay
         - if:
             condition:
               text_sensor.state:
@@ -632,8 +656,11 @@ text_sensor:
 
 # -------------------------------------------------------
 time:
-  - platform: homeassistant
+#  - platform: homeassistant
+#    id: ha_time
+  - platform: sntp
     id: ha_time
+    timezone: America/Chicago
 
 sensor:
   # Screen Selection
@@ -794,6 +821,7 @@ font:
   - file: fonts/$font
     id: font_small
     size: 10
+    glyphs: '¢$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
   - file: fonts/$font
     id: font_normal
     size: 14
@@ -1197,6 +1225,15 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
+#      	DisplayPage (const display_writer_t &writer)
+#      
+#      display.page.show ()
+#      display.page.show_next ()
+#      display.page.show_prev ()
+#      display.page.set_parent (DisplayBuffer *parent)
+#      display.page.set_prev (DisplayPage *prev)
+#      display.page.set_next (DisplayPage *next)
+
 # Display Updating
 interval:
   - interval: 2s
@@ -1249,14 +1286,6 @@ interval:
 #        }
 #      - component.update: this_display
 
-#  - interval: 2min
-#    then:
-#      - text_sensor.template.publish:
-#          id: next_page
-#          state: "cycle"
-#      - lambda: |-
-#          id(page_selection).publish_state(id(next_page).state);
-
 script:
   - id: beep_dot
     then:
@@ -1270,6 +1299,13 @@ script:
       - delay: 450ms
       - switch.turn_off: ${pin_prefix}6
  
+#  - id: cycle_after_delay
+#    then:
+#      - logger.log: "Page Selection will cycle in 5 minutes" 
+#      - delay: 3min
+#      - lambda: |-
+#          id(page_selection).publish_state("cycle");
+#      - logger.log: "Pages will now cycle"
 
 #  - id: beep_s 
 #    then:
