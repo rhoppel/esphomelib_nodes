@@ -58,7 +58,7 @@ wifi:
 
 api: # enable API communication
 logger: # enable logging
-  level: INFO # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
 #ota: # enable OTA over the air updates
 
 # ======================================================
@@ -210,6 +210,19 @@ binary_sensor:
     internal: true
 
   - platform: homeassistant
+    id: garage_open
+    entity_id: binary_sensor.garage_open
+    internal: true
+    on_press:
+      then:
+        - switch.turn_on: ${pin_prefix}4 # turn on Blue LED
+        - logger.log: "Garage Door has opened" 
+    on_release:
+      then:
+        - switch.turn_off: ${pin_prefix}4   # turn of Blue LED
+        - logger.log: "Garage Door has Closed" 
+
+  - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
     internal: true
@@ -346,7 +359,7 @@ binary_sensor:
       min_length: 200ms
       max_length: 500ms
       then:
-        - switch.toggle: ${pin_prefix}4
+#        - switch.toggle: ${pin_prefix}4
         - homeassistant.service:
             service: switch.toggle
             data:
@@ -1143,6 +1156,7 @@ display:
       - id: page_image_garage_closed
         lambda: |-
           it.image(8, 0, id(image_garage_open));
+          it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
 
@@ -1309,16 +1323,26 @@ interval:
     then:
       - if: 
           condition:
-            binary_sensor.is_off: alarm
+            binary_sensor.is_on: garage_open
           then: 
-            - if:
+            - display.page.show: page_image_garage_open
+            - component.update: this_display
+            - delay: 1s
+            - display.page.show: page_image_garage_closed
+            - component.update: this_display
+          else:
+            - if: 
                 condition:
-                  text_sensor.state:
-                    id: page_selection
-                    state: cycle
-                then:
-                  - display.page.show_next: this_display
-                  - component.update: this_display
+                  binary_sensor.is_off: alarm
+                then: 
+                  - if:
+                      condition:
+                        text_sensor.state:
+                          id: page_selection
+                          state: cycle
+                      then:
+                        - display.page.show_next: this_display
+                        - component.update: this_display
 
 # Alarm 
   - interval: 400ms
