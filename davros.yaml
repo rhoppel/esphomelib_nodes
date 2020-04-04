@@ -283,6 +283,15 @@ binary_sensor:
               - text_sensor.template.publish:
                   id: next_page
                   state: 'version'
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'garage_closed'
+#            then: 
+#              - text_sensor.template.publish:
+#                  id: next_page
+#                  state: 'version'
         - if:
             condition:
               text_sensor.state:
@@ -479,6 +488,20 @@ text_sensor:
                 state: 'alarm'
             then: 
               display.page.show: page_image_alarm
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_garage_open'
+            then: 
+              display.page.show: page_image_garage_open
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_garage_closed'
+            then: 
+              display.page.show: page_image_garage_closed
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -493,13 +516,13 @@ text_sensor:
                 state: 'page_1'
             then: 
               display.page.show: page_1
-        - if:
-            condition:
-              text_sensor.state:
-                id: page_selection
-                state: 'page_2'
-            then: 
-              display.page.show: page_2
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'page_2'
+#            then: 
+#              display.page.show: page_2
         - if:
             condition:
               text_sensor.state:
@@ -861,7 +884,8 @@ image:
     id: image_alarm_light_outline
   - file: icons/theme-light-dark.png
     id: image_theme_light_dark
-
+  - file: icons/garage-open-variant.png
+    id: image_garage_open
 
 #  - file: icons/NU_30_48_2.png
 #    id: image_nu
@@ -911,14 +935,6 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_3
-        lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
-          it.line(0, 0, $w, 0);
-          it.line(0, 21, $w, 21);
-          it.line(0, 23, $w, 23);
-          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
-
       - id: page_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
@@ -926,6 +942,14 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_3
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
+          it.line(0, 0, $w, 0);
+          it.line(0, 21, $w, 21);
+          it.line(0, 23, $w, 23);
+          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
 
       - id: page_image_sunrise
         lambda: |-
@@ -1093,7 +1117,24 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
+      - id: page_image_garage_open
+        lambda: |-
+          it.image(8, 0, id(image_garage_open));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
 
+      - id: page_image_garage_closed
+        lambda: |-
+          it.image(8, 0, id(image_garage_open));
+          it.filled_rectangle(19,29,26,4);
+          it.filled_rectangle(19,35,26,4);
+
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
 
 #      - id: page_image_techdogs
 #        lambda: |-
@@ -1160,18 +1201,18 @@ display:
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_2
-        lambda: |-
-          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
-          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
-          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
-          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
-
+#      - id: page_2
+#        lambda: |-
+#          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
+#          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
+#          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+#          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
+#
 
 #      - id: page_3              # an attempt at animation
 #        lambda: |-
