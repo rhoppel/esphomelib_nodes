@@ -25,6 +25,8 @@ substitutions:
   pin_prefix: d_d
   font: lucon.ttf
   font_number: arial.ttf
+  font_time_x: 3
+  font_time_y: 27
 
 # screen constants
   w:  "64"  # width of screen
@@ -289,6 +291,8 @@ binary_sensor:
               - text_sensor.template.publish:
                   id: next_page
                   state: 'version'
+
+# the following enabled crashes the boot sequence
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -298,6 +302,7 @@ binary_sensor:
 #              - text_sensor.template.publish:
 #                  id: next_page
 #                  state: 'version'
+
         - if:
             condition:
               text_sensor.state:
@@ -658,18 +663,18 @@ text_sensor:
     id: ha_title
     entity_id: input_text.title_$devicename
     internal: true
-  - platform: homeassistant
-    id: ha_title_2
-    entity_id: input_text.title_2_$devicename
-    internal: true
-  - platform: homeassistant
-    id: ha_msg
-    entity_id: input_text.msg_$devicename
-    internal: true
-  - platform: homeassistant
-    id: ha_title_3
-    entity_id: input_text.title_3_$devicename
-    internal: true
+#  - platform: homeassistant
+#    id: ha_title_2
+#    entity_id: input_text.title_2_$devicename
+#    internal: true
+#  - platform: homeassistant
+#    id: ha_msg
+#    entity_id: input_text.msg_$devicename
+#    internal: true
+#  - platform: homeassistant
+#    id: ha_title_3
+#    entity_id: input_text.title_3_$devicename
+#    internal: true
   - platform: homeassistant
     id: ha_msg_1
     entity_id: input_text.msg_1_$devicename
@@ -846,7 +851,8 @@ light:
 font:
   - file: fonts/$font_number
     id: font_time
-    size: 21
+    size: 23
+    glyphs: '¢$% -_.:°0123456789'
   - file: fonts/$font
     id: font_small
     size: 10
@@ -933,9 +939,9 @@ display:
 
       - id: page_time
         lambda: |-
-          it.strftime(0, 0,  id(font_normal), "%A",    id(ha_time).now());
-          it.strftime(8, 14, id(font_normal), "%b-%d", id(ha_time).now());
-          it.strftime(3, 28, id(font_time),   "%I:%M", id(ha_time).now());
+          it.strftime(-1, -1,  id(font_normal), "%A",    id(ha_time).now());
+          it.strftime(8, 13, id(font_normal), "%b-%d", id(ha_time).now());
+          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -968,7 +974,7 @@ display:
       - id: page_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
-          it.printf(5, 25, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
+          it.printf(${font_time_X}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.draw_pixel_at(     0,      0);
@@ -987,7 +993,7 @@ display:
       - id: page_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
-          it.printf(5, 25, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
+          it.printf(${font_time_X}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.draw_pixel_at(     0,      0);
@@ -1043,7 +1049,7 @@ display:
       - id: page_room_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "°", id(ha_room_temperature).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_room_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1051,8 +1057,8 @@ display:
       - id: page_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_room_humidity).state);
-          it.print(55,17,id(font_normal), "%");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_room_humidity).state);
+          it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
@@ -1067,7 +1073,7 @@ display:
       - id: page_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" "°", id(ha_thermostat).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1083,15 +1089,15 @@ display:
       - id: page_outside_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f"  "°", id(ha_outside_temperature).state);
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
       - id: page_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_outdoor_humidity).state);
-          it.print(55,17,id(font_normal), "%");
+          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
+          it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
@@ -1198,7 +1204,7 @@ display:
 
       - id: page_1
         lambda: |-
-          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title_3).state.c_str());
+          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
           it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
@@ -1259,6 +1265,16 @@ display:
       - id: page_image_alarm_outline
         lambda: |-
           it.image(8, 0, id(image_alarm_light_outline));
+          it.draw_pixel_at(     0,      0);
+          it.draw_pixel_at($w - 1,      0);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_alarm_outline_2
+        lambda: |-
+          it.image(8, 0, id(image_alarm_light_outline));
+          it.filled_rectangle(23,21,18,15);
+          it.filled_circle(32,24,10);
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
