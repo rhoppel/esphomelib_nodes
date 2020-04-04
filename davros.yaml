@@ -54,8 +54,8 @@ wifi:
 
 api: # enable API communication
 logger: # enable logging
-  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
-ota: # enable OTA over the air updates
+  level: INFO # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+#ota: # enable OTA over the air updates
 
 # ======================================================
 #   WeMOS D1 mini PIN Usage
@@ -238,6 +238,12 @@ binary_sensor:
       then:
 #        - switch.turn_off: ${pin_prefix}4   # Turn on internal Blue LED
 #        - light.turn_on: "flash"
+#        - if:
+#            condition:
+#              binary_sensor.is_on: alarm
+#            then: 
+#              - lambda: |-
+#                  id(alarm).publish_state(false);
         - if:
             condition:
               text_sensor.state:
@@ -287,7 +293,7 @@ binary_sensor:
 #            condition:
 #              text_sensor.state:
 #                id: page_selection
-#                state: 'garage_closed'
+#                state: 'image_garage_closed'
 #            then: 
 #              - text_sensor.template.publish:
 #                  id: next_page
