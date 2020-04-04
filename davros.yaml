@@ -10,6 +10,7 @@
 #       - add room and outdoor humidity
 #       - change version page
 #       - fixed switch changing display pages
+#       - fine tuning of time screen formatting
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
 #       - fix screen advancing 
 #       - add more graphics; rearrange screens
@@ -25,14 +26,15 @@ substitutions:
   pin_prefix: d_d
   font: lucon.ttf
   font_number: arial.ttf
-  font_time_x: 3
-  font_time_y: 27
+
 
 # screen constants
   w:  "64"  # width of screen
   w2: "32"  # width / 2
   h:  "48"  # height of screen
   h2: "24"  # height /2
+  font_time_x: "3"
+  font_time_y: "27"
 
 sun:
 #  latitude: 42.3308673°
@@ -974,7 +976,7 @@ display:
       - id: page_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
-          it.printf(${font_time_X}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
+          it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.draw_pixel_at(     0,      0);
@@ -993,7 +995,7 @@ display:
       - id: page_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
-          it.printf(${font_time_X}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
+          it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.draw_pixel_at(     0,      0);
@@ -1132,6 +1134,7 @@ display:
       - id: page_image_garage_open
         lambda: |-
           it.image(8, 0, id(image_garage_open));
+          it.rectangle(0, 0, 64, 48);
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -1257,6 +1260,7 @@ display:
       - id: page_image_alarm
         lambda: |-
           it.image(8, 0, id(image_alarm_light));
+          it.rectangle(0, 0, 64, 48);
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -1265,6 +1269,7 @@ display:
       - id: page_image_alarm_outline
         lambda: |-
           it.image(8, 0, id(image_alarm_light_outline));
+          it.rectangle(0, 0, 64, 48);
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
@@ -1273,8 +1278,9 @@ display:
       - id: page_image_alarm_outline_2
         lambda: |-
           it.image(8, 0, id(image_alarm_light_outline));
+          it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(23,21,18,15);
-          it.filled_circle(32,24,10);
+          it.filled_circle(32,23,10);
           it.draw_pixel_at(     0,      0);
           it.draw_pixel_at($w - 1,      0);
           it.draw_pixel_at(     0, $h - 1);
