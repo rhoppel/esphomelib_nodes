@@ -58,7 +58,7 @@ wifi:
 
 api: # enable API communication
 logger: # enable logging
-  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+  level: INFO # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
 #ota: # enable OTA over the air updates
 
 # ======================================================
@@ -263,6 +263,14 @@ binary_sensor:
 #                  id(alarm).publish_state(false);
         - if:
             condition:
+              binary_sensor.is_on: alarm
+            then:
+              - homeassistant.service:
+                  service: input_boolean.turn_off
+                  data:
+                    entity_id: input_boolean.alarm_$devicename
+        - if:
+            condition:
               text_sensor.state:
                 id: page_selection
                 state: 'cycle'
@@ -359,6 +367,7 @@ binary_sensor:
       min_length: 200ms
       max_length: 500ms
       then:
+
 #        - switch.toggle: ${pin_prefix}4
         - homeassistant.service:
             service: switch.toggle
@@ -1289,16 +1298,16 @@ display:
           it.draw_pixel_at(     0, $h - 1);
           it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_alarm_outline_2
-        lambda: |-
-          it.image(8, 0, id(image_alarm_light_outline));
-          it.rectangle(0, 0, 64, 48);
-          it.filled_rectangle(23,21,18,15);
-          it.filled_circle(32,23,10);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#      - id: page_image_alarm_outline_2
+#        lambda: |-
+#          it.image(8, 0, id(image_alarm_light_outline));
+#          it.rectangle(0, 0, 64, 48);
+#          it.filled_rectangle(23,21,18,15);
+#          it.filled_circle(32,23,10);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
 #      - id: page_image_pool
 #        lambda: |-
