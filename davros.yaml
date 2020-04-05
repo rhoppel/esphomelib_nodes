@@ -227,7 +227,6 @@ binary_sensor:
     entity_id: input_boolean.door_open
     internal: true
 
-
   - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
@@ -316,17 +315,6 @@ binary_sensor:
               - text_sensor.template.publish:
                   id: next_page
                   state: 'version'
-
-# the following enabled crashes the boot sequence
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: page_selection
-#                state: 'image_garage_closed'
-#            then: 
-#              - text_sensor.template.publish:
-#                  id: next_page
-#                  state: 'version'
 
         - if:
             condition:
@@ -569,13 +557,13 @@ text_sensor:
 #                state: 'image_techdogs'
 #            then: 
 #              display.page.show: page_image_techdogs
-        - if:
-            condition:
-              text_sensor.state:
-                id: page_selection
-                state: 'page_1'
-            then: 
-              display.page.show: page_1
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: page_selection
+#                state: 'page_1'
+#            then: 
+#              display.page.show: page_1
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -1198,13 +1186,13 @@ display:
 #        lambda: |-
 #          it.image(8, 0, id(image_weather_partly_cloudy));
 
-      - id: page_1
-        lambda: |-
-          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
-          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
-          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
-          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
-          it.line(0, 16, $w, 16);
+#      - id: page_1
+#        lambda: |-
+#          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
+#          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+#          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+#          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+#          it.line(0, 16, $w, 16);
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1300,24 +1288,29 @@ interval:
             - display.page.show: page_image_garage_closed
             - component.update: this_display
           else:
-            - if: 
+            - if:
                 condition:
-                  binary_sensor.is_off: alarm
-                then: 
-                  - if:
+                  binary_sensor.is_on: door_open
+                then:
+                  - display.page.show: page_image_door_open
+                  - component.update: this_display
+                  - delay: 1s
+                  - display.page.show: page_image_door_closed
+                  - component.update: this_display
+                else:
+                  - if: 
                       condition:
-                        text_sensor.state:
-                          id: page_selection
-                          state: cycle
-                      then:
-                        - display.page.show_next: this_display
-                        - component.update: this_display
-#      then:
-#        - display.page.show: page_image_door_open
-#        - component.update: this_display
-#        - delay: 1s
-#        - display.page.show: page_image_door_closed
-#        - component.update: this_display
+                        binary_sensor.is_off: alarm
+                      then: 
+                        - if:
+                            condition:
+                              text_sensor.state:
+                                id: page_selection
+                                state: cycle
+                            then:
+                              - display.page.show_next: this_display
+                              - component.update: this_display
+
 
 # Alarm 
   - interval: 400ms
