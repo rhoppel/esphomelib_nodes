@@ -227,6 +227,7 @@ binary_sensor:
     entity_id: input_boolean.door_open
     internal: true
 
+
   - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
@@ -547,20 +548,20 @@ text_sensor:
                 state: 'image_garage_closed'
             then: 
               display.page.show: page_image_garage_closed
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: page_selection
-#                state: 'image_door_open'
-#            then: 
-#              display.page.show: page_image_door_open
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: page_selection
-#                state: 'image_door_closed'
-#            then: 
-#              display.page.show: page_image_door_closed
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_door_open'
+            then: 
+              display.page.show: page_image_door_open
+        - if:
+            condition:
+              text_sensor.state:
+                id: page_selection
+                state: 'image_door_closed'
+            then: 
+              display.page.show: page_image_door_closed
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -630,39 +631,39 @@ text_sensor:
                   id: rgb_light
                   effect: flicker
 #                  brightness: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'blue'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 0.0
-#                  green: 0.0
-#                  blue: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'green'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 0.0
-#                  green: 1.0
-#                  blue: 0.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'red'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 0.0
-#                  blue: 0.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'blue'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 0.0
+                  green: 0.0
+                  blue: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'green'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 0.0
+                  green: 1.0
+                  blue: 0.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'red'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 1.0
+                  green: 0.0
+                  blue: 0.0
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -696,17 +697,17 @@ text_sensor:
 #                  red: 1.0
 #                  green: 0.25
 #                  blue: 0.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'yellow'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 1.0
-#                  blue: 0.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'yellow'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  red: 1.0
+                  green: 1.0
+                  blue: 0.0
   - platform: homeassistant
     id: ha_title
     entity_id: input_text.title_$devicename
@@ -1299,26 +1300,24 @@ interval:
             - display.page.show: page_image_garage_closed
             - component.update: this_display
           else:
-
+            - if: 
+                condition:
+                  binary_sensor.is_off: alarm
+                then: 
+                  - if:
+                      condition:
+                        text_sensor.state:
+                          id: page_selection
+                          state: cycle
+                      then:
+                        - display.page.show_next: this_display
+                        - component.update: this_display
 #      then:
 #        - display.page.show: page_image_door_open
 #        - component.update: this_display
 #        - delay: 1s
 #        - display.page.show: page_image_door_closed
 #        - component.update: this_display
-
-#            - if: 
-#                condition:
-#                  binary_sensor.is_off: alarm
-#                then: 
-#                  - if:
-#                      condition:
-#                        text_sensor.state:
-#                          id: page_selection
-#                          state: cycle
-#                      then:
-#                        - display.page.show_next: this_display
-#                        - component.update: this_display
 
 # Alarm 
   - interval: 400ms
