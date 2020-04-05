@@ -273,7 +273,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'cycle'
             then: 
               - text_sensor.template.publish:
@@ -282,7 +282,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: image_aquarium
             then: 
               - text_sensor.template.publish:
@@ -291,7 +291,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: temperature
             then: 
               - text_sensor.template.publish:
@@ -300,7 +300,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'room_temperature'
             then: 
               - text_sensor.template.publish:
@@ -309,7 +309,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'outside_temperature'
             then: 
               - text_sensor.template.publish:
@@ -319,7 +319,7 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'version'
             then: 
               - text_sensor.template.publish:
@@ -328,18 +328,18 @@ binary_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'time'
             then: 
               - text_sensor.template.publish:
                   id: next_page
                   state: 'cycle'
         - lambda: |-
-            id(page_selection).publish_state(id(next_page).state.c_str());
+            id(p_sel).publish_state(id(next_page).state.c_str());
         - component.update: this_display
         - logger.log: 
-            format: "The new page_selection state is %s"
-            args: [ 'id(page_selection).state.c_str()' ]
+            format: "The new p_sel state is %s"
+            args: [ 'id(p_sel).state.c_str()' ]
 
 #    on_release: # Turn off internal Blue LED
 #        - switch.turn_on: ${pin_prefix}4
@@ -402,16 +402,16 @@ text_sensor:
     id: 'next_page'
     internal: true
   - platform: homeassistant
-    id: page_selection
+    id: p_sel
     internal: true
     entity_id: input_select.screen_$devicename
     on_value:
       then:
-        - display.page.show: page_time
+        - display.page.show: p_time
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'cycle'
             then: 
               display.page.show_next: this_display
@@ -419,165 +419,165 @@ text_sensor:
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'version'
             then: 
-              display.page.show: page_image_home_thermometer
+              display.page.show: p_image_home_thermometer
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'room_temperature'
             then: 
-              display.page.show: page_room_temperature
+              display.page.show: p_room_temperature
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'outside_temperature'
             then: 
-              display.page.show: page_outside_temperature
+              display.page.show: p_outside_temperature
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'temperature'
             then: 
-              display.page.show: page_temperature
+              display.page.show: p_temperature
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_ha'
             then: 
-              display.page.show: page_image_ha
+              display.page.show: p_image_ha
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_aquarium'
             then: 
-              display.page.show: page_image_aquarium
+              display.page.show: p_image_aquarium
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'aquarium_temperature'
             then: 
-              display.page.show: page_aquarium_temperature
+              display.page.show: p_aquarium_temperature
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'outdoor_humidity'
             then: 
-              display.page.show: page_outdoor_humidity
+              display.page.show: p_outdoor_humidity
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'room_humidity'
             then: 
-              display.page.show: page_room_humidity
+              display.page.show: p_room_humidity
 
 #        - if:
 #            condition:
 #              text_sensor.state:
-#                id: page_selection
+#                id: p_sel
 #                state: 'image_nu'
 #            then: 
-#              display.page.show: page_image_nu
+#              display.page.show: p_image_nu
 #        - if:
 #            condition:
 #              text_sensor.state:
-#                id: page_selection
+#                id: p_sel
 #                state: 'image_redbird'
 #            then: 
-#              display.page.show: page_image_redbird
+#              display.page.show: p_image_redbird
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'comed'
             then: 
-              display.page.show: page_comed_price
+              display.page.show: p_comed_price
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'sunrise'
             then: 
-              display.page.show: page_sunrise
+              display.page.show: p_sunrise
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'sunset'
             then: 
-              display.page.show: page_sunset
+              display.page.show: p_sunset
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'alarm'
             then: 
-              display.page.show: page_image_alarm
+              display.page.show: p_image_alarm
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_garage_open'
             then: 
-              display.page.show: page_image_garage_open
+              display.page.show: p_image_garage_open
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_garage_closed'
             then: 
-              display.page.show: page_image_garage_closed
+              display.page.show: p_image_garage_closed
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_door_open'
             then: 
-              display.page.show: page_image_door_open
+              display.page.show: p_image_door_open
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
+                id: p_sel
                 state: 'image_door_closed'
             then: 
-              display.page.show: page_image_door_closed
+              display.page.show: p_image_door_closed
 #        - if:
 #            condition:
 #              text_sensor.state:
-#                id: page_selection
+#                id: p_sel
 #                state: 'image_techdogs'
 #            then: 
-#              display.page.show: page_image_techdogs
+#              display.page.show: p_image_techdogs
 #        - if:
 #            condition:
 #              text_sensor.state:
-#                id: page_selection
-#                state: 'page_1'
+#                id: p_sel
+#                state: 'p_1'
 #            then: 
-#              display.page.show: page_1
+#              display.page.show: p_1
 #        - if:
 #            condition:
 #              text_sensor.state:
-#                id: page_selection
-#                state: 'page_2'
+#                id: p_sel
+#                state: 'p_2'
 #            then: 
-#              display.page.show: page_2
+#              display.page.show: p_2
         - if:
             condition:
               text_sensor.state:
-                id: page_selection
-                state: 'page_3'
+                id: p_sel
+                state: 'p_3'
             then: 
-              display.page.show: page_3
+              display.page.show: p_3
         - component.update: this_display
 
   - platform: homeassistant
@@ -981,7 +981,7 @@ display:
 #        lambda: |-
 #          it.clear();
 
-      - id: page_time
+      - id: p_time
         lambda: |-
           it.strftime(-1, -1,  id(font_normal), "%A",    id(ha_time).now());
           it.strftime(8, 13, id(font_normal), "%b-%d", id(ha_time).now());
@@ -991,11 +991,11 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_ha
+      - id: p_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
 
-      - id: page_3
+      - id: p_3
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
           it.line(0, 0, $w, 0);
@@ -1003,7 +1003,7 @@ display:
           it.line(0, 23, $w, 23);
           it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
 
-      - id: page_image_sunrise
+      - id: p_image_sunrise
         lambda: |-
           it.image(8, 0, id(image_sunrise));
 #          it.draw_pixel_at(     0,      0);
@@ -1011,30 +1011,30 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_sunrise
+      - id: p_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: page_image_sunset
+      - id: p_image_sunset
         lambda: |-
           it.image(8, 0, id(image_sunset));
 
-      - id: page_sunset
+      - id: p_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: page_image_thermometer
+      - id: p_image_thermometer
         lambda: |-
           it.image(8, 0, id(image_thermometer));
           it.print(0, 0, id(font_normal),  "°F");
 
-      - id: page_temperature
+      - id: p_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
@@ -1043,12 +1043,12 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_aquarium
+      - id: p_image_aquarium
         lambda: |-
           it.image(5, 0, id(image_fish));
           it.rectangle(0, 0, 64, 48);
 
-      - id: page_aquarium_temperature
+      - id: p_aquarium_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
           it.line(0, 0, $w, 0);
@@ -1057,7 +1057,7 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_home_thermometer
+      - id: p_image_home_thermometer
         lambda: |-
           it.image(  6, 0, id(image_home_thermometer));
           it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
@@ -1066,7 +1066,7 @@ display:
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_room_temperature
+      - id: p_room_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_room_temperature).state);
@@ -1074,7 +1074,7 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_room_humidity
+      - id: p_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_room_humidity).state);
@@ -1082,7 +1082,7 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: page_image_thermostat
+      - id: p_image_thermostat
         lambda: |-
           it.image(8, 0, id(image_thermostat));
 #          it.draw_pixel_at(     0,      0);
@@ -1090,7 +1090,7 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_thermostat
+      - id: p_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
@@ -1098,18 +1098,18 @@ display:
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: page_image_theme_light_dark
+      - id: p_image_theme_light_dark
         lambda: |-
           it.image(8, 0, id(image_theme_light_dark));
 
-      - id: page_outside_temperature
+      - id: p_outside_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_temperature).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: page_outdoor_humidity
+      - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
@@ -1119,16 +1119,16 @@ display:
 
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: page_version
+#      - id: p_version
 #        lambda: |-
 #          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
 #          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
 
-      - id: page_image_flash
+      - id: p_image_flash
         lambda: |-
           it.image(8, 0, id(image_flash));
 
-      - id: page_comed_price
+      - id: p_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
           it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
@@ -1138,20 +1138,20 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: page_image_garage_open
+      - id: p_image_garage_open
         lambda: |-
           it.image(8, 0, id(image_garage_open));
           it.rectangle(0, 0, 64, 48);
 
 
-      - id: page_image_garage_closed
+      - id: p_image_garage_closed
         lambda: |-
           it.image(8, 0, id(image_garage_open));
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
 
-#      - id: page_image_techdogs
+#      - id: p_image_techdogs
 #        lambda: |-
 #          it.image(0, 0, id(image_techdogs));
 #          it.draw_pixel_at(     0,      0);
@@ -1159,34 +1159,34 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-#      - id: page_image_nu
+#      - id: p_image_nu
 #        lambda: |-
 #          it.image(16, 0, id(image_nu));
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: page_image_redbird
+#      - id: p_image_redbird
 #        lambda: |-
 #          it.image(16, 0, id(image_redbird));
 
-#      - id: page_image_dice_5
+#      - id: p_image_dice_5
 #        lambda: |-
 #          it.image(8, 0, id(image_dice_5));
 #
-#      - id: page_image_weather_night
+#      - id: p_image_weather_night
 #        lambda: |-
 #          it.image(8, 0, id(image_weather_night));
 #
-#      - id: page_image_theme_weather_sunny
+#      - id: p_image_theme_weather_sunny
 #        lambda: |-
 #          it.image(8, 0, id(image_theme_weather_sunny));
 #
-#      - id: page_image_weather_partly_cloudy
+#      - id: p_image_weather_partly_cloudy
 #        lambda: |-
 #          it.image(8, 0, id(image_weather_partly_cloudy));
 
-#      - id: page_1
+#      - id: p_1
 #        lambda: |-
 #          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
 #          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
@@ -1197,11 +1197,11 @@ display:
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: page_2
+#      - id: p_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
 #          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
-#          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(page_selection).state.c_str());
+#          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
 #          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.draw_pixel_at(     0,      0);
@@ -1210,7 +1210,7 @@ display:
 #          it.draw_pixel_at($w - 1, $h - 1);
 #
 
-#      - id: page_3              # an attempt at animation
+#      - id: p_3              # an attempt at animation
 #        lambda: |-
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
@@ -1238,38 +1238,38 @@ display:
 #          id(this_display).update();
 #          it.clear();
 
-      - id: page_image_alarm
+      - id: p_image_alarm
         lambda: |-
           it.image(8, 0, id(image_alarm_light));
           it.rectangle(0, 0, 64, 48);
 
-      - id: page_image_alarm_outline
+      - id: p_image_alarm_outline
         lambda: |-
           it.image(8, 0, id(image_alarm_light_outline));
           it.rectangle(0, 0, 64, 48);
 
-      - id: page_image_door_closed
+      - id: p_image_door_closed
         lambda: |-
           it.image(8, 0, id(image_door_closed));
           it.rectangle(0, 0, 64, 48);
 
-      - id: page_image_door_open
+      - id: p_image_door_open
         lambda: |-
           it.image(8, 0, id(image_door_open));
           it.rectangle(0, 0, 64, 48);
 
-#      - id: page_image_empty_box
+#      - id: p_image_empty_box
 #        lambda: |-
 #          it.rectangle(0, 0, 64, 48);
 
-#      - id: page_image_alarm_outline_2
+#      - id: p_image_alarm_outline_2
 #        lambda: |-
 #          it.image(8, 0, id(image_alarm_light_outline));
 #          it.rectangle(0, 0, 64, 48);
 #          it.filled_rectangle(23,21,18,15);
 #          it.filled_circle(32,23,10);
 
-#      - id: page_image_pool
+#      - id: p_image_pool
 #        lambda: |-
 #          it.image(8, 0, id(image_pool));
 
@@ -1282,20 +1282,20 @@ interval:
           condition:
             binary_sensor.is_on: garage_open
           then: 
-            - display.page.show: page_image_garage_open
+            - display.page.show: p_image_garage_open
             - component.update: this_display
             - delay: 1s
-            - display.page.show: page_image_garage_closed
+            - display.page.show: p_image_garage_closed
             - component.update: this_display
           else:
             - if:
                 condition:
                   binary_sensor.is_on: door_open
                 then:
-                  - display.page.show: page_image_door_open
+                  - display.page.show: p_image_door_open
                   - component.update: this_display
                   - delay: 1s
-                  - display.page.show: page_image_door_closed
+                  - display.page.show: p_image_door_closed
                   - component.update: this_display
                 else:
                   - if: 
@@ -1305,7 +1305,7 @@ interval:
                         - if:
                             condition:
                               text_sensor.state:
-                                id: page_selection
+                                id: p_sel
                                 state: cycle
                             then:
                               - display.page.show_next: this_display
@@ -1323,10 +1323,10 @@ interval:
             - display.page.show: !lambda |-
                 if (id(blink).state) {
                   id(blink).publish_state(false);
-                  return id(page_image_alarm);
+                  return id(p_image_alarm);
                 } else {
                   id(blink).publish_state(true);
-                  return id(page_image_alarm_outline);
+                  return id(p_image_alarm_outline);
                 }
       - component.update: this_display
 
@@ -1337,11 +1337,11 @@ interval:
 #          it.show_page(
 #            if (id(blink).state) {
 #              id(blink).publish_state(false);
-#              return id(page_image_alarm);
+#              return id(p_image_alarm);
 #            } 
 #            else {
 #              id(blink).publish_state(true);
-#              return id(page_image_alarm_outline);
+#              return id(p_image_alarm_outline);
 #            }
 #          )
 #        }
@@ -1365,7 +1365,7 @@ script:
 #      - logger.log: "Page Selection will cycle in 5 minutes" 
 #      - delay: 3min
 #      - lambda: |-
-#          id(page_selection).publish_state("cycle");
+#          id(p_sel).publish_state("cycle");
 #      - logger.log: "Pages will now cycle"
 
 #  - id: beep_s 
