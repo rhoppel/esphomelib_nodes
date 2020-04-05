@@ -1258,9 +1258,9 @@ display:
           it.image(8, 0, id(image_door_open));
           it.rectangle(0, 0, 64, 48);
 
-      - id: page_image_empty_box
-        lambda: |-
-          it.rectangle(0, 0, 64, 48);
+#      - id: page_image_empty_box
+#        lambda: |-
+#          it.rectangle(0, 0, 64, 48);
 
 #      - id: page_image_alarm_outline_2
 #        lambda: |-
