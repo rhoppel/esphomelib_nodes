@@ -222,6 +222,17 @@ binary_sensor:
         - switch.turn_off: ${pin_prefix}4   # turn of Blue LED
         - logger.log: "Garage Door has Closed" 
 
+#  - platform: homeassistant
+#    id: door_open
+#    entity_id: input_boolean.door_open
+#    on_press: 
+#      then:
+#        - display.page.show: page_image_door_open
+#        - component.update: this_display
+#        - delay: 1s
+#        - display.page.show: page_image_door_closed
+#        - component.update: this_display
+
   - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
@@ -236,10 +247,6 @@ binary_sensor:
             id: rgb_light
         - light.turn_on:   
             id: rgb_light
-  - platform: homeassistant
-    id: static_screen
-    entity_id: input_boolean.static_screen_$devicename
-    internal: true
 
   # WeMos 1-Button Shield
   # PINS:  D3[GPIO0] GND
@@ -358,11 +365,20 @@ binary_sensor:
       min_length: 20ms
       max_length: 150ms
       then:
-#        - switch.toggle: ${pin_prefix}5
-        - homeassistant.service:
-            service: switch.toggle
-            data:
-              entity_id: switch.aquarium
+        if:
+          condition:
+            binary_sensor.is_on: garage_open
+          then:
+            - homeassistant.service:
+                service: switch.turn_on
+                data:
+                  entity_id: switch.tardis
+          else:
+    #        - switch.toggle: ${pin_prefix}5
+            - homeassistant.service:
+                service: switch.toggle
+                data:
+                  entity_id: switch.aquarium
     on_double_click:  # Toggle aquarium switch
       min_length: 200ms
       max_length: 500ms
@@ -922,6 +938,11 @@ image:
     id: image_theme_light_dark
   - file: icons/garage-open-variant.png
     id: image_garage_open
+  - file: icons/door-closed.png
+    id: image_door_closed
+  - file: icons/door-open.png
+    id: image_door_open
+
 
 #  - file: icons/NU_30_48_2.png
 #    id: image_nu
@@ -950,12 +971,14 @@ image:
 i2c:
   scl: GPIO5 # D1
   sda: GPIO4 # D2
+  frequency: 800kHz
 display:
   - platform: ssd1306_i2c
     model: "SSD1306 64x48"
 #    reset_pin: GPIO16 # D0
     address: 0x3C
     id: this_display
+
     pages:
 #      - id: blank
 #        lambda: |-
@@ -966,18 +989,14 @@ display:
           it.strftime(-1, -1,  id(font_normal), "%A",    id(ha_time).now());
           it.strftime(8, 13, id(font_normal), "%b-%d", id(ha_time).now());
           it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_image_ha
         lambda: |-
           it.image(5, 0, id(image_ha));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_3
         lambda: |-
@@ -990,10 +1009,10 @@ display:
       - id: page_image_sunrise
         lambda: |-
           it.image(8, 0, id(image_sunrise));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_sunrise
         lambda: |-
@@ -1001,18 +1020,10 @@ display:
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_image_sunset
         lambda: |-
           it.image(8, 0, id(image_sunset));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_sunset
         lambda: |-
@@ -1020,19 +1031,11 @@ display:
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_image_thermometer
         lambda: |-
           it.image(8, 0, id(image_thermometer));
           it.print(0, 0, id(font_normal),  "°F");
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_temperature
         lambda: |-
@@ -1047,10 +1050,6 @@ display:
         lambda: |-
           it.image(5, 0, id(image_fish));
           it.rectangle(0, 0, 64, 48);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_aquarium_temperature
         lambda: |-
@@ -1066,10 +1065,10 @@ display:
           it.image(  6, 0, id(image_home_thermometer));
           it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
           it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
       - id: page_room_temperature
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -1089,10 +1088,10 @@ display:
       - id: page_image_thermostat
         lambda: |-
           it.image(8, 0, id(image_thermostat));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_thermostat
         lambda: |-
@@ -1105,10 +1104,6 @@ display:
       - id: page_image_theme_light_dark
         lambda: |-
           it.image(8, 0, id(image_theme_light_dark));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_outside_temperature
         lambda: |-
@@ -1131,17 +1126,10 @@ display:
 #        lambda: |-
 #          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
 #          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+
       - id: page_image_flash
         lambda: |-
           it.image(8, 0, id(image_flash));
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_comed_price
         lambda: |-
@@ -1157,10 +1145,7 @@ display:
         lambda: |-
           it.image(8, 0, id(image_garage_open));
           it.rectangle(0, 0, 64, 48);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+
 
       - id: page_image_garage_closed
         lambda: |-
@@ -1168,11 +1153,6 @@ display:
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
-
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
 #      - id: page_image_techdogs
 #        lambda: |-
@@ -1192,41 +1172,22 @@ display:
 #      - id: page_image_redbird
 #        lambda: |-
 #          it.image(16, 0, id(image_redbird));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+
 #      - id: page_image_dice_5
 #        lambda: |-
 #          it.image(8, 0, id(image_dice_5));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 #
 #      - id: page_image_weather_night
 #        lambda: |-
 #          it.image(8, 0, id(image_weather_night));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 #
 #      - id: page_image_theme_weather_sunny
 #        lambda: |-
 #          it.image(8, 0, id(image_theme_weather_sunny));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 #
 #      - id: page_image_weather_partly_cloudy
 #        lambda: |-
 #          it.image(8, 0, id(image_weather_partly_cloudy));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_1
         lambda: |-
@@ -1235,10 +1196,10 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0,      0);
+#          it.draw_pixel_at($w - 1,      0);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 #      - id: page_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
@@ -1284,19 +1245,25 @@ display:
         lambda: |-
           it.image(8, 0, id(image_alarm_light));
           it.rectangle(0, 0, 64, 48);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: page_image_alarm_outline
         lambda: |-
           it.image(8, 0, id(image_alarm_light_outline));
           it.rectangle(0, 0, 64, 48);
-          it.draw_pixel_at(     0,      0);
-          it.draw_pixel_at($w - 1,      0);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: page_image_door_closed
+        lambda: |-
+          it.image(8, 0, id(image_door_closed));
+          it.rectangle(0, 0, 64, 48);
+
+      - id: page_image_door_open
+        lambda: |-
+          it.image(8, 0, id(image_door_open));
+          it.rectangle(0, 0, 64, 48);
+
+      - id: page_image_empty_box
+        lambda: |-
+          it.rectangle(0, 0, 64, 48);
 
 #      - id: page_image_alarm_outline_2
 #        lambda: |-
@@ -1304,27 +1271,11 @@ display:
 #          it.rectangle(0, 0, 64, 48);
 #          it.filled_rectangle(23,21,18,15);
 #          it.filled_circle(32,23,10);
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
 #      - id: page_image_pool
 #        lambda: |-
 #          it.image(8, 0, id(image_pool));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
-#      	DisplayPage (const display_writer_t &writer)
-#      
-#      display.page.show ()
-#      display.page.show_next ()
-#      display.page.show_prev ()
-#      display.page.set_parent (DisplayBuffer *parent)
-#      display.page.set_prev (DisplayPage *prev)
-#      display.page.set_next (DisplayPage *next)
 
 # Display Updating
 interval:
