@@ -221,6 +221,9 @@ binary_sensor:
       then:
         - switch.turn_off: ${pin_prefix}4   # turn of Blue LED
 #        - logger.log: "Garage Door has Closed" 
+        - lambda: |-
+            id(p_sel).publish_state("cycle");
+        - component.update: this_display
 
   - platform: homeassistant
     id: door_open
@@ -619,39 +622,39 @@ text_sensor:
                   id: rgb_light
                   effect: flicker
 #                  brightness: 1.0
-        - if:
-            condition:
-              text_sensor.state:
-                id: light_effects_selection
-                state: 'blue'
-            then: 
-              - light.turn_on:   
-                  id: rgb_light
-                  red: 0.0
-                  green: 0.0
-                  blue: 1.0
-        - if:
-            condition:
-              text_sensor.state:
-                id: light_effects_selection
-                state: 'green'
-            then: 
-              - light.turn_on:   
-                  id: rgb_light
-                  red: 0.0
-                  green: 1.0
-                  blue: 0.0
-        - if:
-            condition:
-              text_sensor.state:
-                id: light_effects_selection
-                state: 'red'
-            then: 
-              - light.turn_on:   
-                  id: rgb_light
-                  red: 1.0
-                  green: 0.0
-                  blue: 0.0
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: light_effects_selection
+#                state: 'blue'
+#            then: 
+#              - light.turn_on:   
+#                  id: rgb_light
+#                  red: 0.0
+#                  green: 0.0
+#                  blue: 1.0
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: light_effects_selection
+#                state: 'green'
+#            then: 
+#              - light.turn_on:   
+#                  id: rgb_light
+#                  red: 0.0
+#                  green: 1.0
+#                  blue: 0.0
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: light_effects_selection
+#                state: 'red'
+#            then: 
+#              - light.turn_on:   
+#                  id: rgb_light
+#                  red: 1.0
+#                  green: 0.0
+#                  blue: 0.0
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -1180,7 +1183,6 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 #
-
 #      - id: p_3              # an attempt at animation
 #        lambda: |-
 #          it.draw_pixel_at(     0,      0);
@@ -1239,12 +1241,11 @@ display:
 #          it.rectangle(0, 0, 64, 48);
 #          it.filled_rectangle(23,21,18,15);
 #          it.filled_circle(32,23,10);
-
+#
 #      - id: p_i_pool
 #        lambda: |-
 #          it.image(8, 0, id(i_pool));
-
-
+#
 # Display Updating
 interval:
   - interval: 2s
@@ -1329,7 +1330,7 @@ script:
       - switch.turn_on: ${pin_prefix}6
       - delay: 450ms
       - switch.turn_off: ${pin_prefix}6
- 
+
 #  - id: cycle_after_delay
 #    then:
 #      - logger.log: "Page Selection will cycle in 5 minutes" 
@@ -1337,34 +1338,4 @@ script:
 #      - lambda: |-
 #          id(p_sel).publish_state("cycle");
 #      - logger.log: "Pages will now cycle"
-
-#  - id: beep_s 
-#    then:
-#      - script.wait: beep_dot
-#      - script.execute: beep_dot
-#      - script.wait: beep_dot
-#      - script.execute: beep_dot
-#      - script.wait: beep_dot
-#      - script.execute: beep_dot
-#      - script.wait: beep_dot
 #
-#  - id: beep_o 
-#    then:
-#      - script.wait: beep_dash
-#      - script.execute: beep_dash
-#      - script.wait: beep_dash
-#      - script.execute: beep_dash
-#      - script.wait: beep_dash
-#      - script.execute: beep_dash
-#      - script.wait: beep_dash
-#
-#  - id: beep_sos
-#    then:
-#      - script.wait: beep_s
-#      - script.wait: beep_o
-#      - script.execute: beep_s  
-#      - script.wait: beep_s
-#      - script.execute: beep_o  
-#      - script.wait: beep_o
-#      - script.execute: beep_s  
-#      - script.wait: beep_s
