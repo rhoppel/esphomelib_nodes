@@ -340,9 +340,12 @@ binary_sensor:
         - lambda: |-
             id(p_sel).publish_state(id(next_page).state.c_str());
         - component.update: this_display
-        - logger.log: 
-            format: "The new p_sel state is %s"
-            args: [ 'id(p_sel).state.c_str()' ]
+#        - logger.log: 
+#            format: "The new p_sel state is %s"
+#            args: [ 'id(p_sel).state.c_str()' ]
+        - delay: 5min
+        - lambda: |-
+            id(p_sel).publish_state("cycle");
 
 #    on_release: # Turn off internal Blue LED
 #        - switch.turn_on: ${pin_prefix}4
