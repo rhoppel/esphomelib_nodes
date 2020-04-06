@@ -278,12 +278,12 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
-                  state: image_aquarium
+                  state: i_aquarium
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: image_aquarium
+                state: i_aquarium
             then: 
               - text_sensor.template.publish:
                   id: next_page
@@ -422,49 +422,49 @@ text_sensor:
                 id: p_sel
                 state: 'version'
             then: 
-              display.page.show: p_image_home_thermometer
+              display.page.show: p_i_home_thermometer
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
                 state: 'room_temperature'
             then: 
-              display.page.show: p_room_temperature
+              display.page.show: p_room_tmpr
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
                 state: 'outside_temperature'
             then: 
-              display.page.show: p_outside_temperature
+              display.page.show: p_outside_tmpr
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
                 state: 'temperature'
             then: 
-              display.page.show: p_temperature
+              display.page.show: p_tmpr
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_ha'
+                state: 'i_ha'
             then: 
-              display.page.show: p_image_ha
+              display.page.show: p_i_ha
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_aquarium'
+                state: 'i_aquarium'
             then: 
-              display.page.show: p_image_aquarium
+              display.page.show: p_i_aquarium
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
                 state: 'aquarium_temperature'
             then: 
-              display.page.show: p_aquarium_temperature
+              display.page.show: p_aquarium_tmpr
         - if:
             condition:
               text_sensor.state:
@@ -484,16 +484,16 @@ text_sensor:
 #            condition:
 #              text_sensor.state:
 #                id: p_sel
-#                state: 'image_nu'
+#                state: 'i_nu'
 #            then: 
-#              display.page.show: p_image_nu
+#              display.page.show: p_i_nu
 #        - if:
 #            condition:
 #              text_sensor.state:
 #                id: p_sel
-#                state: 'image_redbird'
+#                state: 'i_redbird'
 #            then: 
-#              display.page.show: p_image_redbird
+#              display.page.show: p_i_redbird
         - if:
             condition:
               text_sensor.state:
@@ -521,42 +521,42 @@ text_sensor:
                 id: p_sel
                 state: 'alarm'
             then: 
-              display.page.show: p_image_alarm
+              display.page.show: p_i_alarm
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_garage_open'
+                state: 'i_garage_open'
             then: 
-              display.page.show: p_image_garage_open
+              display.page.show: p_i_garage_open
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_garage_closed'
+                state: 'i_garage_closed'
             then: 
-              display.page.show: p_image_garage_closed
+              display.page.show: p_i_garage_closed
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_door_open'
+                state: 'i_door_open'
             then: 
-              display.page.show: p_image_door_open
+              display.page.show: p_i_door_open
         - if:
             condition:
               text_sensor.state:
                 id: p_sel
-                state: 'image_door_closed'
+                state: 'i_door_closed'
             then: 
-              display.page.show: p_image_door_closed
+              display.page.show: p_i_door_closed
 #        - if:
 #            condition:
 #              text_sensor.state:
 #                id: p_sel
-#                state: 'image_techdogs'
+#                state: 'i_techdogs'
 #            then: 
-#              display.page.show: p_image_techdogs
+#              display.page.show: p_i_techdogs
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -685,33 +685,22 @@ text_sensor:
 #                  red: 1.0
 #                  green: 0.25
 #                  blue: 0.0
-        - if:
-            condition:
-              text_sensor.state:
-                id: light_effects_selection
-                state: 'yellow'
-            then: 
-              - light.turn_on:   
-                  id: rgb_light
-                  red: 1.0
-                  green: 1.0
-                  blue: 0.0
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: light_effects_selection
+#                state: 'yellow'
+#            then: 
+#              - light.turn_on:   
+#                  id: rgb_light
+#                  red: 1.0
+#                  green: 1.0
+#                  blue: 0.0
+
   - platform: homeassistant
     id: ha_title
     entity_id: input_text.title_$devicename
     internal: true
-#  - platform: homeassistant
-#    id: ha_title_2
-#    entity_id: input_text.title_2_$devicename
-#    internal: true
-#  - platform: homeassistant
-#    id: ha_msg
-#    entity_id: input_text.msg_$devicename
-#    internal: true
-#  - platform: homeassistant
-#    id: ha_title_3
-#    entity_id: input_text.title_3_$devicename
-#    internal: true
   - platform: homeassistant
     id: ha_msg_1
     entity_id: input_text.msg_1_$devicename
@@ -748,23 +737,11 @@ sensor:
     entity_id: sensor.temperature_wildcat
     internal: true
   - platform: homeassistant
-    id: ha_screen
-    entity_id: input_number.screen_$devicename
-    internal: true
-  - platform: homeassistant
-    id: ha_number
-    entity_id: input_number.number_$devicename
-    internal: true
-#  - platform: homeassistant
-#    id: ha_temperature
-#    entity_id: sensor.temperature_$devicename
-#    internal: true
-  - platform: homeassistant
-    id: ha_room_temperature
+    id: ha_room_tmpr
     entity_id: sensor.lodge_thermostat_temperature
     internal: true
   - platform: homeassistant
-    id: ha_outside_temperature
+    id: ha_outside_tmpr
     entity_id:  sensor.dark_sky_apparent_temperature
     internal: true
   - platform: homeassistant
@@ -773,12 +750,6 @@ sensor:
   - platform: homeassistant
     id: ha_thermostat
     entity_id:  sensor.lodge_thermostat_target
-#  - platform: homeassistant
-#    id: ha_sunset
-#    entity_id:  sensor.sunset
-#  - platform: homeassistant
-#    id: ha_sunrise
-#    entity_id:  sensor.sunrise
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -902,68 +873,68 @@ font:
     id: font_large
     size: 22
   - file: fonts/$font_number
-    id: font_temperature
+    id: font_tmpr
 #    size: 32
     size: 27
     glyphs: '¢$% -_.:°0123456789'
 
 image:
   - file: icons/esphome_54_48.png
-    id: image_ha
+    id: i_ha
   - file: icons/fish_48_48.png
-    id: image_fish
+    id: i_fish
   - file: icons/fish_36_28.png
-    id: image_fish_2
+    id: i_fish_2
 
   - file: icons/weather-sunset.png
-    id: image_sunset
+    id: i_sunset
   - file: icons/weather-sunset-up.png
-    id: image_sunrise
+    id: i_sunrise
   - file: icons/thermometer.png
-    id: image_thermometer
+    id: i_thermometer
   - file: icons/thermostat.png
-    id: image_thermostat
+    id: i_thermostat
 
 
   - file: icons/flash.png
-    id: image_flash
+    id: i_flash
   - file: icons/alarm-light.png
-    id: image_alarm_light
+    id: i_alarm_light
   - file: icons/alarm-light-outline.png
-    id: image_alarm_light_outline
+    id: i_alarm_light_outline
   - file: icons/theme-light-dark.png
-    id: image_theme_light_dark
+    id: i_theme_light_dark
   - file: icons/garage-open-variant.png
-    id: image_garage_open
+    id: i_garage_open
   - file: icons/door-closed.png
-    id: image_door_closed
+    id: i_door_closed
   - file: icons/door-open.png
-    id: image_door_open
+    id: i_door_open
 
 
 #  - file: icons/NU_30_48_2.png
-#    id: image_nu
+#    id: i_nu
 ##  - file: icons/techDogs_64_18.png
 #  - file: icons/techDogs_64_18_mod.png
-#    id: image_techdogs
+#    id: i_techdogs
 #  - file: icons/is_head_bw_41_48.png
-#    id: image_redbird
+#    id: i_redbird
 #
 #  - file: icons/weather-night.png
-#    id: image_weather_night
+#    id: i_weather_night
 #
 #  - file: icons/weather-sunny.png
-#    id: image_theme_weather_sunny
+#    id: i_theme_weather_sunny
 #  - file: icons/weather-partly-cloudy.png
-#    id: image_weather_partly_cloudy
+#    id: i_weather_partly_cloudy
 #  - file: icons/weather-pouring.png
-#    id: image_weather_pouring
+#    id: i_weather_pouring
   - file: icons/home-thermometer.png
-    id: image_home_thermometer
+    id: i_home_thermometer
 #  - file: icons/pool.png
-#    id: image_pool
+#    id: i_pool
 #  - file: icons/dice-5.png
-#    id: image_dice_5
+#    id: i_dice_5
 
 i2c:
   scl: GPIO5 # D1
@@ -991,9 +962,9 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: p_image_ha
+      - id: p_i_ha
         lambda: |-
-          it.image(5, 0, id(image_ha));
+          it.image(5, 0, id(i_ha));
 
       - id: p_3
         lambda: |-
@@ -1003,9 +974,9 @@ display:
           it.line(0, 23, $w, 23);
           it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
 
-      - id: p_image_sunrise
+      - id: p_i_sunrise
         lambda: |-
-          it.image(8, 0, id(image_sunrise));
+          it.image(8, 0, id(i_sunrise));
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1018,9 +989,9 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: p_image_sunset
+      - id: p_i_sunset
         lambda: |-
-          it.image(8, 0, id(image_sunset));
+          it.image(8, 0, id(i_sunset));
 
       - id: p_sunset
         lambda: |-
@@ -1029,47 +1000,47 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: p_image_thermometer
+      - id: p_i_thermometer
         lambda: |-
-          it.image(8, 0, id(image_thermometer));
+          it.image(8, 0, id(i_thermometer));
           it.print(0, 0, id(font_normal),  "°F");
 
-      - id: p_temperature
+      - id: p_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(temperature_sensor_1).state);
+          it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(temperature_sensor_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: p_image_aquarium
+      - id: p_i_aquarium
         lambda: |-
-          it.image(5, 0, id(image_fish));
+          it.image(5, 0, id(i_fish));
           it.rectangle(0, 0, 64, 48);
 
-      - id: p_aquarium_temperature
+      - id: p_aquarium_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_temperature), "%.1f" "°", id(ha_aquarium).state);
+          it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(ha_aquarium).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: p_image_home_thermometer
+      - id: p_i_home_thermometer
         lambda: |-
-          it.image(  6, 0, id(image_home_thermometer));
+          it.image(  6, 0, id(i_home_thermometer));
           it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
           it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: p_room_temperature
+      - id: p_room_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_room_temperature).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1077,14 +1048,14 @@ display:
       - id: p_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_room_humidity).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_room_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-      - id: p_image_thermostat
+      - id: p_i_thermostat
         lambda: |-
-          it.image(8, 0, id(image_thermostat));
+          it.image(8, 0, id(i_thermostat));
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1093,26 +1064,26 @@ display:
       - id: p_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-      - id: p_image_theme_light_dark
+      - id: p_i_theme_light_dark
         lambda: |-
-          it.image(8, 0, id(image_theme_light_dark));
+          it.image(8, 0, id(i_theme_light_dark));
 
-      - id: p_outside_temperature
+      - id: p_outside_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_temperature).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
       - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1124,75 +1095,75 @@ display:
 #          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
 #          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
 
-      - id: p_image_flash
+      - id: p_i_flash
         lambda: |-
-          it.image(8, 0, id(image_flash));
+          it.image(8, 0, id(i_flash));
 
       - id: p_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
-          it.printf($w2, 37, id(font_temperature), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
           it.printf(55,30,id(font_normal), "¢");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: p_image_garage_open
+      - id: p_i_garage_open
         lambda: |-
-          it.image(8, 0, id(image_garage_open));
+          it.image(8, 0, id(i_garage_open));
           it.rectangle(0, 0, 64, 48);
 
 
-      - id: p_image_garage_closed
+      - id: p_i_garage_closed
         lambda: |-
-          it.image(8, 0, id(image_garage_open));
+          it.image(8, 0, id(i_garage_open));
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
 
-#      - id: p_image_techdogs
+#      - id: p_i_techdogs
 #        lambda: |-
-#          it.image(0, 0, id(image_techdogs));
+#          it.image(0, 0, id(i_techdogs));
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-#      - id: p_image_nu
+#      - id: p_i_nu
 #        lambda: |-
-#          it.image(16, 0, id(image_nu));
+#          it.image(16, 0, id(i_nu));
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: p_image_redbird
+#      - id: p_i_redbird
 #        lambda: |-
-#          it.image(16, 0, id(image_redbird));
+#          it.image(16, 0, id(i_redbird));
 
-#      - id: p_image_dice_5
+#      - id: p_i_dice_5
 #        lambda: |-
-#          it.image(8, 0, id(image_dice_5));
+#          it.image(8, 0, id(i_dice_5));
 #
-#      - id: p_image_weather_night
+#      - id: p_i_weather_night
 #        lambda: |-
-#          it.image(8, 0, id(image_weather_night));
+#          it.image(8, 0, id(i_weather_night));
 #
-#      - id: p_image_theme_weather_sunny
+#      - id: p_i_theme_weather_sunny
 #        lambda: |-
-#          it.image(8, 0, id(image_theme_weather_sunny));
+#          it.image(8, 0, id(i_theme_weather_sunny));
 #
-#      - id: p_image_weather_partly_cloudy
+#      - id: p_i_weather_partly_cloudy
 #        lambda: |-
-#          it.image(8, 0, id(image_weather_partly_cloudy));
+#          it.image(8, 0, id(i_weather_partly_cloudy));
 
-#      - id: p_1
-#        lambda: |-
-#          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
-#          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
-#          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
-#          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
-#          it.line(0, 16, $w, 16);
+      - id: p_1
+        lambda: |-
+          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
+          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.line(0, 16, $w, 16);
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1216,62 +1187,62 @@ display:
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-#          it.image(5, 0, id(image_fish_2));
+#          it.image(5, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(8, 0, id(image_fish_2));
+#          it.image(8, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(11, 0,id(image_fish_2));
+#          it.image(11, 0,id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(14, 0, id(image_fish_2));
+#          it.image(14, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(17, 0, id(image_fish_2));
+#          it.image(17, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(20, 0, id(image_fish_2));
+#          it.image(20, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
-#          it.image(23, 0, id(image_fish_2));
+#          it.image(23, 0, id(i_fish_2));
 #          id(this_display).update();
 #          it.clear();
 
-      - id: p_image_alarm
+      - id: p_i_alarm
         lambda: |-
-          it.image(8, 0, id(image_alarm_light));
+          it.image(8, 0, id(i_alarm_light));
           it.rectangle(0, 0, 64, 48);
 
-      - id: p_image_alarm_outline
+      - id: p_i_alarm_outline
         lambda: |-
-          it.image(8, 0, id(image_alarm_light_outline));
+          it.image(8, 0, id(i_alarm_light_outline));
           it.rectangle(0, 0, 64, 48);
 
-      - id: p_image_door_closed
+      - id: p_i_door_closed
         lambda: |-
-          it.image(8, 0, id(image_door_closed));
+          it.image(8, 0, id(i_door_closed));
           it.rectangle(0, 0, 64, 48);
 
-      - id: p_image_door_open
+      - id: p_i_door_open
         lambda: |-
-          it.image(8, 0, id(image_door_open));
+          it.image(8, 0, id(i_door_open));
           it.rectangle(0, 0, 64, 48);
 
-#      - id: p_image_empty_box
+#      - id: p_i_empty_box
 #        lambda: |-
 #          it.rectangle(0, 0, 64, 48);
 
-#      - id: p_image_alarm_outline_2
+#      - id: p_i_alarm_outline_2
 #        lambda: |-
-#          it.image(8, 0, id(image_alarm_light_outline));
+#          it.image(8, 0, id(i_alarm_light_outline));
 #          it.rectangle(0, 0, 64, 48);
 #          it.filled_rectangle(23,21,18,15);
 #          it.filled_circle(32,23,10);
 
-#      - id: p_image_pool
+#      - id: p_i_pool
 #        lambda: |-
-#          it.image(8, 0, id(image_pool));
+#          it.image(8, 0, id(i_pool));
 
 
 # Display Updating
@@ -1282,20 +1253,20 @@ interval:
           condition:
             binary_sensor.is_on: garage_open
           then: 
-            - display.page.show: p_image_garage_open
+            - display.page.show: p_i_garage_open
             - component.update: this_display
             - delay: 1s
-            - display.page.show: p_image_garage_closed
+            - display.page.show: p_i_garage_closed
             - component.update: this_display
           else:
             - if:
                 condition:
                   binary_sensor.is_on: door_open
                 then:
-                  - display.page.show: p_image_door_open
+                  - display.page.show: p_i_door_open
                   - component.update: this_display
                   - delay: 1s
-                  - display.page.show: p_image_door_closed
+                  - display.page.show: p_i_door_closed
                   - component.update: this_display
                 else:
                   - if: 
@@ -1311,7 +1282,6 @@ interval:
                               - display.page.show_next: this_display
                               - component.update: this_display
 
-
 # Alarm 
   - interval: 400ms
     then:
@@ -1323,10 +1293,10 @@ interval:
             - display.page.show: !lambda |-
                 if (id(blink).state) {
                   id(blink).publish_state(false);
-                  return id(p_image_alarm);
+                  return id(p_i_alarm);
                 } else {
                   id(blink).publish_state(true);
-                  return id(p_image_alarm_outline);
+                  return id(p_i_alarm_outline);
                 }
       - component.update: this_display
 
@@ -1337,11 +1307,11 @@ interval:
 #          it.show_page(
 #            if (id(blink).state) {
 #              id(blink).publish_state(false);
-#              return id(p_image_alarm);
+#              return id(p_i_alarm);
 #            } 
 #            else {
 #              id(blink).publish_state(true);
-#              return id(p_image_alarm_outline);
+#              return id(p_i_alarm_outline);
 #            }
 #          )
 #        }
