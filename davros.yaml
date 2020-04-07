@@ -6,6 +6,11 @@
 # ======================================================
 # Changelog
 # ---
+# 0.9    functionally complete
+#       - monitor and "door open" status
+#       - monitor "garage open" staus
+#       - swtich to "cycle screen" 5 min after static screen selected
+#       - add pool temperature
 # 0.8   - add alarm graphics and sound
 #       - add room and outdoor humidity
 #       - change version page
@@ -19,7 +24,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.8d"
+  version: "0.9"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -343,9 +348,8 @@ binary_sensor:
 #        - logger.log: 
 #            format: "The new p_sel state is %s"
 #            args: [ 'id(p_sel).state.c_str()' ]
-        - delay: 5min
-        - lambda: |-
-            id(p_sel).publish_state("cycle");
+        - script.stop: resume_cycle
+        - script.execute: resume_cycle
 
 #    on_release: # Turn off internal Blue LED
 #        - switch.turn_on: ${pin_prefix}4
@@ -563,13 +567,13 @@ text_sensor:
 #                state: 'i_techdogs'
 #            then: 
 #              display.page.show: p_i_techdogs
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: p_sel
-#                state: 'p_1'
-#            then: 
-#              display.page.show: p_1
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'p_1'
+            then: 
+              display.page.show: p_1
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -756,6 +760,7 @@ sensor:
   - platform: homeassistant
     id: ha_thermostat
     entity_id:  sensor.lodge_thermostat_target
+ 
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -916,7 +921,8 @@ image:
     id: i_door_closed
   - file: icons/door-open.png
     id: i_door_open
-
+  - file: icons/pool.png
+    id: i_pool
 
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
@@ -954,15 +960,13 @@ display:
     id: this_display
 
     pages:
-#      - id: blank
-#        lambda: |-
-#          it.clear();
 
       - id: p_time
         lambda: |-
-          it.strftime(-1, -1,  id(font_normal), "%A",    id(ha_time).now());
-          it.strftime(8, 13, id(font_normal), "%b-%d", id(ha_time).now());
+          it.strftime($w2, 5,  id(font_normal), TextAlign::CENTER, "%A",    id(ha_time).now());
+          it.strftime($w2, 19, id(font_normal),   TextAlign::CENTER, "%b-%d", id(ha_time).now());
           it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
+#          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -974,7 +978,7 @@ display:
 
       - id: p_3
         lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "Hoppel");
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
           it.line(0, 0, $w, 0);
           it.line(0, 21, $w, 21);
           it.line(0, 23, $w, 23);
@@ -983,10 +987,6 @@ display:
       - id: p_i_sunrise
         lambda: |-
           it.image(8, 0, id(i_sunrise));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: p_sunrise
         lambda: |-
@@ -1034,15 +1034,6 @@ display:
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
 
-      - id: p_i_home_thermometer
-        lambda: |-
-          it.image(  6, 0, id(i_home_thermometer));
-          it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
-          it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_room_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -1062,10 +1053,6 @@ display:
       - id: p_i_thermostat
         lambda: |-
           it.image(8, 0, id(i_thermostat));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: p_thermostat
         lambda: |-
@@ -1094,12 +1081,16 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
-#      - id: p_version
-#        lambda: |-
-#          it.printf($w2, 15, id(font_normal),TextAlign::CENTER,    "Version:");
-#          it.printf($w2, 37, id(font_time),  TextAlign::CENTER,  "${version}");
+      - id: p_i_pool
+        lambda: |-
+          it.image(8, 0, id(i_pool));
+
+      - id: p_pool_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
 
       - id: p_i_flash
         lambda: |-
@@ -1127,6 +1118,14 @@ display:
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
+
+      - id: p_i_home_thermometer
+        lambda: |-
+          it.image(  6, 0, id(i_home_thermometer));
+          it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
+          it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
+
+
 
 #      - id: p_i_techdogs
 #        lambda: |-
@@ -1170,10 +1169,15 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+
+      - id: p_1a
+        lambda: |-
+          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
+          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.line(0, 16, $w, 16);
+
 #      - id: p_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
@@ -1181,10 +1185,7 @@ display:
 #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
 #          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+
 #
 #      - id: p_3              # an attempt at animation
 #        lambda: |-
@@ -1333,6 +1334,13 @@ script:
       - switch.turn_on: ${pin_prefix}6
       - delay: 450ms
       - switch.turn_off: ${pin_prefix}6
+
+  - id: resume_cycle
+    then:
+      - delay: 2min
+      - lambda: |-
+          id(p_sel).publish_state("cycle");
+      - component.update: this_display
 
 #  - id: cycle_after_delay
 #    then:
