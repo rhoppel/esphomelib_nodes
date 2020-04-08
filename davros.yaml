@@ -11,6 +11,7 @@
 #       - monitor "garage open" staus
 #       - swtich to "cycle screen" 5 min after static screen selected
 #       - add pool temperature
+#       - added font_day to fit "Wednesday" into field
 # 0.8   - add alarm graphics and sound
 #       - add room and outdoor humidity
 #       - change version page
@@ -752,15 +753,18 @@ sensor:
     internal: true
   - platform: homeassistant
     id: ha_outside_tmpr
-    entity_id:  sensor.dark_sky_apparent_temperature
+    entity_id: sensor.dark_sky_apparent_temperature
     internal: true
   - platform: homeassistant
     id: ha_comed_price
-    entity_id:  sensor.comed_price
+    entity_id: sensor.comed_price
   - platform: homeassistant
     id: ha_thermostat
-    entity_id:  sensor.lodge_thermostat_target
- 
+    entity_id: sensor.lodge_thermostat_target
+#  - platform: homeassistant
+#    id: ha_cycle_delay
+#    entity_id: input_number.cycle_delay_davros
+
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -888,6 +892,10 @@ font:
 #    size: 32
     size: 27
     glyphs: '¢$% -_.:°0123456789'
+  - file: fonts/$font
+    id: font_day
+    size: 12
+    glyphs: 'MTWFSadehionrstuy'
 
 image:
   - file: icons/esphome_54_48.png
@@ -963,7 +971,7 @@ display:
 
       - id: p_time
         lambda: |-
-          it.strftime($w2, 5,  id(font_normal), TextAlign::CENTER, "%A",    id(ha_time).now());
+          it.strftime($w2, 5,  id(font_day), TextAlign::CENTER, "%A",    id(ha_time).now());
           it.strftime($w2, 19, id(font_normal),   TextAlign::CENTER, "%b-%d", id(ha_time).now());
           it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
 #          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
