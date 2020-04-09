@@ -12,6 +12,7 @@
 #       - swtich to "cycle screen" 5 min after static screen selected
 #       - add pool temperature
 #       - added font_day to fit "Wednesday" into field
+#       - add analog sensor
 # 0.8   - add alarm graphics and sound
 #       - add room and outdoor humidity
 #       - change version page
@@ -25,7 +26,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.9"
+  version: "0.9a"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -734,8 +735,12 @@ time:
     timezone: America/Chicago
 
 sensor:
-  # Screen Selection
-
+  - platform: adc
+    pin: A0
+    name: analog_$devicename
+    update_interval: 5min
+    filters:
+      - multiply: 3.3
   - platform: homeassistant
     id: ha_room_humidity
     entity_id: sensor.lodge_thermostat_humidity
