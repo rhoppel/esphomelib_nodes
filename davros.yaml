@@ -26,7 +26,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.9a"
+  version: "0.9a-x"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -737,8 +737,9 @@ time:
 sensor:
   - platform: adc
     pin: A0
-    name: analog_$devicename
-    update_interval: 5min
+    name: adc_$devicename
+    id: analog
+    update_interval: 1min
     filters:
       - multiply: 3.3
   - platform: homeassistant
@@ -1138,7 +1139,15 @@ display:
           it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
           it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
 
+      - id: p_adc
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Voltage");
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.3f" , id(analog).state);
+          it.line(0, 0, $w, 0);
+          it.line(0, 19, $w, 19);
 
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 
 #      - id: p_i_techdogs
 #        lambda: |-
