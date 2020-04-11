@@ -26,7 +26,7 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ---
 substitutions:
-  version: "0.9a-x"
+  version: "0.9b"
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
@@ -132,7 +132,8 @@ switch:
     name: "${pin_prefix_upper}0"
     id: ${pin_prefix}0
     pin:
-        number: GPIO16
+#        number: GPIO16
+        number: D0
         inverted: False
         mode: OUTPUT
   # PIN: D1 [SCL/I2C]
@@ -148,7 +149,8 @@ switch:
   #    name: "${pin_prefix_upper}2"
   #    id: ${pin_prefix}2
   #    pin:
-  #        number: GPIO4
+  ##        number: GPIO4
+  #        number: D2
   #        inverted: False
   #        mode: OUTPUT
   # PIN: D3  [OUTPUT-ONLY]
@@ -156,7 +158,8 @@ switch:
   #    name: "${pin_prefix_upper}3"
   #    id: ${pin_prefix}3
   #    pin:
-  #        number: GPIO0
+  ##        number: GPIO0
+  #        number: D3
   #        inverted: False
   #        mode: OUTPUT
   # PIN: D4  [LED / OUTPUT-ONLY]
@@ -164,7 +167,8 @@ switch:
     name: "${pin_prefix_upper}4_LED"
     id: ${pin_prefix}4
     pin:
-      number: GPIO2
+#      number: GPIO2
+      number: D4
       inverted: True
       mode: OUTPUT
   # PIN: D5
@@ -172,7 +176,8 @@ switch:
     name: "${pin_prefix_upper}5"
     id: ${pin_prefix}5
     pin:
-      number: GPIO14
+#      number: GPIO14
+      number: D5
       inverted: False
       mode: OUTPUT
     on_turn_on:
@@ -186,7 +191,8 @@ switch:
     name: "${pin_prefix_upper}6"
     id: ${pin_prefix}6
     pin:
-      number: GPIO12
+#      number: GPIO12
+      number: D6
       inverted: true
       mode: OUTPUT_OPEN_DRAIN
 #  # PIN: D7
@@ -194,7 +200,8 @@ switch:
 #    name: "${pin_prefix_upper}7"
 #    id: ${pin_prefix}7
 #    pin:
-#      number: GPIO13
+##      number: GPIO13
+#      number: D7
 #      inverted: False
 #      mode: OUTPUT
 #  # PIN: D8  [OUTPUT-ONLY]
@@ -202,7 +209,8 @@ switch:
 #    name: "${pin_prefix_upper}8"
 #    id: ${pin_prefix}8
 #    pin:
-#      number: GPIO15
+##      number: GPIO15
+#      number: D8
 #      inverted: False
 #      mode: OUTPUT
 
@@ -257,7 +265,8 @@ binary_sensor:
   - platform: gpio
     name: "${pin_prefix_upper}3_button"
     pin:
-      number: GPIO0
+#      number: GPIO0
+      number: D3
       inverted: false
       mode: INPUT_PULLUP
 #    filters:
@@ -420,6 +429,12 @@ text_sensor:
     on_value:
       then:
         - display.page.show: p_time
+#        - lambda:  !lambda |-
+#            switch(p_sel) {
+#            case 'adc' : 
+#              break;
+#            };
+#              
         - if:
             condition:
               text_sensor.state:
@@ -428,6 +443,8 @@ text_sensor:
             then: 
               display.page.show_next: this_display
 #        - script.execute: cycle_after_delay
+#            else:
+#              display.page.show: !lambda "return id(id(p_sel).state.c_str());"
         - if:
             condition:
               text_sensor.state:
@@ -435,6 +452,13 @@ text_sensor:
                 state: 'version'
             then: 
               display.page.show: p_i_home_thermometer
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: adc
+            then: 
+              display.page.show: p_adc
         - if:
             condition:
               text_sensor.state:
@@ -735,6 +759,9 @@ time:
     timezone: America/Chicago
 
 sensor:
+#  - platform: adc
+#    pin: VCC
+#    name: "VCC Voltage"
   - platform: adc
     pin: A0
     name: adc_$devicename
@@ -827,7 +854,8 @@ light:
   - platform: fastled_clockless
     chipset: WS2812B
     id: rgb_light
-    pin: GPIO15       # pin D8
+#    pin: GPIO15       # pin D8
+    pin: D8
     num_leds: 1
     rgb_order: GRB
     name: 'FastLED $devicename'
@@ -963,8 +991,10 @@ image:
 #    id: i_dice_5
 
 i2c:
-  scl: GPIO5 # D1
-  sda: GPIO4 # D2
+#  scl: GPIO5 # D1
+#  sda: GPIO4 # D2
+  scl: D1
+  sda: D2
   frequency: 800kHz
 display:
   - platform: ssd1306_i2c
