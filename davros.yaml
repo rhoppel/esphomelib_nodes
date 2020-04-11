@@ -759,9 +759,6 @@ time:
     timezone: America/Chicago
 
 sensor:
-#  - platform: adc
-#    pin: VCC
-#    name: "VCC Voltage"
   - platform: adc
     pin: A0
     name: adc_$devicename
