@@ -410,7 +410,6 @@ text_sensor:
     type: sunset
     internal: true
     id: sunset
-
   - platform: template
     id: 'next_page'
     internal: true
@@ -434,9 +433,6 @@ text_sensor:
                 state: 'cycle'
             then: 
               display.page.show_next: this_display
-#        - script.execute: cycle_after_delay
-#            else:
-#              display.page.show: !lambda "return id(id(p_sel).state.c_str());"
         - if:
             condition:
               text_sensor.state:
@@ -507,21 +503,6 @@ text_sensor:
                 state: 'room_humidity'
             then: 
               display.page.show: p_room_humidity
-
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: p_sel
-#                state: 'i_nu'
-#            then: 
-#              display.page.show: p_i_nu
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: p_sel
-#                state: 'i_redbird'
-#            then: 
-#              display.page.show: p_i_redbird
         - if:
             condition:
               text_sensor.state:
@@ -783,10 +764,6 @@ sensor:
   - platform: homeassistant
     id: ha_thermostat
     entity_id: sensor.lodge_thermostat_target
-#  - platform: homeassistant
-#    id: ha_cycle_delay
-#    entity_id: input_number.cycle_delay_davros
-
 
   # -------------------------------------------------------
   #  Temperature / Humidity Sensor
@@ -880,11 +857,6 @@ light:
 #            green: 1.0
 #            blue: 1.0
 #      - blue:
-#      - green:
-#      - orange:
-#      - purple:
-#      - red:
-#      - yellow:
 
 # ----------------------------------------------------
 # WeMos OLED Shield 1.1
@@ -936,7 +908,6 @@ image:
   - file: icons/thermostat.png
     id: i_thermostat
 
-
   - file: icons/flash.png
     id: i_flash
   - file: icons/alarm-light.png
@@ -953,31 +924,15 @@ image:
     id: i_door_open
   - file: icons/pool.png
     id: i_pool
+  - file: icons/home-thermometer.png
+    id: i_home_thermometer
 
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
 ##  - file: icons/techDogs_64_18.png
-#  - file: icons/techDogs_64_18_mod.png
-#    id: i_techdogs
 #  - file: icons/is_head_bw_41_48.png
 #    id: i_redbird
 #
-#  - file: icons/weather-night.png
-#    id: i_weather_night
-#
-#  - file: icons/weather-sunny.png
-#    id: i_theme_weather_sunny
-#  - file: icons/weather-partly-cloudy.png
-#    id: i_weather_partly_cloudy
-#  - file: icons/weather-pouring.png
-#    id: i_weather_pouring
-  - file: icons/home-thermometer.png
-    id: i_home_thermometer
-#  - file: icons/pool.png
-#    id: i_pool
-#  - file: icons/dice-5.png
-#    id: i_dice_5
-
 i2c:
   scl: D1
   sda: D2
@@ -1133,8 +1088,6 @@ display:
           it.printf(55,30,id(font_normal), "¢");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 
       - id: p_i_garage_open
         lambda: |-
@@ -1162,43 +1115,12 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
-
-#      - id: p_i_techdogs
-#        lambda: |-
-#          it.image(0, 0, id(i_techdogs));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
-
 #      - id: p_i_nu
 #        lambda: |-
 #          it.image(16, 0, id(i_nu));
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 #      - id: p_i_redbird
 #        lambda: |-
 #          it.image(16, 0, id(i_redbird));
-
-#      - id: p_i_dice_5
-#        lambda: |-
-#          it.image(8, 0, id(i_dice_5));
-#
-#      - id: p_i_weather_night
-#        lambda: |-
-#          it.image(8, 0, id(i_weather_night));
-#
-#      - id: p_i_theme_weather_sunny
-#        lambda: |-
-#          it.image(8, 0, id(i_theme_weather_sunny));
-#
-#      - id: p_i_weather_partly_cloudy
-#        lambda: |-
-#          it.image(8, 0, id(i_weather_partly_cloudy));
 
       - id: p_1
         lambda: |-
@@ -1225,34 +1147,6 @@ display:
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 
 #
-#      - id: p_3              # an attempt at animation
-#        lambda: |-
-#          it.draw_pixel_at(     0,      0);
-#          it.draw_pixel_at($w - 1,      0);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
-#          it.image(5, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(8, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(11, 0,id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(14, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(17, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(20, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-#          it.image(23, 0, id(i_fish_2));
-#          id(this_display).update();
-#          it.clear();
-
       - id: p_i_alarm
         lambda: |-
           it.image(8, 0, id(i_alarm_light));
@@ -1273,20 +1167,6 @@ display:
           it.image(8, 0, id(i_door_open));
           it.rectangle(0, 0, 64, 48);
 
-#      - id: p_i_empty_box
-#        lambda: |-
-#          it.rectangle(0, 0, 64, 48);
-
-#      - id: p_i_alarm_outline_2
-#        lambda: |-
-#          it.image(8, 0, id(i_alarm_light_outline));
-#          it.rectangle(0, 0, 64, 48);
-#          it.filled_rectangle(23,21,18,15);
-#          it.filled_circle(32,23,10);
-#
-#      - id: p_i_pool
-#        lambda: |-
-#          it.image(8, 0, id(i_pool));
 #
 # Display Updating
 interval:
@@ -1343,23 +1223,6 @@ interval:
                 }
       - component.update: this_display
 
-#  - interval: 100ms
-#    then:
-#      lambda: |-
-#        if (id(alarm).state){        
-#          it.show_page(
-#            if (id(blink).state) {
-#              id(blink).publish_state(false);
-#              return id(p_i_alarm);
-#            } 
-#            else {
-#              id(blink).publish_state(true);
-#              return id(p_i_alarm_outline);
-#            }
-#          )
-#        }
-#      - component.update: this_display
-
 script:
   - id: beep_dot
     then:
@@ -1379,12 +1242,3 @@ script:
       - lambda: |-
           id(p_sel).publish_state("cycle");
       - component.update: this_display
-
-#  - id: cycle_after_delay
-#    then:
-#      - logger.log: "Page Selection will cycle in 5 minutes" 
-#      - delay: 3min
-#      - lambda: |-
-#          id(p_sel).publish_state("cycle");
-#      - logger.log: "Pages will now cycle"
-#
