@@ -44,8 +44,8 @@ substitutions:
   font_time_y: "27"
 
 sun:
-  latitude:   42.3308
-  longitude: -87.9935
+  latitude:   !secret  my_latitude
+  longitude:  !secret  my_longitude
 
 esphome:
   name: $devicename
@@ -455,6 +455,13 @@ text_sensor:
                 state: 'version'
             then: 
               display.page.show: p_i_home_thermometer
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'pool'
+#            then: 
+#              display.page.show: p_pool_tmpr
         - if:
             condition:
               text_sensor.state:
