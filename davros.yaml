@@ -936,7 +936,7 @@ image:
     id: i_fish
   - file: icons/fish_36_28.png
     id: i_fish_2
-  - file: icons/weather-sunset.png
+  - file: icons/weather-sunset-down.png
     id: i_sunset
   - file: icons/weather-sunset-up.png
     id: i_sunrise
