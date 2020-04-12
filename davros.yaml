@@ -34,6 +34,7 @@ substitutions:
   font: lucon.ttf
   font_number: arial.ttf
   pool_tmpr:  input_number.pool_tmpr # sHA ensor fpr pool temperature
+  voltage_name: Illumin
 
 # screen constants
   w:  "64"  # width of screen
@@ -1152,7 +1153,7 @@ display:
 #          it.rectangle(0, 0, 64, 48);
       - id: p_adc
         lambda: |-
-          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Voltage");
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
           it.printf($w2-4, 37, id(font_time), TextAlign::CENTER,  "%3.0f" , id(analog).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
