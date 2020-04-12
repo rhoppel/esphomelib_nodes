@@ -212,11 +212,9 @@ switch:
 # ======================================================
 
 binary_sensor:
-
   - platform: template
     id: blink
     internal: true
-
   - platform: homeassistant
     id: garage_open
     entity_id: binary_sensor.garage_open
@@ -232,12 +230,10 @@ binary_sensor:
         - lambda: |-
             id(p_sel).publish_state("cycle");
         - component.update: this_display
-
   - platform: homeassistant
     id: door_open
     entity_id: input_boolean.door_open
     internal: true
-
   - platform: homeassistant
     id: alarm
     entity_id: input_boolean.alarm_$devicename
@@ -252,7 +248,7 @@ binary_sensor:
             id: rgb_light
         - light.turn_on:   
             id: rgb_light
-
+# -------------------------------------------------------
   # WeMos 1-Button Shield
   # PINS:  D3[GPIO0] GND
   - platform: gpio
@@ -326,7 +322,6 @@ binary_sensor:
               - text_sensor.template.publish:
                   id: next_page
                   state: 'version'
-
         - if:
             condition:
               text_sensor.state:
@@ -379,13 +374,11 @@ binary_sensor:
       min_length: 200ms
       max_length: 500ms
       then:
-
 #        - switch.toggle: ${pin_prefix}4
         - homeassistant.service:
             service: switch.toggle
             data:
               entity_id: switch.lava
-
 # ---------------------------------------v----------------
 # reed switch sensor
 # PIN: D5
@@ -730,7 +723,7 @@ time:
   - platform: sntp
     id: ha_time
     timezone: America/Chicago
-
+# -------------------------------------------------------
 sensor:
   - platform: adc
     pin: A0
@@ -765,24 +758,23 @@ sensor:
     id: ha_thermostat
     entity_id: sensor.lodge_thermostat_target
 
-  # -------------------------------------------------------
-  #  Temperature / Humidity Sensor
-  #  - platform: dht
-  #    pin: D9
-  #    humidity:
-  #      name: $upper_devicename Humidity'
-  #      on_value_range:
-  #        - above: 65.0
-  #          then:
-  #            - switch.turn_on: d1
-  #        - below: 50.0
-  #          then:
-  #            - switch.turn_off: d1
-  #    temperature:
-  #      name: $upper_devicename Temperature
-
-  # -------------------------------------------------------
-  # [Temperature] DS18B20 configuration
+# -------------------------------------------------------
+#  Temperature / Humidity Sensor
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: $upper_devicename Humidity'
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: $upper_devicename Temperature
+# -------------------------------------------------------
+# [Temperature] DS18B20 configuration
   - platform: dallas
 #    address: 0x810416846B52FF28
     address: 0x440416640685FF28
@@ -825,7 +817,6 @@ light:
     rgb_order: GRB
     name: 'FastLED $devicename'
     effects:
-
       - strobe:
       - random:
       - flicker:
@@ -898,7 +889,6 @@ image:
     id: i_fish
   - file: icons/fish_36_28.png
     id: i_fish_2
-
   - file: icons/weather-sunset.png
     id: i_sunset
   - file: icons/weather-sunset-up.png
@@ -907,7 +897,6 @@ image:
     id: i_thermometer
   - file: icons/thermostat.png
     id: i_thermostat
-
   - file: icons/flash.png
     id: i_flash
   - file: icons/alarm-light.png
@@ -926,13 +915,12 @@ image:
     id: i_pool
   - file: icons/home-thermometer.png
     id: i_home_thermometer
-
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
 ##  - file: icons/techDogs_64_18.png
 #  - file: icons/is_head_bw_41_48.png
 #    id: i_redbird
-#
+
 i2c:
   scl: D1
   sda: D2
@@ -943,9 +931,7 @@ display:
 #    reset_pin: GPIO16 # D0
     address: 0x3C
     id: this_display
-
     pages:
-
       - id: p_time
         lambda: |-
           it.strftime($w2, 5,  id(font_day), TextAlign::CENTER, "%A",    id(ha_time).now());
@@ -956,11 +942,9 @@ display:
 #          it.draw_pixel_at($w - 1,      0);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-
       - id: p_i_ha
         lambda: |-
           it.image(5, 0, id(i_ha));
-
       - id: p_3
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
@@ -968,34 +952,28 @@ display:
           it.line(0, 21, $w, 21);
           it.line(0, 23, $w, 23);
           it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
-
       - id: p_i_sunrise
         lambda: |-
           it.image(8, 0, id(i_sunrise));
-
       - id: p_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_sunset
         lambda: |-
           it.image(8, 0, id(i_sunset));
-
       - id: p_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
           it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_thermometer
         lambda: |-
           it.image(8, 0, id(i_thermometer));
           it.print(0, 0, id(font_normal),  "°F");
-
       - id: p_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
@@ -1004,12 +982,10 @@ display:
           it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(t_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-
       - id: p_i_aquarium
         lambda: |-
           it.image(5, 0, id(i_fish));
           it.rectangle(0, 0, 64, 48);
-
       - id: p_aquarium_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
@@ -1018,7 +994,6 @@ display:
           it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(ha_aquarium).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
-
       - id: p_room_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -1034,11 +1009,9 @@ display:
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_thermostat
         lambda: |-
           it.image(8, 0, id(i_thermostat));
-
       - id: p_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
@@ -1050,14 +1023,12 @@ display:
       - id: p_i_theme_light_dark
         lambda: |-
           it.image(8, 0, id(i_theme_light_dark));
-
       - id: p_outside_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
           it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
@@ -1065,22 +1036,18 @@ display:
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_pool
         lambda: |-
           it.image(8, 0, id(i_pool));
-
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
           it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_flash
         lambda: |-
           it.image(8, 0, id(i_flash));
-
       - id: p_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
@@ -1088,40 +1055,33 @@ display:
           it.printf(55,30,id(font_normal), "¢");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
       - id: p_i_garage_open
         lambda: |-
           it.image(8, 0, id(i_garage_open));
           it.rectangle(0, 0, 64, 48);
-
-
       - id: p_i_garage_closed
         lambda: |-
           it.image(8, 0, id(i_garage_open));
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
-
       - id: p_i_home_thermometer
         lambda: |-
           it.image(  6, 0, id(i_home_thermometer));
           it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
           it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
-
       - id: p_adc
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Voltage");
           it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.3f" , id(analog).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-
 #      - id: p_i_nu
 #        lambda: |-
 #          it.image(16, 0, id(i_nu));
 #      - id: p_i_redbird
 #        lambda: |-
 #          it.image(16, 0, id(i_redbird));
-
       - id: p_1
         lambda: |-
           it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
@@ -1129,7 +1089,6 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-
       - id: p_1a
         lambda: |-
           it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
@@ -1137,7 +1096,6 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-
 #      - id: p_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
@@ -1145,28 +1103,22 @@ display:
 #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
 #          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-
-#
       - id: p_i_alarm
         lambda: |-
           it.image(8, 0, id(i_alarm_light));
           it.rectangle(0, 0, 64, 48);
-
       - id: p_i_alarm_outline
         lambda: |-
           it.image(8, 0, id(i_alarm_light_outline));
           it.rectangle(0, 0, 64, 48);
-
       - id: p_i_door_closed
         lambda: |-
           it.image(8, 0, id(i_door_closed));
           it.rectangle(0, 0, 64, 48);
-
       - id: p_i_door_open
         lambda: |-
           it.image(8, 0, id(i_door_open));
           it.rectangle(0, 0, 64, 48);
-
 #
 # Display Updating
 interval:
@@ -1229,13 +1181,11 @@ script:
       - switch.turn_on: ${pin_prefix}6
       - delay: 100ms
       - switch.turn_off: ${pin_prefix}6
-
   - id: beep_dash
     then:
       - switch.turn_on: ${pin_prefix}6
       - delay: 450ms
       - switch.turn_off: ${pin_prefix}6
-
   - id: resume_cycle
     then:
       - delay: 2min
