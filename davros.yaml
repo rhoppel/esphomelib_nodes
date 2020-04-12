@@ -321,6 +321,15 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
+                  state: 'adc'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'adc'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
                   state: 'version'
         - if:
             condition:
