@@ -33,6 +33,7 @@ substitutions:
   pin_prefix: d_d
   font: lucon.ttf
   font_number: arial.ttf
+  pool_tmpr:  input_number.pool_tmpr # sHA ensor fpr pool temperature
 
 # screen constants
   w:  "64"  # width of screen
@@ -335,6 +336,15 @@ binary_sensor:
               text_sensor.state:
                 id: p_sel
                 state: 'adc'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: p_1
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: p_1
             then: 
               - text_sensor.template.publish:
                   id: next_page
@@ -760,6 +770,10 @@ sensor:
     entity_id: sensor.dark_sky_apparent_temperature
     internal: true
   - platform: homeassistant
+    id: ha_pool_tmpr
+    entity_id: $pool_tmpr
+    internal: true
+  - platform: homeassistant
     id: ha_comed_price
     entity_id: sensor.comed_price
   - platform: homeassistant
@@ -868,7 +882,7 @@ font:
   - file: fonts/$font_number
     id: font_time
     size: 23
-    glyphs: '¢$% -_.:°0123456789'
+    glyphs: ' -.:0123456789'
   - file: fonts/$font
     id: font_small
     size: 10
@@ -880,11 +894,12 @@ font:
   - file: fonts/$font
     id: font_large
     size: 22
+    glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
   - file: fonts/$font_number
     id: font_tmpr
 #    size: 32
     size: 27
-    glyphs: '¢$% -_.:°0123456789'
+    glyphs: '.°0123456789'
   - file: fonts/$font
     id: font_day
     size: 12
@@ -923,8 +938,8 @@ image:
     id: i_pool
   - file: icons/home-thermometer.png
     id: i_home_thermometer
-  - file: icons/pipe-leak.png
-    id: i_pipe_leak
+#  - file: icons/pipe-leak.png
+#    id: i_pipe_leak
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
 ##  - file: icons/techDogs_64_18.png
@@ -1052,7 +1067,7 @@ display:
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
       - id: p_i_flash
@@ -1083,11 +1098,10 @@ display:
         lambda: |-
           it.image(8, 0, id(i_door_open));
           it.rectangle(0, 0, 64, 48);
-
-      - id: p_i_pipe_leak
-        lambda: |-
-          it.image(8, 0, id(i_pipe_leak));
-          it.rectangle(0, 0, 64, 48);
+#      - id: p_i_pipe_leak
+#        lambda: |-
+#          it.image(8, 0, id(i_pipe_leak));
+#          it.rectangle(0, 0, 64, 48);
       - id: p_i_alarm
         lambda: |-
           it.image(8, 0, id(i_alarm_light));
@@ -1120,13 +1134,13 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-      - id: p_1a
-        lambda: |-
-          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
-          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
-          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
-          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
-          it.line(0, 16, $w, 16);
+#      - id: p_1a
+#        lambda: |-
+#          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
+#          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+#          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+#          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+#          it.line(0, 16, $w, 16);
 #      - id: p_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
