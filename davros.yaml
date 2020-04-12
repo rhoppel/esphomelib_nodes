@@ -43,9 +43,9 @@ substitutions:
   font_time_x: "3"
   font_time_y: "27"
 
-sun:
-  latitude:   !secret  my_latitude
-  longitude:  !secret  my_longitude
+#sun:
+#  latitude:   !secret  my_latitude
+#  longitude:  !secret  my_longitude
 
 esphome:
   name: $devicename
@@ -415,16 +415,26 @@ binary_sensor:
 # -------------------------------------------------------
 
 text_sensor:
-  - platform: sun
-    name: Sun Next Sunrise
-    type: sunrise
+  - platform: homeassistant
     internal: true
     id: sunrise
-  - platform: sun
-    name: Sun Next Sunset
-    type: sunset
+    entity_id: sensor.nextsunrise
+  - platform: homeassistant
     internal: true
     id: sunset
+    entity_id: sensor.nextsunset
+
+#  - platform: sun
+#    name: Sun Next Sunrise
+#    type: sunrise
+#    internal: true
+#    id: sunrise
+#  - platform: sun
+#    name: Sun Next Sunset
+#    type: sunset
+#    internal: true
+#    id: sunset
+
   - platform: template
     id: 'next_page'
     internal: true
@@ -997,18 +1007,22 @@ display:
       - id: p_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
-          it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunrise).state.c_str());
+          it.printf($w2, ${font_time_y}+10, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_sunset
         lambda: |-
           it.image(8, 0, id(i_sunset));
       - id: p_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
-          it.printf(${font_time_x}, ${font_time_y}, id(font_time),   TextAlign::LEFT, "%-3.5s", id(sunset).state.c_str());
+          it.printf($w2, ${font_time_y}+10, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
+          it.draw_pixel_at(     0, $h - 1);
+          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_thermometer
         lambda: |-
           it.image(8, 0, id(i_thermometer));
