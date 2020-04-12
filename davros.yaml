@@ -465,13 +465,13 @@ text_sensor:
                 state: 'version'
             then: 
               display.page.show: p_i_home_thermometer
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: p_sel
-#                state: 'pool'
-#            then: 
-#              display.page.show: p_pool_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'pool'
+            then: 
+              display.page.show: p_pool_tmpr
         - if:
             condition:
               text_sensor.state:
