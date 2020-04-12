@@ -563,34 +563,34 @@ text_sensor:
                 state: 'alarm'
             then: 
               display.page.show: p_i_alarm
-        - if:
-            condition:
-              text_sensor.state:
-                id: p_sel
-                state: 'i_garage_open'
-            then: 
-              display.page.show: p_i_garage_open
-        - if:
-            condition:
-              text_sensor.state:
-                id: p_sel
-                state: 'i_garage_closed'
-            then: 
-              display.page.show: p_i_garage_closed
-        - if:
-            condition:
-              text_sensor.state:
-                id: p_sel
-                state: 'i_door_open'
-            then: 
-              display.page.show: p_i_door_open
-        - if:
-            condition:
-              text_sensor.state:
-                id: p_sel
-                state: 'i_door_closed'
-            then: 
-              display.page.show: p_i_door_closed
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_garage_open'
+#            then: 
+#              display.page.show: p_i_garage_open
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_garage_closed'
+#            then: 
+#              display.page.show: p_i_garage_closed
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_door_open'
+#            then: 
+#              display.page.show: p_i_door_open
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_door_closed'
+#            then: 
+#              display.page.show: p_i_door_closed
 #        - if:
 #            condition:
 #              text_sensor.state:
@@ -769,8 +769,8 @@ sensor:
     name: adc_$devicename
     id: analog
     update_interval: 1min
-#    filters:
-#      - multiply: 3.3
+    filters:
+      - multiply: 1000
   - platform: homeassistant
     id: ha_room_humidity
     entity_id: sensor.lodge_thermostat_humidity
@@ -1010,8 +1010,8 @@ display:
           it.printf($w2, ${font_time_y}+10, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_sunset
         lambda: |-
           it.image(8, 0, id(i_sunset));
@@ -1021,8 +1021,8 @@ display:
           it.printf($w2, ${font_time_y}+10, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.draw_pixel_at(     0, $h - 1);
-          it.draw_pixel_at($w - 1, $h - 1);
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_thermometer
         lambda: |-
           it.image(8, 0, id(i_thermometer));
@@ -1146,9 +1146,12 @@ display:
       - id: p_adc
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Voltage");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%3.3f" , id(analog).state);
+          it.printf($w2-4, 37, id(font_time), TextAlign::CENTER,  "%3.0f" , id(analog).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
+          it.print(52,40, id(font_small), "mV");
+#          it.draw_pixel_at(     0, $h - 1);
+#          it.draw_pixel_at($w - 1, $h - 1);
 #      - id: p_i_nu
 #        lambda: |-
 #          it.image(16, 0, id(i_nu));
