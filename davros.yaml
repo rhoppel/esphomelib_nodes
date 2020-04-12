@@ -738,8 +738,8 @@ sensor:
     name: adc_$devicename
     id: analog
     update_interval: 1min
-    filters:
-      - multiply: 3.3
+#    filters:
+#      - multiply: 3.3
   - platform: homeassistant
     id: ha_room_humidity
     entity_id: sensor.lodge_thermostat_humidity
@@ -923,6 +923,8 @@ image:
     id: i_pool
   - file: icons/home-thermometer.png
     id: i_home_thermometer
+  - file: icons/pipe-leak.png
+    id: i_pipe_leak
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
 ##  - file: icons/techDogs_64_18.png
@@ -1073,15 +1075,36 @@ display:
           it.rectangle(0, 0, 64, 48);
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
-      - id: p_i_home_thermometer
+      - id: p_i_door_closed
         lambda: |-
-          it.image(  6, 0, id(i_home_thermometer));
-          it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
-          it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
+          it.image(8, 0, id(i_door_closed));
+          it.rectangle(0, 0, 64, 48);
+      - id: p_i_door_open
+        lambda: |-
+          it.image(8, 0, id(i_door_open));
+          it.rectangle(0, 0, 64, 48);
+
+      - id: p_i_pipe_leak
+        lambda: |-
+          it.image(8, 0, id(i_pipe_leak));
+          it.rectangle(0, 0, 64, 48);
+      - id: p_i_alarm
+        lambda: |-
+          it.image(8, 0, id(i_alarm_light));
+          it.rectangle(0, 0, 64, 48);
+      - id: p_i_alarm_outline
+        lambda: |-
+          it.image(8, 0, id(i_alarm_light_outline));
+          it.rectangle(0, 0, 64, 48);
+#      - id: p_i_pipe_leak_2
+#        lambda: |-
+#          it.image(8, 0, id(i_pipe_leak));
+#          it.circle(24,32,3);
+#          it.rectangle(0, 0, 64, 48);
       - id: p_adc
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Voltage");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.3f" , id(analog).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%3.3f" , id(analog).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #      - id: p_i_nu
@@ -1111,22 +1134,12 @@ display:
 #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
 #          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-      - id: p_i_alarm
+
+      - id: p_i_home_thermometer
         lambda: |-
-          it.image(8, 0, id(i_alarm_light));
-          it.rectangle(0, 0, 64, 48);
-      - id: p_i_alarm_outline
-        lambda: |-
-          it.image(8, 0, id(i_alarm_light_outline));
-          it.rectangle(0, 0, 64, 48);
-      - id: p_i_door_closed
-        lambda: |-
-          it.image(8, 0, id(i_door_closed));
-          it.rectangle(0, 0, 64, 48);
-      - id: p_i_door_open
-        lambda: |-
-          it.image(8, 0, id(i_door_open));
-          it.rectangle(0, 0, 64, 48);
+          it.image(  6, 0, id(i_home_thermometer));
+          it.printf(40,  0, id(font_small), TextAlign::LEFT, "${version}");
+          it.printf($w2, 45, id(font_small), TextAlign::CENTER, "${upper_devicename}");
 #
 # Display Updating
 interval:
