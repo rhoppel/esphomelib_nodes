@@ -212,6 +212,10 @@ switch:
 # ======================================================
 
 binary_sensor:
+  - platform: homeassistant
+    id: pool_heater
+    internal: true
+    entity_id: input_boolean.pool_heater
   - platform: template
     id: blink
     internal: true
@@ -753,6 +757,7 @@ sensor:
   - platform: homeassistant
     id: ha_room_humidity
     entity_id: sensor.lodge_thermostat_humidity
+    internal: true
   - platform: homeassistant
     id: ha_outdoor_humidity
     entity_id: sensor.dark_sky_humidity
@@ -776,9 +781,11 @@ sensor:
   - platform: homeassistant
     id: ha_comed_price
     entity_id: sensor.comed_price
+    internal: true
   - platform: homeassistant
     id: ha_thermostat
     entity_id: sensor.lodge_thermostat_target
+    internal: true
 
 # -------------------------------------------------------
 #  Temperature / Humidity Sensor
@@ -938,8 +945,8 @@ image:
     id: i_pool
   - file: icons/home-thermometer.png
     id: i_home_thermometer
-#  - file: icons/pipe-leak.png
-#    id: i_pipe_leak
+  - file: icons/pipe-leak.png
+    id: i_pipe_leak
 #  - file: icons/NU_30_48_2.png
 #    id: i_nu
 ##  - file: icons/techDogs_64_18.png
@@ -1098,10 +1105,10 @@ display:
         lambda: |-
           it.image(8, 0, id(i_door_open));
           it.rectangle(0, 0, 64, 48);
-#      - id: p_i_pipe_leak
-#        lambda: |-
-#          it.image(8, 0, id(i_pipe_leak));
-#          it.rectangle(0, 0, 64, 48);
+      - id: p_i_pipe_leak
+        lambda: |-
+          it.image(8, 0, id(i_pipe_leak));
+          it.rectangle(0, 0, 64, 48);
       - id: p_i_alarm
         lambda: |-
           it.image(8, 0, id(i_alarm_light));
