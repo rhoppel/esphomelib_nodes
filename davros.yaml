@@ -760,7 +760,7 @@ time:
 #  - platform: homeassistant
 #    id: ha_time
   - platform: sntp
-    id: ha_time
+    id: sntp_time
     timezone: America/Chicago
 # -------------------------------------------------------
 sensor:
@@ -983,9 +983,16 @@ display:
     pages:
       - id: p_time
         lambda: |-
-          it.strftime($w2, 5,  id(font_day), TextAlign::CENTER, "%A",    id(ha_time).now());
-          it.strftime($w2, 19, id(font_normal),   TextAlign::CENTER, "%b-%d", id(ha_time).now());
-          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
+          auto nowTime = id(sntp_time).now();
+          it.strftime($w2, 5,                         id(font_day),    TextAlign::CENTER, "%A",    nowTime);
+          it.strftime($w2, 19,                        id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
+          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),                      "%I:%M", nowTime);
+          if (nowTime.hour < 10) { 
+            it.filled_rectangle(4, 26, 12, 48, COLOR_OFF);
+          }
+          else if(nowTime.hour < 22 && nowTime.hour > 12) {
+            it.filled_rectangle(4, 26, 12, 48, COLOR_OFF);
+          }
 #          it.strftime(${font_time_x}, ${font_time_y}, id(font_time),   "%I:%M", id(ha_time).now());
 #          it.draw_pixel_at(     0,      0);
 #          it.draw_pixel_at($w - 1,      0);
