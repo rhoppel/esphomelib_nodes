@@ -7,6 +7,7 @@
 # Changelog
 # ---
 # 1.0    Release !!!
+#       - add COMED price alarm
 # 0.9    functionally complete
 #       - monitor and "door open" status
 #       - monitor "garage open" staus
@@ -25,7 +26,7 @@
 # v0.71 - add light effects to rgb_light
 #          add NU logo
 #          added font substitution/ changed "font" to lucon.ttf
-# ---
+# ------------------------------------------------------
 substitutions:
   version: "1.0"
   devicename: davros
@@ -56,7 +57,7 @@ substitutions:
   bottom_right_pixel: "it.draw_pixel_at($w - 1, $h - 1);"
   display_box:        "it.rectangle(0, 0, 64, 48);"        # box around display limits
 
-#sun:
+#sun:    # replace by getting infor frpm HA
 #  latitude:   !secret  my_latitude
 #  longitude:  !secret  my_longitude
 
@@ -608,13 +609,6 @@ text_sensor:
 #                state: 'i_door_closed'
 #            then: 
 #              display.page.show: p_i_door_closed
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: p_sel
-#                state: 'i_techdogs'
-#            then: 
-#              display.page.show: p_i_techdogs
         - if:
             condition:
               text_sensor.state:
@@ -677,83 +671,6 @@ text_sensor:
                   id: rgb_light
                   effect: flicker
 #                  brightness: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'blue'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 0.0
-#                  green: 0.0
-#                  blue: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'green'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 0.0
-#                  green: 1.0
-#                  blue: 0.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'red'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 0.0
-#                  blue: 0.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'white'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 1.0
-#                  blue: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'purple'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 0.5
-#                  green: 0.0
-#                  blue: 1.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'orange'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 0.25
-#                  blue: 0.0
-#        - if:
-#            condition:
-#              text_sensor.state:
-#                id: light_effects_selection
-#                state: 'yellow'
-#            then: 
-#              - light.turn_on:   
-#                  id: rgb_light
-#                  red: 1.0
-#                  green: 1.0
-#                  blue: 0.0
 
   - platform: homeassistant
     id: ha_title
@@ -1002,8 +919,8 @@ display:
 #   Block out the leading zero of display if present
         lambda: |-
           auto nowTime = id(sntp_time).now();
-          it.strftime($w2, 6,                           id(font_day),    TextAlign::CENTER, "%A",    nowTime);
-          it.strftime($w2, 18,                          id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
+          it.strftime($w2,             6,                 id(font_day),    TextAlign::CENTER, "%A",    nowTime);
+          it.strftime($w2,            18,                 id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
           it.strftime(${font_time_x}-2, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
           if (nowTime.hour < 10) {
             it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
