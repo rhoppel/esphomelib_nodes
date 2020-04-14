@@ -1110,9 +1110,9 @@ display:
       - id: p_1
         lambda: |-
           it.printf($w2,  8, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
-          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
-          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
-          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.printf($w2, 23, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 33, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 43, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
           it.line(0,  0, $w,  0);
 #          $display_box
