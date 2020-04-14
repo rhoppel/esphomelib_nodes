@@ -38,6 +38,7 @@ substitutions:
   pool_tmpr:  input_number.pool_tmpr # sHA ensor fpr pool temperature
   voltage_name: Illumin
   outside_temperature: sensor.owm_temperature
+  aquarium_temperature: sensor.temperature_wildcat # include on a page
 
 # display page substitutions
 
@@ -87,7 +88,7 @@ logger: # enable logging
 # ======================================================
 # insert the following into a Markdown page
 # ------------------------------------------------------
-# # Wildcat [esphome]
+# # Davros [esphome]
 # ### 192.168.111.116
 #                          ___________
 #                    [RST] |Reset  RX| [RX]
@@ -715,7 +716,7 @@ sensor:
     internal: true
   - platform: homeassistant
     id: ha_aquarium
-    entity_id: sensor.temperature_wildcat
+    entity_id: $aquarium_temperature
     internal: true
   - platform: homeassistant
     id: ha_room_tmpr
