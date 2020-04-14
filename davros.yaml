@@ -844,11 +844,6 @@ font:
     id: font_time
     size: 23
     glyphs: ' -.:0123456789'
-  - file: fonts/$font_number
-    id: font_tmpr
-#    size: 32
-    size: 27
-    glyphs: '.°0123456789'
   - file: fonts/$font
     id: font_small
     size: 10
@@ -861,6 +856,11 @@ font:
     id: font_large
     size: 22
     glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  - file: fonts/$font_number
+    id: font_tmpr
+#    size: 32
+    size: 27
+    glyphs: '.°0123456789'
   - file: fonts/$font
     id: font_day
     size: 12
