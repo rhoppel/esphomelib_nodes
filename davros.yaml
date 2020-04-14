@@ -1070,7 +1070,8 @@ display:
           $display_box
       - id: p_aquarium_tmpr
         lambda: |-
-          it.printf($w2+1, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+          it.draw_pixel_at(0,14);
           $title_top_line
           $title_botton_line
           it.printf( $w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
