@@ -988,16 +988,17 @@ display:
     id: this_display
     pages:
       - id: p_time
+#   Block out the leading zero of display if present
         lambda: |-
           auto nowTime = id(sntp_time).now();
           it.strftime($w2, 6,                           id(font_day),    TextAlign::CENTER, "%A",    nowTime);
           it.strftime($w2, 18,                          id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
           it.strftime(${font_time_x}-2, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
           if (nowTime.hour < 10) {
-            it.filled_rectangle(0, 26, 12, 48, COLOR_OFF);
+            it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
           }
           else if(nowTime.hour < 22 && nowTime.hour > 12) {
-            it.filled_rectangle(0, 26, 12, 48, COLOR_OFF);
+            it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
           }
           it.rectangle(0, 0, 64, 48);
       - id: p_i_ha
