@@ -304,6 +304,14 @@ binary_sensor:
                     entity_id: input_boolean.alarm_$devicename
         - if:
             condition:
+              binary_sensor.is_on: comed_alarm
+            then:
+              - homeassistant.service:
+                  service: input_boolean.turn_off
+                  data:
+                    entity_id: input_boolean.comed_alarm
+        - if:
+            condition:
               text_sensor.state:
                 id: p_sel
                 state: 'cycle'
