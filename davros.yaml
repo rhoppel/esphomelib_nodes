@@ -363,6 +363,15 @@ binary_sensor:
             then: 
               - text_sensor.template.publish:
                   id: next_page
+                  state: 'pool'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'pool'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
                   state: 'adc'
         - if:
             condition:
@@ -1050,7 +1059,7 @@ display:
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-          it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
+          it.printf($w2-3, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
           $title_top_line
           $title_botton_line
           if (id(pool_heater).state){
