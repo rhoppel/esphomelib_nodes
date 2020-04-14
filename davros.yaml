@@ -1035,26 +1035,26 @@ display:
       - id: p_i_thermometer
         lambda: |-
           it.image(8, 0, id(i_thermometer));
-          it.print(1, 0, id(font_normal),  "°F");
+          it.print(3, 2, id(font_normal),  "°F");
           it.rectangle(0, 0, 64, 48);
       - id: p_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(t_1).state);
+          it.printf( $w2, 37, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_aquarium
         lambda: |-
-          it.image(5, 0, id(i_fish));
+          it.image(7, 0, id(i_fish));
           it.rectangle(0, 0, 64, 48);
       - id: p_aquarium_tmpr
         lambda: |-
-          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+          it.printf($w2+1, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( 0, 37, id(font_tmpr), "%.1f" "°", id(ha_aquarium).state);
+          it.printf( $w2, 37, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_room_tmpr
@@ -1068,7 +1068,7 @@ display:
       - id: p_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_room_humidity).state);
+          it.printf($w2-3, 37, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1097,7 +1097,7 @@ display:
       - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
+          it.printf($w2-3, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1108,7 +1108,7 @@ display:
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-          it.printf($w2-4, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
+          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           if (id(pool_heater).state){
