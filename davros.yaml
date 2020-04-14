@@ -36,6 +36,7 @@ substitutions:
   font_number: arial.ttf
   pool_tmpr:  input_number.pool_tmpr # sHA ensor fpr pool temperature
   voltage_name: Illumin
+  outside_temperature: sensor.owm_temperature
 
 # screen constants
   w:  "64"  # width of screen
@@ -795,7 +796,7 @@ sensor:
     internal: true
   - platform: homeassistant
     id: ha_outside_tmpr
-    entity_id: sensor.dark_sky_apparent_temperature
+    entity_id: $outside_temperature
     internal: true
   - platform: homeassistant
     id: ha_pool_tmpr
