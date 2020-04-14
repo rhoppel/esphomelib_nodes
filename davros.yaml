@@ -69,7 +69,8 @@ substitutions:
 esphome:
   name: $devicename
   platform: ESP8266
-  board: d1_mini
+#  board: d1_mini
+  board: d1_mini_pro
   
 wifi:
   ssid:     !secret wifi_ssid
@@ -1078,7 +1079,7 @@ display:
           if (id(pool_pump).state){
             it.print(40,30,id(font_small),"pump");
           }
-          it.printf(52,28,id(font_small), "83");
+          it.printf(52,28,id(font_small), "82");
 #          it.printf(64,20,id(font_small),TextAlign::LEFT, "%2.0f", id(ha_pool_thrmst).state);
 #          $bottom_right_pixel
 #          $bottom_left_pixel
