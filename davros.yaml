@@ -1234,18 +1234,41 @@ interval:
                   - display.page.show: p_i_door_closed
                   - component.update: this_display
                 else:
-                  - if: 
+                  - if:
                       condition:
-                        binary_sensor.is_off: alarm
-                      then: 
-                        - if:
+                        binary_sensor.is_on: comed_alarm
+                      then:
+                        - display.page.show: p_i_flash
+                        - component.update: this_display
+                        - delay: 1s
+                        - display.page.show: p_comed_price
+                        - component.update: this_display
+                      else:
+                        - if: 
                             condition:
-                              text_sensor.state:
-                                id: p_sel
-                                state: cycle
-                            then:
-                              - display.page.show_next: this_display
-                              - component.update: this_display
+                              binary_sensor.is_off: alarm
+                            then: 
+                              - if:
+                                  condition:
+                                    text_sensor.state:
+                                      id: p_sel
+                                      state: cycle
+                                  then:
+                                    - display.page.show_next: this_display
+                                    - component.update: this_display
+
+#                  - if: 
+#                      condition:
+#                        binary_sensor.is_off: alarm
+#                      then: 
+#                        - if:
+#                            condition:
+#                              text_sensor.state:
+#                                id: p_sel
+#                                state: cycle
+#                            then:
+#                              - display.page.show_next: this_display
+#                              - component.update: this_displ
 
 # Alarm 
   - interval: 400ms
