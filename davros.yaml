@@ -38,7 +38,8 @@ substitutions:
   voltage_name: Illumin
   outside_temperature: sensor.owm_temperature
 
-# display page constants
+# display page substitutions
+
   w:  "64"  # width of display
   w2: "32"  # width / 2 (center of display)
   h:  "48"  # height of display
@@ -46,6 +47,14 @@ substitutions:
   font_time_x: "3"
   font_time_y: "27"
   font_temp_y: "37"  # center "y" component of "temperature" number in pages
+
+  title_top_line:     "it.line(0, 0, $w, 0);"
+  title_botton_line:  "it.line(0, 19, $w, 19);"
+  top_left_pixel:     "it.draw_pixel_at(     0,      0);"
+  top_right_pixel:    "it.draw_pixel_at($w - 1,      0);"
+  bottom_left_pixel:  "it.draw_pixel_at(     0, $h - 1);"
+  bottom_right_pixel: "it.draw_pixel_at($w - 1, $h - 1);"
+  display_box:        "it.rectangle(0, 0, 64, 48);"        # box around display limits
 
 #sun:
 #  latitude:   !secret  my_latitude
@@ -1002,180 +1011,175 @@ display:
           else if(nowTime.hour < 22 && nowTime.hour > 12) {
             it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
           }
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_ha
         lambda: |-
           it.image(5, 0, id(i_ha));
+          $top_left_pixel
+          $top_right_pixel
+          $bottom_left_pixel
+          $bottom_right_pixel
+  
       - id: p_3
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
-          it.line(0, 0, $w, 0);
+          $title_top_line
           it.line(0, 21, $w, 21);
           it.line(0, 23, $w, 23);
           it.printf($w2, ${font_temp_y}, id(font_large), TextAlign::CENTER,  "Lodge");
       - id: p_i_sunrise
         lambda: |-
           it.image(8, 0, id(i_sunrise));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
           it.printf($w2, ${font_temp_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
-#          it.rectangle(0, 0, 64, 48);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+          $title_top_line
+          $title_botton_line
+#          $display_box
+#          $bottom_left_pixel
+#          $bottom_right_pixel
       - id: p_i_sunset
         lambda: |-
           it.image(8, 0, id(i_sunset));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
           it.printf($w2, ${font_temp_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
-#          it.rectangle(0, 0, 64, 48);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+          $title_top_line
+          $title_botton_line
+#          $display_box
+#          $bottom_left_pixel
+#          $bottom_right_pixel
       - id: p_i_thermometer
         lambda: |-
           it.image(8, 0, id(i_thermometer));
           it.print(3, 2, id(font_normal),  "°F");
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
           it.printf( $w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_aquarium
         lambda: |-
           it.image(7, 0, id(i_fish));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_aquarium_tmpr
         lambda: |-
           it.printf($w2+1, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
           it.printf( $w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_room_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
           it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+          $title_top_line
+          $title_botton_line
       - id: p_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
           it.printf($w2-3, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
           it.print(52,22,id(font_normal), "%");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
       - id: p_i_thermostat
         lambda: |-
           it.image(8, 0, id(i_thermostat));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
           it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
+          $title_top_line
+          $title_botton_line
       - id: p_i_theme_light_dark
         lambda: |-
           it.image(8, 0, id(i_theme_light_dark));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_outside_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
           it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
       - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
           it.printf($w2-3, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
           it.print(52,22,id(font_normal), "%");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
       - id: p_i_pool
         lambda: |-
           it.image(8, 0, id(i_pool));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
           it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
           if (id(pool_heater).state){
             it.print(40,40,id(font_small),"heat");
           }
       - id: p_i_flash
         lambda: |-
           it.image(8, 0, id(i_flash));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
           it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
           it.printf(55,30,id(font_normal), "¢");
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
       - id: p_i_garage_open
         lambda: |-
           it.image(8, 0, id(i_garage_open));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_garage_closed
         lambda: |-
           it.image(8, 0, id(i_garage_open));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
           it.filled_rectangle(19,29,26,4);
           it.filled_rectangle(19,35,26,4);
       - id: p_i_door_closed
         lambda: |-
           it.image(8, 0, id(i_door_closed));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_door_open
         lambda: |-
           it.image(8, 0, id(i_door_open));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_pipe_leak
         lambda: |-
           it.image(8, 0, id(i_pipe_leak));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_alarm
         lambda: |-
           it.image(8, 0, id(i_alarm_light));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
       - id: p_i_alarm_outline
         lambda: |-
           it.image(8, 0, id(i_alarm_light_outline));
-          it.rectangle(0, 0, 64, 48);
+          $display_box
 #      - id: p_i_pipe_leak_2
 #        lambda: |-
 #          it.image(8, 0, id(i_pipe_leak));
 #          it.circle(24,32,3);
-#          it.rectangle(0, 0, 64, 48);
+#          $display_box
       - id: p_adc
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
           it.printf($w2-4, ${font_temp_y}, id(font_time), TextAlign::CENTER,  "%3.0f" , id(analog).state);
-          it.line(0, 0, $w, 0);
-          it.line(0, 19, $w, 19);
+          $title_top_line
+          $title_botton_line
           it.print(52,40, id(font_small), "mV");
-#          it.draw_pixel_at(     0, $h - 1);
-#          it.draw_pixel_at($w - 1, $h - 1);
 #      - id: p_i_nu
 #        lambda: |-
 #          it.image(16, 0, id(i_nu));
@@ -1190,14 +1194,7 @@ display:
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
           it.line(0,  0, $w,  0);
-#          it.rectangle(0, 0, 64, 48);
-#      - id: p_1a
-#        lambda: |-
-#          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
-#          it.printf($w2, 22, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
-#          it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
-#          it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
-#          it.line(0, 16, $w, 16);
+#          $display_box
 #      - id: p_2
 #        lambda: |-
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
@@ -1205,15 +1202,15 @@ display:
 #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
 #          it.printf($w2, ${font_temp_y}, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-
       - id: p_i_home_thermometer
         lambda: |-
-          it.image(  6, -1, id(i_home_thermometer));
-          it.printf(40,  2, id(font_small), TextAlign::LEFT, "${version}");
+          it.image(  6,  -1, id(i_home_thermometer));
+          it.printf(40,   2, id(font_small), TextAlign::LEFT, "${version}");
           it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
-          it.rectangle(0, 0, 64, 48);
-#
+          $display_box
+
 # Display Updating
+
 interval:
   - interval: 2s
     then:
@@ -1260,20 +1257,8 @@ interval:
                                     - display.page.show_next: this_display
                                     - component.update: this_display
 
-#                  - if: 
-#                      condition:
-#                        binary_sensor.is_off: alarm
-#                      then: 
-#                        - if:
-#                            condition:
-#                              text_sensor.state:
-#                                id: p_sel
-#                                state: cycle
-#                            then:
-#                              - display.page.show_next: this_display
-#                              - component.update: this_displ
-
 # Alarm 
+
   - interval: 400ms
     then:
       - if:
