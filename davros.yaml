@@ -10,7 +10,7 @@
 # 0.9    functionally complete
 #       - monitor and "door open" status
 #       - monitor "garage open" staus
-#       - swtich to "cycle screen" 5 min after static screen selected
+#       - swtich to "cycle display" 5 min after static display selected
 #       - add pool temperature
 #       - added font_day to fit "Wednesday" into field
 #       - add analog sensor
@@ -18,10 +18,10 @@
 #       - add room and outdoor humidity
 #       - change version page
 #       - fixed switch changing display pages
-#       - fine tuning of time screen formatting
+#       - fine tuning of time display formatting
 # 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
-#       - fix screen advancing 
-#       - add more graphics; rearrange screens
+#       - fix display advancing 
+#       - add more graphics; rearrange pages
 # v0.71 - add light effects to rgb_light
 #          add NU logo
 #          added font substitution/ changed "font" to lucon.ttf
@@ -38,13 +38,14 @@ substitutions:
   voltage_name: Illumin
   outside_temperature: sensor.owm_temperature
 
-# screen constants
-  w:  "64"  # width of screen
-  w2: "32"  # width / 2
-  h:  "48"  # height of screen
-  h2: "24"  # height /2
+# display page constants
+  w:  "64"  # width of display
+  w2: "32"  # width / 2 (center of display)
+  h:  "48"  # height of display
+  h2: "24"  # height /2 (center of display)
   font_time_x: "3"
   font_time_y: "27"
+  font_temp_y: "37"  # center "y" component of "temperature" number in pages
 
 #sun:
 #  latitude:   !secret  my_latitude
@@ -113,7 +114,7 @@ logger: # enable logging
 #                  GND: Motor power supply -
 #                  1-A-2: Motor A
 #                  2-B-1: Motor B
-#  OLED Screen     D1	SCL (I2C)
+#  OLED display     D1	SCL (I2C)
 #                  D2	SDA (I2C)
 #  DHT Shield      D1	SCL (I2C)
 #                  D2	SDA
@@ -448,7 +449,7 @@ text_sensor:
   - platform: homeassistant
     id: p_sel
     internal: true
-    entity_id: input_select.screen_$devicename
+    entity_id: input_select.page_$devicename
     on_value:
       then:
         - display.page.show: p_time
@@ -1011,7 +1012,7 @@ display:
           it.line(0, 0, $w, 0);
           it.line(0, 21, $w, 21);
           it.line(0, 23, $w, 23);
-          it.printf($w2, 37, id(font_large), TextAlign::CENTER,  "Lodge");
+          it.printf($w2, ${font_temp_y}, id(font_large), TextAlign::CENTER,  "Lodge");
       - id: p_i_sunrise
         lambda: |-
           it.image(8, 0, id(i_sunrise));
@@ -1019,7 +1020,7 @@ display:
       - id: p_sunrise
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
-          it.printf($w2, ${font_time_y}+8, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
+          it.printf($w2, ${font_temp_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.rectangle(0, 0, 64, 48);
@@ -1032,7 +1033,7 @@ display:
       - id: p_sunset
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
-          it.printf($w2, ${font_time_y}+8, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
+          it.printf($w2, ${font_temp_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.rectangle(0, 0, 64, 48);
@@ -1048,7 +1049,7 @@ display:
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( $w2, 37, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+          it.printf( $w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_aquarium
@@ -1060,13 +1061,13 @@ display:
           it.printf($w2+1, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.printf( $w2, 37, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
+          it.printf( $w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_room_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
+          it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1074,7 +1075,7 @@ display:
       - id: p_room_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2-3, 37, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
+          it.printf($w2-3, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1085,7 +1086,7 @@ display:
       - id: p_thermostat
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
+          it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
 #          it.draw_pixel_at(     0, $h - 1);
@@ -1097,13 +1098,13 @@ display:
       - id: p_outside_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
+          it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
       - id: p_outdoor_humidity
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
-          it.printf($w2-3, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
+          it.printf($w2-3, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
           it.print(52,22,id(font_normal), "%");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1114,7 +1115,7 @@ display:
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
+          it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           if (id(pool_heater).state){
@@ -1127,7 +1128,7 @@ display:
       - id: p_comed_price
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
-          it.printf($w2, 37, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
+          it.printf($w2, ${font_temp_y}, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
           it.printf(55,30,id(font_normal), "¢");
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
@@ -1169,7 +1170,7 @@ display:
       - id: p_adc
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
-          it.printf($w2-4, 37, id(font_time), TextAlign::CENTER,  "%3.0f" , id(analog).state);
+          it.printf($w2-4, ${font_temp_y}, id(font_time), TextAlign::CENTER,  "%3.0f" , id(analog).state);
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
           it.print(52,40, id(font_small), "mV");
@@ -1202,7 +1203,7 @@ display:
 #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
 #          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
 #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
-#          it.printf($w2, 37, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#          it.printf($w2, ${font_temp_y}, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
 
       - id: p_i_home_thermometer
