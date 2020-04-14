@@ -218,6 +218,10 @@ binary_sensor:
     id: pool_heater
     internal: true
     entity_id: input_boolean.pool_heater
+  - platform: homeassistant
+    id: comed_alarm
+    internal: true
+    entity_id: input_boolean.comed_alarm
   - platform: template
     id: blink
     internal: true
@@ -988,7 +992,7 @@ display:
           auto nowTime = id(sntp_time).now();
           it.strftime($w2, 6,                           id(font_day),    TextAlign::CENTER, "%A",    nowTime);
           it.strftime($w2, 18,                          id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
-          it.strftime(${font_time_x}-3, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
+          it.strftime(${font_time_x}-2, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
           if (nowTime.hour < 10) {
             it.filled_rectangle(0, 26, 12, 48, COLOR_OFF);
           }
@@ -1016,7 +1020,7 @@ display:
           it.printf($w2, ${font_time_y}+8, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.rectangle(0, 0, 64, 48);
+#          it.rectangle(0, 0, 64, 48);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_sunset
@@ -1029,7 +1033,7 @@ display:
           it.printf($w2, ${font_time_y}+8, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
           it.line(0, 0, $w, 0);
           it.line(0, 19, $w, 19);
-          it.rectangle(0, 0, 64, 48);
+#          it.rectangle(0, 0, 64, 48);
 #          it.draw_pixel_at(     0, $h - 1);
 #          it.draw_pixel_at($w - 1, $h - 1);
       - id: p_i_thermometer
@@ -1182,7 +1186,8 @@ display:
           it.printf($w2, 32, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
           it.printf($w2, 42, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
           it.line(0, 16, $w, 16);
-          it.rectangle(0, 0, 64, 48);
+          it.line(0,  0, $w,  0);
+#          it.rectangle(0, 0, 64, 48);
 #      - id: p_1a
 #        lambda: |-
 #          it.printf($w2,  7, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
