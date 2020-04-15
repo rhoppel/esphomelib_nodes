@@ -888,7 +888,7 @@ font:
     id: font_tmpr
 #    size: 32
     size: 27
-    glyphs: '.°0123456789'
+    glyphs: ' .°0123456789'
   - file: fonts/$font
     id: font_day
     size: 12
@@ -953,7 +953,7 @@ display:
           it.strftime($w2,             6,                 id(font_day),    TextAlign::CENTER, "%A",    nowTime);
           it.strftime($w2,            18,                 id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
           it.strftime(${font_time_x}-2, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
-          if (nowTime.hour < 10) {
+          if (nowTime.hour < 10 && nowTime.hour > 0 ) {
             it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
           }
           else if(nowTime.hour < 22 && nowTime.hour > 12) {
@@ -1011,7 +1011,8 @@ display:
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
           $title_top_line
           $title_botton_line
-          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "68" "°");
+#          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
       - id: p_i_aquarium
         lambda: |-
           it.image(7, 0, id(i_fish));
@@ -1070,7 +1071,7 @@ display:
       - id: p_pool_tmpr
         lambda: |-
           it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-          it.printf($w2-5, ${font_tmpr_y}-2, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
+          it.printf(0, ${font_tmpr_y}-2, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
           $title_top_line
           $title_botton_line
           if (id(pool_heater).state){
@@ -1083,6 +1084,7 @@ display:
 #          it.printf(64,20,id(font_small),TextAlign::LEFT, "%2.0f", id(ha_pool_thrmst).state);
 #          $bottom_right_pixel
 #          $bottom_left_pixel
+#          it.printf($w2-5, ${font_tmpr_y}-2, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
       - id: p_i_flash
         lambda: |-
           it.image(8, 0, id(i_flash));
