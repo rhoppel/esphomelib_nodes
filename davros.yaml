@@ -31,18 +31,35 @@
 #          added font substitution/ changed "font" to lucon.ttf
 # ------------------------------------------------------
 substitutions:
-  version: "1.0"
+  version: "1.0b"
+
   devicename: davros
   upper_devicename: Davros
   pin_prefix_upper: D_D
   pin_prefix: d_d
+
+#  devicename: drwho
+#  upper_devicename: DrWho
+#  pin_prefix_upper: Dr_D
+#  pin_prefix: dr_d
+
+#  devicename: cyberman
+#  upper_devicename: CyberMan
+#  pin_prefix_upper: C_D
+#  pin_prefix: c_d
+
+#  devicename: dalek
+#  upper_devicename: Dalek
+#  pin_prefix_upper: dk_D
+#  pin_prefix: dk_d
+
   font: lucon.ttf
   font_number: arial.ttf
   voltage_name: Illumin
-  pool_tmpr:            input_number.pool_tmpr                  # HA sensor fpr pool temperature
+  pool_tmpr:            input_number.pool_tmpr       # HA sensor fpr pool temperature
   pool_thrmst:          input_number.pool_thrmst
-  outside_temperature:  sensor.owm_temperature         # use this for page "Outside"
-  aquarium_temperature: sensor.temperature_wildcat    # include on a page "Aquarium"
+  outside_temperature:  sensor.owm_temperature       # use this for page "Outside"
+  aquarium_temperature: sensor.temperature_wildcat   # include on a page "Aquarium"
 
 # display page substitutions
 
@@ -792,8 +809,7 @@ sensor:
     #    index: 0
     name: t_$devicename
     id: t_1
-#       Convert Centrigrade to Farenheit
-    filters:
+    filters:  #       Convert Centrigrade to Farenheit
       - lambda: return x * (9.0/5.0) + 32.0;
     unit_of_measurement: '°F'
 dallas:
@@ -967,7 +983,6 @@ display:
           $top_right_pixel
           $bottom_left_pixel
           $bottom_right_pixel
-  
       - id: p_3
         lambda: |-
           it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
