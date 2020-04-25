@@ -1,0 +1,1269 @@
+# ======================================================
+# WeMoS D1 Mini / ESPhome Template
+# v.1
+# changelog:
+#   inital: 4/1/2020
+# ======================================================
+# Changelog
+# ---------
+# 1.0    Release !!!
+#       - add COMED price alarm
+#       - sharpen page clarity & consistency
+#       - add substitions for pages for consistency
+#       - add pool sensors for heat & pump
+#       - add additional devices
+# 0.9    functionally complete
+#       - monitor and "door open" status
+#       - monitor "garage open" staus
+#       - swtich to "cycle display" 5 min after static display selected
+#       - add pool temperature
+#       - added font_day to fit "Wednesday" into field
+#       - add analog sensor
+# 0.8   - add alarm graphics and sound
+#       - add room and outdoor humidity
+#       - change version page
+#       - fixed switch changing display pages
+#       - fine tuning of time display formatting
+# 0.7.2 - fix switch click timing (2 fast clicks -> lava; 2 slower clicks -> light)
+#       - fix display advancing 
+#       - add more graphics; rearrange pages
+# v0.71 - add light effects to rgb_light
+#          add NU logo
+#          added font substitution/ changed "font" to lucon.ttf
+# ------------------------------------------------------
+substitutions:
+  version: "1.0b"
+
+#  devicename: davros
+#  upper_devicename: Davros
+#  pin_prefix_upper: D_D
+#  pin_prefix: d_d
+
+  devicename: drwho
+  upper_devicename: DrWho
+  pin_prefix_upper: Dr_D
+  pin_prefix: dr_d
+
+#  devicename: cyberman
+#  upper_devicename: CyberMan
+#  pin_prefix_upper: C_D
+#  pin_prefix: c_d
+
+#  devicename: dalek
+#  upper_devicename: Dalek
+#  pin_prefix_upper: dk_D
+#  pin_prefix: dk_d
+
+  font: lucon.ttf
+  font_number: arial.ttf
+  voltage_name: Illumin
+  pool_tmpr:            input_number.pool_tmpr       # HA sensor fpr pool temperature
+  pool_thrmst:          input_number.pool_thrmst
+  outside_temperature:  sensor.owm_temperature       # use this for page "Outside"
+  aquarium_temperature: sensor.temperature_wildcat   # include on a page "Aquarium"
+
+# display page substitutions
+
+  w:  "64"  # width of display
+  w2: "32"  # width / 2 (center of display)
+  h:  "48"  # height of display
+  h2: "24"  # height /2 (center of display)
+  font_time_x: "3"
+  font_time_y: "27"
+  font_tmpr_y: "37"  # center "y" component of "temperature" number in pages
+
+  title_top_line:     "it.line(0, 0, $w, 0);"
+  title_botton_line:  "it.line(0, 19, $w, 19);"
+  top_left_pixel:     "it.draw_pixel_at(     0,      0);"
+  top_right_pixel:    "it.draw_pixel_at($w - 1,      0);"
+  bottom_left_pixel:  "it.draw_pixel_at(     0, $h - 1);"
+  bottom_right_pixel: "it.draw_pixel_at($w - 1, $h - 1);"
+  display_box:        "it.rectangle(0, 0, 64, 48);"        # box around display limits
+
+#sun:    # replace by getting infor frpm HA
+#  latitude:   !secret  my_latitude
+#  longitude:  !secret  my_longitude
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+#  board: d1_mini
+  board: d1_mini_pro
+  
+wifi:
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password
+
+#mqtt:
+#  broker: '192.168.111.250'
+#  username: ''
+#  password: ''
+#  discovery: clean
+
+api: # enable API communication
+logger: # enable logging
+  level: INFO # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+
+#ota: # enable OTA over the air updates
+
+# ======================================================
+#   WeMOS D1 mini PIN Usage
+# ======================================================
+# insert the following into a Markdown page
+# ------------------------------------------------------
+# # Davros [esphome]
+# ### 192.168.111.116
+#                          ___________
+#                    [RST] |Reset  RX| [RX]
+#            PhotoResistor |A0     TX| [TX]
+#                      [O] |D0     D1| [SCL] OLED
+#                      [O] |D5     D2| [SDA] OLED
+#               Buzzer [O] |D6     D3| [I]   pushbutton
+#    OneWire Thermmtr  [S] |D7     D4| [O]   Blue LED
+#             RGB LED  [L] |D8      G| GND
+#                          |3V3    5V| +5V
+#                          |_________|
+#        I/input O/output L/light S/sensor SCL/SDA/I2C bus
+#                             _________________
+#                       [RST] |Reset        RX| [RXD]
+#    PhotoResistor [Max 3.3V] |A0           TX| [TXD]
+#                  [O/GPIO16] |D0           D1| [SCL/GPIO5] OLED
+#                  [O/GPIO14] |D5           D2| [SDA/GPIO4] OLED
+#           Buzzer [O/GPIO12] |D6      [PU] D3| [I/GPIO0]   pushbutton
+# OneWire Thermmtr [T/GPIO13] |D7  [PU,LED] D4| [O/GPIO2]   Blue LED
+#         RGB LED  [L/GPIO15] |D8 [PD]       G| Ground
+#                       3.3V  |3V3          5V| +5V
+#                             |_______________|
+#  Available Pin Modes:
+#  INPUT / OUTPUT / OUTPUT_OPEN_DRAIN / #  INPUT_PULLUP 
+#  INPUT_PULLDOWN (only on ESP8266 and only on GPIO16)
+
+# =======================================================
+#  WeMos Modules
+# =======================================================
+#  Motor Shield    D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#                  RST	RST
+#                  VM: Motor power supply + (Max 15Vdc)
+#                  GND: Motor power supply -
+#                  1-A-2: Motor A
+#                  2-B-1: Motor B
+#  OLED display    D1	SCL (I2C)
+#                  D2	SDA (I2C)
+#  DHT Shield      D1	SCL (I2C)
+#                  D2	SDA
+#  Relay           D1	Relay
+#  WS2812B RGB     D2	WS2812B
+#  DS18B20         D2 Temperature
+#  1 Button        D3 Button
+#  SD Card         D5	CLK
+#                  D6	MISO
+#                  D7	MOSI
+#                  D8	CS
+
+# ======================================================
+# OUTPUTS
+# ======================================================
+switch:
+  # PIN: D0 [DEEP-SLEEP]
+  - platform: gpio
+    name: "${pin_prefix_upper}0"
+    id: ${pin_prefix}0
+    pin:
+        number: D0
+        inverted: False
+        mode: OUTPUT
+  # PIN: D1 [SCL/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}1"
+  #    id: ${pin_prefix}1
+  #    pin:
+  #        number: D1
+  #        inverted: False
+  #        mode: INPUT_PULLUP
+  # PIN: D2 [SDA/I2C]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}2"
+  #    id: ${pin_prefix}2
+  #    pin:
+  #        number: D2
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D3  [OUTPUT-ONLY]
+  #  - platform: gpio
+  #    name: "${pin_prefix_upper}3"
+  #    id: ${pin_prefix}3
+  #    pin:
+  ##        number: GPIO0
+  #        number: D3
+  #        inverted: False
+  #        mode: OUTPUT
+  # PIN: D4  [LED / OUTPUT-ONLY]
+  - platform: gpio
+    name: "${pin_prefix_upper}4_LED"
+    id: ${pin_prefix}4
+    pin:
+      number: D4
+      inverted: True
+      mode: OUTPUT
+  # PIN: D5
+  - platform: gpio
+    name: "${pin_prefix_upper}5"
+    id: ${pin_prefix}5
+    pin:
+      number: D5
+      inverted: False
+      mode: OUTPUT
+    on_turn_on:
+      then:
+        - script.execute: beep_dot
+    on_turn_off:
+        - script.execute: beep_dash
+
+  # PIN: D6  [BUZZER]
+  - platform: gpio
+    name: "${pin_prefix_upper}6"
+    id: ${pin_prefix}6
+    pin:
+      number: D6
+      inverted: true
+      mode: OUTPUT_OPEN_DRAIN
+#  # PIN: D7
+#  - platform: gpio
+#    name: "${pin_prefix_upper}7"
+#    id: ${pin_prefix}7
+#    pin:
+#      number: D7
+#      inverted: False
+#      mode: OUTPUT
+#  # PIN: D8  [OUTPUT-ONLY]
+#  - platform: gpio
+#    name: "${pin_prefix_upper}8"
+#    id: ${pin_prefix}8
+#    pin:
+#      number: D8
+#      inverted: False
+#      mode: OUTPUT
+
+# ======================================================
+# INPUTS
+# ======================================================
+
+binary_sensor:
+  - platform: homeassistant
+    id: pool_heater
+    internal: true
+    entity_id: input_boolean.pool_heater
+  - platform: homeassistant
+    id: pool_pump
+    internal: true
+    entity_id: input_boolean.pool_pump
+  - platform: homeassistant
+    id: comed_alarm
+    internal: true
+    entity_id: input_boolean.comed_alarm
+  - platform: template
+    id: blink
+    internal: true
+  - platform: homeassistant
+    id: garage_open
+    entity_id: binary_sensor.garage_open
+    internal: true
+    on_press:
+      then:
+        - switch.turn_on: ${pin_prefix}4 # turn on Blue LED
+#        - logger.log: "Garage Door has opened" 
+    on_release:
+      then:
+        - switch.turn_off: ${pin_prefix}4   # turn of Blue LED
+#        - logger.log: "Garage Door has Closed" 
+        - lambda: |-
+            id(p_sel).publish_state("cycle");
+        - component.update: this_display
+  - platform: homeassistant
+    id: door_open
+    entity_id: input_boolean.door_open
+    internal: true
+  - platform: homeassistant
+    id: alarm
+    entity_id: input_boolean.alarm_$devicename
+    internal: true
+    on_press:
+      then:
+        - light.turn_on:   
+            id: rgb_light
+            effect: strobe
+    on_release:
+        - light.turn_off:   
+            id: rgb_light
+        - light.turn_on:   
+            id: rgb_light
+# -------------------------------------------------------
+  # WeMos 1-Button Shield
+  # PINS:  D3[GPIO0] GND
+  - platform: gpio
+    name: "${pin_prefix_upper}3_button"
+    pin:
+      number: D3
+      inverted: false
+      mode: INPUT_PULLUP
+#    filters:
+#      - delayed_on_off: 10ms
+    on_press: 
+      then:
+#        - switch.turn_off: ${pin_prefix}4   # Turn on internal Blue LED
+#        - light.turn_on: "flash"
+#        - if:
+#            condition:
+#              binary_sensor.is_on: alarm
+#            then: 
+#              - lambda: |-
+#                  id(alarm).publish_state(false);
+        - if:
+            condition:
+              binary_sensor.is_on: alarm
+            then:
+              - homeassistant.service:
+                  service: input_boolean.turn_off
+                  data:
+                    entity_id: input_boolean.alarm_$devicename
+        - if:
+            condition:
+              binary_sensor.is_on: comed_alarm
+            then:
+              - homeassistant.service:
+                  service: input_boolean.turn_off
+                  data:
+                    entity_id: input_boolean.comed_alarm
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'cycle'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: time
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: time
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: temperature
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: comed
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: comed
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: room_temperature
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'room_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: 'outside_temperature'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'outside_temperature'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: 'pool'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'pool'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: 'adc'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'adc'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: p_1
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: p_1
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: 'version'
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'version'
+            then: 
+              - text_sensor.template.publish:
+                  id: next_page
+                  state: cycle
+        - lambda: |-
+            id(p_sel).publish_state(id(next_page).state.c_str());
+        - component.update: this_display
+#        - logger.log: 
+#            format: "The new p_sel state is %s"
+#            args: [ 'id(p_sel).state.c_str()' ]
+        - script.stop: resume_cycle
+        - script.execute: resume_cycle
+
+#    on_release: # Turn off internal Blue LED
+#        - switch.turn_on: ${pin_prefix}4
+##        - light.turn_off: "flash"
+    on_click:
+      min_length: 20ms
+      max_length: 150ms
+      then:
+        if:
+          condition:
+            binary_sensor.is_on: garage_open
+          then:
+            - homeassistant.service:
+                service: switch.turn_on
+                data:
+                  entity_id: switch.tardis
+          else:
+    #        - switch.toggle: ${pin_prefix}5
+            - homeassistant.service:
+                service: switch.toggle
+                data:
+                  entity_id: switch.aquarium
+    on_double_click:  # Toggle aquarium switch
+      min_length: 200ms
+      max_length: 500ms
+      then:
+#        - switch.toggle: ${pin_prefix}4
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.lava
+# ---------------------------------------v----------------
+# reed switch sensor
+# PIN: D5
+#  - platform: gpio
+#    name: "${pin_prefix_upper}5_sense"
+#    device_class: door
+#    id: ${pin_prefix}5_sense
+#    pin:
+#        number: D5
+#        inverted: False
+#        mode: INPUT_PULLUP
+# -------------------------------------------------------
+
+text_sensor:
+  - platform: homeassistant
+    internal: true
+    id: sunrise
+    entity_id: sensor.nextsunrise
+  - platform: homeassistant
+    internal: true
+    id: sunset
+    entity_id: sensor.nextsunset
+
+#  - platform: sun
+#    name: Sun Next Sunrise
+#    type: sunrise
+#    internal: true
+#    id: sunrise
+#  - platform: sun
+#    name: Sun Next Sunset
+#    type: sunset
+#    internal: true
+#    id: sunset
+
+  - platform: template
+    id: 'next_page'
+    internal: true
+  - platform: homeassistant
+    id: p_sel
+    internal: true
+    entity_id: input_select.page_$devicename
+    on_value:
+      then:
+        - display.page.show: p_time
+#        - lambda:  !lambda |-
+#            switch(p_sel) {
+#            case 'adc' : 
+#              break;
+#            };
+#              
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'cycle'
+            then: 
+              display.page.show_next: this_display
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'version'
+            then: 
+              display.page.show: p_i_home_thermometer
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'pool'
+            then: 
+              display.page.show: p_pool_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: adc
+            then: 
+              display.page.show: p_adc
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'room_temperature'
+            then: 
+              display.page.show: p_room_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'outside_temperature'
+            then: 
+              display.page.show: p_outside_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'temperature'
+            then: 
+              display.page.show: p_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'i_ha'
+            then: 
+              display.page.show: p_i_ha
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'i_aquarium'
+            then: 
+              display.page.show: p_i_aquarium
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'aquarium_temperature'
+            then: 
+              display.page.show: p_aquarium_tmpr
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'outdoor_humidity'
+            then: 
+              display.page.show: p_outdoor_humidity
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'room_humidity'
+            then: 
+              display.page.show: p_room_humidity
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'comed'
+            then: 
+              display.page.show: p_comed_price
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'sunrise'
+            then: 
+              display.page.show: p_sunrise
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'sunset'
+            then: 
+              display.page.show: p_sunset
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'alarm'
+            then: 
+              display.page.show: p_i_alarm
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_garage_open'
+#            then: 
+#              display.page.show: p_i_garage_open
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_garage_closed'
+#            then: 
+#              display.page.show: p_i_garage_closed
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_door_open'
+#            then: 
+#              display.page.show: p_i_door_open
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'i_door_closed'
+#            then: 
+#              display.page.show: p_i_door_closed
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'p_1'
+            then: 
+              display.page.show: p_1
+#        - if:
+#            condition:
+#              text_sensor.state:
+#                id: p_sel
+#                state: 'p_2'
+#            then: 
+#              display.page.show: p_2
+        - if:
+            condition:
+              text_sensor.state:
+                id: p_sel
+                state: 'p_3'
+            then: 
+              display.page.show: p_3
+        - component.update: this_display
+
+  - platform: homeassistant
+    internal: true
+    id: light_effects_selection
+    entity_id: input_select.light_effects_$devicename
+    on_value:
+      then:
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'strobe'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: strobe
+#                  brightness: 1.0
+#                  red: 1.0
+#                  green: 1.0
+#                  blue: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'random'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: random
+#                  brightness: 1.0
+        - if:
+            condition:
+              text_sensor.state:
+                id: light_effects_selection
+                state: 'flicker'
+            then: 
+              - light.turn_on:   
+                  id: rgb_light
+                  effect: flicker
+#                  brightness: 1.0
+
+  - platform: homeassistant
+    id: ha_title
+    entity_id: input_text.title_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_1
+    entity_id: input_text.msg_1_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_2
+    entity_id: input_text.msg_2_$devicename
+    internal: true
+  - platform: homeassistant
+    id: ha_msg_3
+    entity_id: input_text.msg_3_$devicename
+    internal: true
+
+# -------------------------------------------------------
+time:
+#  - platform: homeassistant
+#    id: ha_time
+  - platform: sntp
+    id: sntp_time
+    timezone: America/Chicago
+# -------------------------------------------------------
+sensor:
+  - platform: adc
+    pin: A0
+    name: adc_$devicename
+    id: analog
+    update_interval: 1min
+    filters:
+      - multiply: 1000
+  - platform: homeassistant
+    id: ha_room_humidity
+    entity_id: sensor.lodge_thermostat_humidity
+    internal: true
+  - platform: homeassistant
+    id: ha_outdoor_humidity
+    entity_id: sensor.dark_sky_humidity
+    internal: true
+  - platform: homeassistant
+    id: ha_aquarium
+    entity_id: $aquarium_temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_room_tmpr
+    entity_id: sensor.lodge_thermostat_temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_outside_tmpr
+    entity_id: $outside_temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_pool_tmpr
+    entity_id: $pool_tmpr
+    internal: true
+#  - platform: homeassistant
+#    id: ha_pool_thrmst
+#    entity_id: $pool_thrmst
+#    internal: true
+  - platform: homeassistant
+    id: ha_comed_price
+    entity_id: sensor.comed_price
+    internal: true
+  - platform: homeassistant
+    id: ha_thermostat
+    entity_id: sensor.lodge_thermostat_target
+    internal: true
+
+# -------------------------------------------------------
+#  Temperature / Humidity Sensor
+#  - platform: dht
+#    pin: D9
+#    humidity:
+#      name: $upper_devicename Humidity'
+#      on_value_range:
+#        - above: 65.0
+#          then:
+#            - switch.turn_on: d1
+#        - below: 50.0
+#          then:
+#            - switch.turn_off: d1
+#    temperature:
+#      name: $upper_devicename Temperature
+# -------------------------------------------------------
+# [Temperature] DS18B20 configuration
+  - platform: dallas
+    address: 0x810416846B52FF28   # aquarium sensor
+#    address: 0x440416640685FF28   # PCB sensor
+#    index: 0
+    name: t_$devicename
+    id: t_1
+    filters:  #       Convert Centrigrade to Farenheit
+      - lambda: return x * (9.0/5.0) + 32.0;
+    unit_of_measurement: '°F'
+dallas:
+  - pin: D7
+    id: dallas_hub
+    update_interval: 120s
+
+# ======================================================
+# DISPLAYs
+# ======================================================
+#output:
+#  - platform: esp8266_pwm
+#    pin: GPIO2   # pin D4 [LED}]
+#    frequency: 5 Hz
+#    id: 'flash_Blue_LED'
+
+light:
+#  - platform: monochromatic
+#    output: 'flash_Blue_LED'
+#    name: 'flash'
+
+# ----------------------------------------------------
+# WeMos WS2812B RGB Shield
+# LED SIZE: 5050   colors: 16777216  Voltage: 5V
+# PINS  D2 [GPIO4] ; 5V ; GND
+# ----------------------------------------------------
+  - platform: fastled_clockless
+    chipset: WS2812B
+    id: rgb_light
+    pin: D8
+    num_leds: 1
+    rgb_order: GRB
+    name: 'FastLED $devicename'
+    effects:
+      - strobe:
+      - random:
+      - flicker:
+      - lambda:
+          name: Custom Effect 1
+          update_interval: 1s
+          lambda: |-
+            static int state = 0;
+            auto call = id(rgb_light).turn_on();
+            // Transtion of 1000ms = 1s
+            call.set_transition_length(1000);
+            if (state == 0) {
+              call.set_rgb(1.0, 1.0, 1.0);
+            } else if (state == 1) {
+              call.set_rgb(1.0, 0.0, 1.0);
+            } else if (state == 2) {
+              call.set_rgb(0.0, 0.0, 1.0);
+            } else {
+              call.set_rgb(1.0, 0.0, 0.0);
+            }
+            call.perform();
+            state += 1;
+            if (state == 4)
+              state = 0;
+#      - white:
+#          name: White
+#          colors: 
+#            red: 1.0
+#            green: 1.0
+#            blue: 1.0
+#      - blue:
+
+# ----------------------------------------------------
+# WeMos OLED Shield 1.1
+# Description: 64x48 pixels (0.66” Across) OLED Shield with I2C
+# Operating Voltage: 3.3V
+# Driver IC: SSD1306
+# IIC Address: 0x3C or 0x3D
+# PINS D1[SCL] ; D2[SDA] ; 3.3V; GND
+font:
+  - file: fonts/$font_number
+    id: font_time
+    size: 23
+    glyphs: ' -.:0123456789na'
+  - file: fonts/$font
+    id: font_small
+    size: 10
+    glyphs: '¢$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  - file: fonts/$font
+    id: font_normal
+    size: 14
+    glyphs: '¢$!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  - file: fonts/$font
+    id: font_large
+    size: 22
+    glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  - file: fonts/$font_number
+    id: font_tmpr
+#    size: 32
+    size: 27
+    glyphs: ' .°0123456789na'
+  - file: fonts/$font
+    id: font_day
+    size: 12
+    glyphs: 'MTWFSadehionrstuy'
+
+image:
+  - file: icons/esphome_54_48.png
+    id: i_ha
+  - file: icons/fish_48_48.png
+    id: i_fish
+  - file: icons/fish_36_28.png
+    id: i_fish_2
+  - file: icons/weather-sunset-down.png
+    id: i_sunset
+  - file: icons/weather-sunset-up.png
+    id: i_sunrise
+  - file: icons/thermometer.png
+    id: i_thermometer
+  - file: icons/thermostat.png
+    id: i_thermostat
+  - file: icons/flash.png
+    id: i_flash
+  - file: icons/alarm-light.png
+    id: i_alarm_light
+  - file: icons/alarm-light-outline.png
+    id: i_alarm_light_outline
+  - file: icons/theme-light-dark.png
+    id: i_theme_light_dark
+  - file: icons/garage-open-variant.png
+    id: i_garage_open
+  - file: icons/door-closed.png
+    id: i_door_closed
+  - file: icons/door-open.png
+    id: i_door_open
+  - file: icons/pool.png
+    id: i_pool
+  - file: icons/home-thermometer.png
+    id: i_home_thermometer
+  - file: icons/pipe-leak.png
+    id: i_pipe_leak
+#  - file: icons/NU_30_48_2.png
+#    id: i_nu
+##  - file: icons/techDogs_64_18.png
+#  - file: icons/is_head_bw_41_48.png
+#    id: i_redbird
+
+i2c:
+  scl: D1
+  sda: D2
+  frequency: 800kHz
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+#    reset_pin: GPIO16 # D0
+    address: 0x3C
+    id: this_display
+    pages:
+      - id: p_time
+#   Block out the leading zero of display if present
+        lambda: |-
+          auto nowTime = id(sntp_time).now();
+          it.strftime($w2,             6,                 id(font_day),    TextAlign::CENTER, "%A",    nowTime);
+          it.strftime($w2,            18,                 id(font_normal), TextAlign::CENTER, "%b-%d", nowTime);
+          it.strftime(${font_time_x}-2, ${font_time_y}-3, id(font_time),                      "%I:%M", nowTime);
+          if (nowTime.hour < 10 && nowTime.hour > 0 ) {
+            it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
+          }
+          else if(nowTime.hour < 22 && nowTime.hour > 12) {
+            it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
+          }
+          $display_box
+      - id: p_i_ha
+        lambda: |-
+          it.image(5, 0, id(i_ha));
+          $top_left_pixel
+          $top_right_pixel
+          $bottom_left_pixel
+          $bottom_right_pixel
+      - id: p_3
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
+          $title_top_line
+          it.line(0, 21, $w, 21);
+          it.line(0, 23, $w, 23);
+          it.printf($w2, ${font_tmpr_y}, id(font_large), TextAlign::CENTER,  "Lodge");
+      - id: p_i_sunrise
+        lambda: |-
+          it.image(8, 0, id(i_sunrise));
+          $display_box
+      - id: p_sunrise
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
+          it.printf($w2, ${font_tmpr_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
+          $title_top_line
+          $title_botton_line
+#          $display_box
+#          $bottom_left_pixel
+#          $bottom_right_pixel
+      - id: p_i_sunset
+        lambda: |-
+          it.image(8, 0, id(i_sunset));
+          $display_box
+      - id: p_sunset
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
+          it.printf($w2, ${font_tmpr_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
+          $title_top_line
+          $title_botton_line
+#          $display_box
+#          $bottom_left_pixel
+#          $bottom_right_pixel
+      - id: p_i_thermometer
+        lambda: |-
+          it.image(8, 0, id(i_thermometer));
+          it.print(3, 2, id(font_normal),  "°F");
+          $display_box
+      - id: p_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
+          $title_top_line
+          $title_botton_line
+          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+#          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "68" "°");
+      - id: p_i_aquarium
+        lambda: |-
+          it.image(7, 0, id(i_fish));
+          $display_box
+      - id: p_aquarium_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+          it.draw_pixel_at(0,14);
+          $title_top_line
+          $title_botton_line
+          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
+      - id: p_room_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
+          it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
+          $title_top_line
+          $title_botton_line
+      - id: p_room_humidity
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
+          it.printf($w2-3, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
+          it.print(52,22,id(font_normal), "%");
+          $title_top_line
+          $title_botton_line
+      - id: p_i_thermostat
+        lambda: |-
+          it.image(8, 0, id(i_thermostat));
+          $display_box
+      - id: p_thermostat
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
+          it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
+          $title_top_line
+          $title_botton_line
+      - id: p_i_theme_light_dark
+        lambda: |-
+          it.image(8, 0, id(i_theme_light_dark));
+          $display_box
+      - id: p_outside_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
+          it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
+          $title_top_line
+          $title_botton_line
+      - id: p_outdoor_humidity
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
+          it.printf($w2-3, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
+          it.print(52,22,id(font_normal), "%");
+          $title_top_line
+          $title_botton_line
+      - id: p_i_pool
+        lambda: |-
+          it.image(8, 0, id(i_pool));
+          $display_box
+      - id: p_pool_tmpr
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
+          it.printf(0, ${font_tmpr_y}-2, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
+          $title_top_line
+          $title_botton_line
+          if (id(pool_heater).state){
+            it.print(40,40,id(font_small),"heat");
+          }
+          if (id(pool_pump).state){
+            it.print(40,30,id(font_small),"pump");
+          }
+          it.printf(52,28,id(font_small), "82");
+#          it.printf(64,20,id(font_small),TextAlign::LEFT, "%2.0f", id(ha_pool_thrmst).state);
+#          $bottom_right_pixel
+#          $bottom_left_pixel
+#          it.printf($w2-5, ${font_tmpr_y}-2, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
+      - id: p_i_flash
+        lambda: |-
+          it.image(8, 0, id(i_flash));
+          $display_box
+      - id: p_comed_price
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "ComEd $");
+          it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
+          it.printf(55,30,id(font_normal), "¢");
+          $title_top_line
+          $title_botton_line
+      - id: p_i_garage_open
+        lambda: |-
+          it.image(8, 0, id(i_garage_open));
+          $display_box
+      - id: p_i_garage_closed
+        lambda: |-
+          it.image(8, 0, id(i_garage_open));
+          $display_box
+          it.filled_rectangle(19,29,26,4);
+          it.filled_rectangle(19,35,26,4);
+      - id: p_i_door_closed
+        lambda: |-
+          it.image(8, 0, id(i_door_closed));
+          $display_box
+      - id: p_i_door_open
+        lambda: |-
+          it.image(8, 0, id(i_door_open));
+          $display_box
+      - id: p_i_pipe_leak
+        lambda: |-
+          it.image(8, 0, id(i_pipe_leak));
+          $display_box
+      - id: p_i_alarm
+        lambda: |-
+          it.image(8, 0, id(i_alarm_light));
+          $display_box
+      - id: p_i_alarm_outline
+        lambda: |-
+          it.image(8, 0, id(i_alarm_light_outline));
+          $display_box
+#      - id: p_i_pipe_leak_2
+#        lambda: |-
+#          it.image(8, 0, id(i_pipe_leak));
+#          it.circle(24,32,3);
+#          $display_box
+      - id: p_adc
+        lambda: |-
+          it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
+          it.printf($w2-4, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%3.0f" , id(analog).state);
+          $title_top_line
+          $title_botton_line
+          it.print(52,40, id(font_small), "mV");
+#      - id: p_i_nu
+#        lambda: |-
+#          it.image(16, 0, id(i_nu));
+#      - id: p_i_redbird
+#        lambda: |-
+#          it.image(16, 0, id(i_redbird));
+      - id: p_1
+        lambda: |-
+          it.printf($w2,  8, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
+          it.printf($w2, 23, id(font_small), TextAlign::CENTER,           id(ha_msg_1).state.c_str());
+          it.printf($w2, 33, id(font_small), TextAlign::CENTER,           id(ha_msg_2).state.c_str());
+          it.printf($w2, 43, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
+          it.line(0, 16, $w, 16);
+          it.line(0,  0, $w,  0);
+#          $display_box
+#      - id: p_2
+#        lambda: |-
+#          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
+#          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
+#          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
+#          it.printf($w2, ${font_tmpr_y}, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+      - id: p_i_home_thermometer
+        lambda: |-
+          it.image(  6,  -1, id(i_home_thermometer));
+          it.printf(40,   2, id(font_small), TextAlign::LEFT, "${version}");
+          it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
+          $display_box
+
+# Display Updating
+
+interval:
+  - interval: 2s
+    then:
+      - if: 
+          condition:
+            binary_sensor.is_on: garage_open
+          then: 
+            - display.page.show: p_i_garage_open
+            - component.update: this_display
+            - delay: 1s
+            - display.page.show: p_i_garage_closed
+            - component.update: this_display
+          else:
+            - if:
+                condition:
+                  binary_sensor.is_on: door_open
+                then:
+                  - display.page.show: p_i_door_open
+                  - component.update: this_display
+                  - delay: 1s
+                  - display.page.show: p_i_door_closed
+                  - component.update: this_display
+                else:
+                  - if:
+                      condition:
+                        binary_sensor.is_on: comed_alarm
+                      then:
+                        - display.page.show: p_i_flash
+                        - component.update: this_display
+                        - delay: 1s
+                        - display.page.show: p_comed_price
+                        - component.update: this_display
+                      else:
+                        - if: 
+                            condition:
+                              binary_sensor.is_off: alarm
+                            then: 
+                              - if:
+                                  condition:
+                                    text_sensor.state:
+                                      id: p_sel
+                                      state: cycle
+                                  then:
+                                    - display.page.show_next: this_display
+                                    - component.update: this_display
+
+# Alarm 
+
+  - interval: 400ms
+    then:
+      - if:
+          condition:
+            binary_sensor.is_on: alarm
+          then:
+            - script.execute: beep_dot
+            - display.page.show: !lambda |-
+                if (id(blink).state) {
+                  id(blink).publish_state(false);
+                  return id(p_i_alarm);
+                } else {
+                  id(blink).publish_state(true);
+                  return id(p_i_alarm_outline);
+                }
+      - component.update: this_display
+
+script:
+  - id: beep_dot
+    then:
+      - switch.turn_on: ${pin_prefix}6
+      - delay: 100ms
+      - switch.turn_off: ${pin_prefix}6
+  - id: beep_dash
+    then:
+      - switch.turn_on: ${pin_prefix}6
+      - delay: 450ms
+      - switch.turn_off: ${pin_prefix}6
+  - id: resume_cycle
+    then:
+      - delay: 2min
+      - lambda: |-
+          id(p_sel).publish_state("cycle");
+      - component.update: this_display
