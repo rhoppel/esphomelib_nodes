@@ -907,7 +907,7 @@ font:
     id: font_tmpr
 #    size: 32
     size: 27
-    glyphs: ' .°0123456789na'
+    glyphs: ' -.°0123456789na'
   - file: fonts/$font
     id: font_day
     size: 12
