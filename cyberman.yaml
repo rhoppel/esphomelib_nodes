@@ -39,7 +39,7 @@
     board: d1_mini_pro
 
   substitutions:
-    version: "1.0c"
+    version: "1.0d"
   
   #  devicename: davros
   #  upper_devicename: Davros
@@ -266,6 +266,9 @@
       entity_id: input_boolean.comed_alarm
     - platform: template
       id: blink
+      internal: true
+    - platform: template
+      id: blink_2
       internal: true
     - platform: homeassistant
       id: garage_open
@@ -656,6 +659,13 @@
   #                state: 'i_door_closed'
   #            then: 
   #              display.page.show: p_i_door_closed
+  #        - if:
+  #            condition:
+  #              text_sensor.state:
+  #                id: p_sel
+  #                state: 'i_pipe_leak'
+  #            then: 
+  #              display.page.show: p_i_pipe_leak
           - if:
               condition:
                 text_sensor.state:
@@ -932,14 +942,14 @@
       id: i_flash
     - file: icons/alarm-light.png
       id: i_alarm_light
-    - file: icons/alarm-light-outline.png
-      id: i_alarm_light_outline
+#    - file: icons/alarm-light-outline.png
+#      id: i_alarm_light_outline
     - file: icons/theme-light-dark.png
       id: i_theme_light_dark
     - file: icons/garage-open-variant.png
       id: i_garage_open
-    - file: icons/door-closed.png
-      id: i_door_closed
+#    - file: icons/door-closed.png
+#      id: i_door_closed
     - file: icons/door-open.png
       id: i_door_open
     - file: icons/pool.png
@@ -1114,36 +1124,56 @@
             it.printf(55,30,id(font_normal), "¢");
             $title_top_line
             $title_botton_line
-        - id: p_i_garage_open
-          lambda: |-
-            it.image(8, 0, id(i_garage_open));
-            $display_box
+#        - id: p_i_garage_open
+#          lambda: |-
+#            it.image(8, 0, id(i_garage_open));
+#            $display_box
         - id: p_i_garage_closed
           lambda: |-
             it.image(8, 0, id(i_garage_open));
             $display_box
-            it.filled_rectangle(19,29,26,4);
-            it.filled_rectangle(19,35,26,4);
-        - id: p_i_door_closed
-          lambda: |-
-            it.image(8, 0, id(i_door_closed));
-            $display_box
+            if(id(blink_2).state){
+              it.filled_rectangle(19,29,26,4);
+              it.filled_rectangle(19,35,26,4);
+            }
+#        - id: p_i_door_closed
+#          lambda: |-
+#            it.image(8, 0, id(i_door_closed));
+#            $display_box
         - id: p_i_door_open
           lambda: |-
             it.image(8, 0, id(i_door_open));
             $display_box
+            if(id(blink_2).state){
+              it.filled_rectangle(10,6,18,33, COLOR_OFF);
+              it.filled_rectangle(40,23,3,3);
+            }
         - id: p_i_pipe_leak
           lambda: |-
             it.image(8, 0, id(i_pipe_leak));
             $display_box
+            if(id(blink_2).state){
+              it.filled_circle(24, 32, 3, COLOR_OFF);
+            }
         - id: p_i_alarm
           lambda: |-
             it.image(8, 0, id(i_alarm_light));
             $display_box
-        - id: p_i_alarm_outline
-          lambda: |-
-            it.image(8, 0, id(i_alarm_light_outline));
-            $display_box
+            if(id(blink).state){
+              it.filled_circle(32,21,9, COLOR_OFF);
+              it.filled_rectangle(22,21,20,15, COLOR_OFF);
+              it.filled_rectangle(30,1,4,6, COLOR_OFF);
+              it.filled_rectangle(12,21,5,6, COLOR_OFF);
+              it.filled_rectangle(47,21,5,7, COLOR_OFF);
+              it.filled_rectangle(17,6,6,7, COLOR_OFF);
+              it.filled_rectangle(42,6,5,7, COLOR_OFF);
+
+            }
+
+#        - id: p_i_alarm_outline
+#          lambda: |-
+#            it.image(8, 0, id(i_alarm_light_outline));
+#            $display_box
   #      - id: p_i_pipe_leak_2
   #        lambda: |-
   #          it.image(8, 0, id(i_pipe_leak));
@@ -1184,19 +1214,30 @@
             it.printf(40,   2, id(font_small), TextAlign::LEFT, "${version}");
             it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
             $display_box
+            if(id(blink_2).state){
+              it.filled_rectangle(25, 12, 11, 24, COLOR_ON);
+            }
   
   # Display Updating
   
   interval:
     - interval: 2s
       then:
+        - lambda: |-
+            if (id(blink_2).state) {
+              // Binary sensor is ON, do something here
+              id(blink_2).publish_state(false);
+            } else {
+              // Binary sensor is OFF, do something else here
+              id(blink_2).publish_state(true);
+            }
         - if: 
             condition:
               binary_sensor.is_on: garage_open
             then: 
-              - display.page.show: p_i_garage_open
-              - component.update: this_display
-              - delay: 1s
+#              - display.page.show: p_i_garage_open
+#              - component.update: this_display
+#              - delay: 1s
               - display.page.show: p_i_garage_closed
               - component.update: this_display
             else:
@@ -1206,9 +1247,9 @@
                   then:
                     - display.page.show: p_i_door_open
                     - component.update: this_display
-                    - delay: 1s
-                    - display.page.show: p_i_door_closed
-                    - component.update: this_display
+#                    - delay: 1s
+#                    - display.page.show: p_i_door_closed
+#                    - component.update: this_display
                   else:
                     - if:
                         condition:
@@ -1235,23 +1276,39 @@
   
   # Alarm 
   
-    - interval: 400ms
+    - interval: 200ms
       then:
+        - lambda: |-
+            if (id(blink).state) {
+              id(blink).publish_state(false);
+            } else {
+              id(blink).publish_state(true);
+            }
         - if:
             condition:
               binary_sensor.is_on: alarm
             then:
               - script.execute: beep_dot
-              - display.page.show: !lambda |-
-                  if (id(blink).state) {
-                    id(blink).publish_state(false);
-                    return id(p_i_alarm);
-                  } else {
-                    id(blink).publish_state(true);
-                    return id(p_i_alarm_outline);
-                  }
-        - component.update: this_display
-  
+              - display.page.show: p_i_alarm
+              - component.update: this_display
+ 
+#        - interval: 400ms
+#        then:
+#          - if:
+#              condition:
+#                binary_sensor.is_on: alarm
+#              then:
+#                - script.execute: beep_dot
+#                - display.page.show: !lambda |-
+#                    if (id(blink).state) {
+#                      id(blink).publish_state(false);
+#                      return id(p_i_alarm);
+#                    } else {
+#                      id(blink).publish_state(true);
+#                      return id(p_i_alarm);
+#                    }
+#          - component.update: this_display
+
   script:
     - id: beep_dot
       then:
