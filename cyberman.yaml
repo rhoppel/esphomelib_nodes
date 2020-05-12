@@ -631,41 +631,27 @@
                   state: 'alarm'
               then: 
                 display.page.show: p_i_alarm
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'i_garage_open'
-  #            then: 
-  #              display.page.show: p_i_garage_open
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'i_garage_closed'
-  #            then: 
-  #              display.page.show: p_i_garage_closed
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'i_door_open'
-  #            then: 
-  #              display.page.show: p_i_door_open
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'i_door_closed'
-  #            then: 
-  #              display.page.show: p_i_door_closed
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'i_pipe_leak'
-  #            then: 
-  #              display.page.show: p_i_pipe_leak
+          - if:
+              condition:
+                text_sensor.state:
+                  id: p_sel
+                  state: 'garage'
+              then: 
+                display.page.show: p_i_garage
+          - if:
+              condition:
+                text_sensor.state:
+                  id: p_sel
+                  state: 'door'
+              then: 
+                display.page.show: p_i_door
+          - if:
+              condition:
+                text_sensor.state:
+                  id: p_sel
+                  state: pipe_leak
+              then: 
+                display.page.show: p_i_pipe_leak
           - if:
               condition:
                 text_sensor.state:
@@ -942,14 +928,10 @@
       id: i_flash
     - file: icons/alarm-light.png
       id: i_alarm_light
-#    - file: icons/alarm-light-outline.png
-#      id: i_alarm_light_outline
     - file: icons/theme-light-dark.png
       id: i_theme_light_dark
     - file: icons/garage-open-variant.png
-      id: i_garage_open
-#    - file: icons/door-closed.png
-#      id: i_door_closed
+      id: i_garage
     - file: icons/door-open.png
       id: i_door_open
     - file: icons/pool.png
@@ -1109,10 +1091,6 @@
               it.print(40,30,id(font_small),"pump");
             }
             it.printf(52,28,id(font_small), "82");
-  #          it.printf(64,20,id(font_small),TextAlign::LEFT, "%2.0f", id(ha_pool_thrmst).state);
-  #          $bottom_right_pixel
-  #          $bottom_left_pixel
-  #          it.printf($w2-5, ${font_tmpr_y}-2, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
         - id: p_i_flash
           lambda: |-
             it.image(8, 0, id(i_flash));
@@ -1124,23 +1102,15 @@
             it.printf(55,30,id(font_normal), "¢");
             $title_top_line
             $title_botton_line
-#        - id: p_i_garage_open
-#          lambda: |-
-#            it.image(8, 0, id(i_garage_open));
-#            $display_box
-        - id: p_i_garage_closed
+        - id: p_i_garage
           lambda: |-
-            it.image(8, 0, id(i_garage_open));
+            it.image(8, 0, id(i_garage));
             $display_box
             if(id(blink_2).state){
               it.filled_rectangle(19,29,26,4);
               it.filled_rectangle(19,35,26,4);
             }
-#        - id: p_i_door_closed
-#          lambda: |-
-#            it.image(8, 0, id(i_door_closed));
-#            $display_box
-        - id: p_i_door_open
+        - id: p_i_door
           lambda: |-
             it.image(8, 0, id(i_door_open));
             $display_box
@@ -1152,8 +1122,8 @@
           lambda: |-
             it.image(8, 0, id(i_pipe_leak));
             $display_box
-            if(id(blink_2).state){
-              it.filled_circle(24, 32, 3, COLOR_OFF);
+            if(id(blink).state){
+              it.filled_circle(32, 32, 5, COLOR_OFF);
             }
         - id: p_i_alarm
           lambda: |-
@@ -1169,16 +1139,6 @@
               it.filled_rectangle(42,6,5,7, COLOR_OFF);
 
             }
-
-#        - id: p_i_alarm_outline
-#          lambda: |-
-#            it.image(8, 0, id(i_alarm_light_outline));
-#            $display_box
-  #      - id: p_i_pipe_leak_2
-  #        lambda: |-
-  #          it.image(8, 0, id(i_pipe_leak));
-  #          it.circle(24,32,3);
-  #          $display_box
         - id: p_adc
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
@@ -1186,12 +1146,7 @@
             $title_top_line
             $title_botton_line
             it.print(52,40, id(font_small), "mV");
-  #      - id: p_i_nu
-  #        lambda: |-
-  #          it.image(16, 0, id(i_nu));
-  #      - id: p_i_redbird
-  #        lambda: |-
-  #          it.image(16, 0, id(i_redbird));
+
         - id: p_1
           lambda: |-
             it.printf($w2,  8, id(font_normal),TextAlign::CENTER,   "%s", id(ha_title).state.c_str());
@@ -1200,14 +1155,6 @@
             it.printf($w2, 43, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
             it.line(0, 16, $w, 16);
             it.line(0,  0, $w,  0);
-  #          $display_box
-  #      - id: p_2
-  #        lambda: |-
-  #          it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
-  #          it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
-  #          it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
-  #          it.printf($w2, ${font_tmpr_y}, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
-  #          it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
         - id: p_i_home_thermometer
           lambda: |-
             it.image(  6,  -1, id(i_home_thermometer));
@@ -1217,8 +1164,28 @@
             if(id(blink_2).state){
               it.filled_rectangle(25, 12, 11, 24, COLOR_ON);
             }
+#            $display_box
+
+# Optional Pages
+#        - id: p_2
+#          lambda: |-
+#            it.printf( 3,   6, id(font_small), " width: %i", it.get_width());
+#            it.printf( 3,  16, id(font_small), "height: %i", it.get_height());
+#            it.printf($w2, 26, id(font_small),TextAlign::CENTER,   "%s", id(p_sel).state.c_str());
+#            it.printf($w2, ${font_tmpr_y}, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#            it.printf($w2, 45, id(font_small),TextAlign::CENTER,   "%i", it.get_height());
+#        - id: p_i_nu
+#          lambda: |-
+#            it.image(16, 0, id(i_nu));
+#        - id: p_i_redbird
+#          lambda: |-
+#            it.image(16, 0, id(i_redbird));
+#            it.printf(64,20,id(font_small),TextAlign::LEFT, "%2.0f", id(ha_pool_thrmst).state);
+#            $bottom_right_pixel
+#            $bottom_left_pixel
+#            it.printf($w2-5, ${font_tmpr_y}-2, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_pool_tmpr).state);
   
-  # Display Updating
+#  Timers
   
   interval:
     - interval: 2s
@@ -1235,21 +1202,15 @@
             condition:
               binary_sensor.is_on: garage_open
             then: 
-#              - display.page.show: p_i_garage_open
-#              - component.update: this_display
-#              - delay: 1s
-              - display.page.show: p_i_garage_closed
+              - display.page.show: p_i_garage
               - component.update: this_display
             else:
               - if:
                   condition:
                     binary_sensor.is_on: door_open
                   then:
-                    - display.page.show: p_i_door_open
+                    - display.page.show: p_i_door
                     - component.update: this_display
-#                    - delay: 1s
-#                    - display.page.show: p_i_door_closed
-#                    - component.update: this_display
                   else:
                     - if:
                         condition:
@@ -1274,7 +1235,7 @@
                                       - display.page.show_next: this_display
                                       - component.update: this_display
   
-  # Alarm 
+#  Fast Timer 
   
     - interval: 200ms
       then:
@@ -1291,23 +1252,8 @@
               - script.execute: beep_dot
               - display.page.show: p_i_alarm
               - component.update: this_display
- 
-#        - interval: 400ms
-#        then:
-#          - if:
-#              condition:
-#                binary_sensor.is_on: alarm
-#              then:
-#                - script.execute: beep_dot
-#                - display.page.show: !lambda |-
-#                    if (id(blink).state) {
-#                      id(blink).publish_state(false);
-#                      return id(p_i_alarm);
-#                    } else {
-#                      id(blink).publish_state(true);
-#                      return id(p_i_alarm);
-#                    }
-#          - component.update: this_display
+
+#   Scripts
 
   script:
     - id: beep_dot
