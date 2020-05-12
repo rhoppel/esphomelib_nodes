@@ -483,6 +483,12 @@
   # -------------------------------------------------------
   
   text_sensor:
+    - platform: wifi_info
+      ip_address:
+        name: ip_address_$devicename
+        id: ip_addr
+      ssid: 
+        name: SSID_$devicename
     - platform: homeassistant
       internal: true
       id: sunrise
@@ -491,18 +497,6 @@
       internal: true
       id: sunset
       entity_id: sensor.nextsunset
-  
-  #  - platform: sun
-  #    name: Sun Next Sunrise
-  #    type: sunrise
-  #    internal: true
-  #    id: sunrise
-  #  - platform: sun
-  #    name: Sun Next Sunset
-  #    type: sunset
-  #    internal: true
-  #    id: sunset
-  
     - platform: template
       id: 'next_page'
       internal: true
@@ -1157,14 +1151,19 @@
             it.line(0,  0, $w,  0);
         - id: p_i_home_thermometer
           lambda: |-
-            it.image(  6,  -1, id(i_home_thermometer));
-            it.printf(40,   2, id(font_small), TextAlign::LEFT, "${version}");
+            it.image(  -2,  -1, id(i_home_thermometer));
+            it.printf(39,   2, id(font_small), TextAlign::LEFT, "${version}");
             it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
             $display_box
             if(id(blink_2).state){
-              it.filled_rectangle(25, 12, 11, 24, COLOR_ON);
+              it.filled_rectangle(17, 12, 11, 24, COLOR_ON);
             }
 #            $display_box
+#it.printf(40,  35, id(font_small), TextAlign::LEFT, "%s", id(ip_addr).state.c_str());
+#std::string my_ip = id(ip_addr).state.c_str();
+#char delim[] = ".";
+#std::string octet = strtok (my_ip, delim);
+#it.printf(40,  30, id(font_small), TextAlign::LEFT, "%s", octet);
 
 # Optional Pages
 #        - id: p_2
