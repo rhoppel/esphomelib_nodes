@@ -81,7 +81,7 @@
     font_tmpr_y: "37"  # center "y" component of "temperature" number in pages
   
     title_top_line:     "it.line(0, 0, $w, 0);"
-    title_botton_line:  "it.line(0, 19, $w, 19);"
+    title_bottom_line:  "it.line(0, 19, $w, 19);"
     top_left_pixel:     "it.draw_pixel_at(     0,      0);"
     top_right_pixel:    "it.draw_pixel_at($w - 1,      0);"
     bottom_left_pixel:  "it.draw_pixel_at(     0, $h - 1);"
@@ -252,6 +252,10 @@
   # ======================================================
   
   binary_sensor:
+    - platform: homeassistant
+      id: pool_status
+      internal: true
+      entity_id: input_boolean.pool_status
     - platform: homeassistant
       id: pool_heater
       internal: true
@@ -483,6 +487,10 @@
   # -------------------------------------------------------
   
   text_sensor:
+    - platform: homeassistant
+      entity_id: input_text.open_door_name
+      internal: true
+      id: 'open_door_name'
     - platform: wifi_info
       ip_address:
         name: ip_address_$devicename
@@ -526,7 +534,7 @@
                   id: p_sel
                   state: 'version'
               then: 
-                display.page.show: p_i_home_thermometer
+                display.page.show: p_i_esphome
           - if:
               condition:
                 text_sensor.state:
@@ -562,13 +570,13 @@
   #                state: 'temperature'
   #            then: 
   #              display.page.show: p_tmpr
-          - if:
-              condition:
-                text_sensor.state:
-                  id: p_sel
-                  state: 'i_ha'
-              then: 
-                display.page.show: p_i_ha
+#          - if:
+#              condition:
+#                text_sensor.state:
+#                  id: p_sel
+#                  state: 'i_ha'
+#              then: 
+#                display.page.show: p_i_ha
           - if:
               condition:
                 text_sensor.state:
@@ -904,8 +912,8 @@
       glyphs: 'MTWFSadehionrstuy'
   
   image:
-    - file: icons/esphome_54_48.png
-      id: i_ha
+#    - file: icons/esphome_54_48.png
+#      id: i_ha
     - file: icons/fish_48_48.png
       id: i_fish
     - file: icons/fish_36_28.png
@@ -930,8 +938,10 @@
       id: i_door_open
     - file: icons/pool.png
       id: i_pool
-    - file: icons/home-thermometer.png
-      id: i_home_thermometer
+    - file: icons/esphome_36_32.png
+      id: i_esphome
+#    - file: icons/home-thermometer.png
+#      id: i_esphome
     - file: icons/pipe-leak.png
       id: i_pipe_leak
   #  - file: icons/NU_30_48_2.png
@@ -965,13 +975,13 @@
               it.filled_rectangle(0, 26, 13, 48, COLOR_OFF);
             }
             $display_box
-        - id: p_i_ha
-          lambda: |-
-            it.image(5, 0, id(i_ha));
-            $top_left_pixel
-            $top_right_pixel
-            $bottom_left_pixel
-            $bottom_right_pixel
+#        - id: p_i_ha
+#          lambda: |-
+#            it.image(5, 0, id(i_ha));
+#            $top_left_pixel
+#            $top_right_pixel
+#            $bottom_left_pixel
+#            $bottom_right_pixel
         - id: p_3
           lambda: |-
             it.printf($w2, 10, id(font_normal),TextAlign::CENTER,    "HOPPEL");
@@ -988,7 +998,7 @@
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunrise");
             it.printf($w2, ${font_tmpr_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunrise).state.c_str());
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
   #          $display_box
   #          $bottom_left_pixel
   #          $bottom_right_pixel
@@ -1001,7 +1011,7 @@
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER, "Sunset");
             it.printf($w2, ${font_tmpr_y}, id(font_time),   TextAlign::CENTER, "%-3.5s", id(sunset).state.c_str());
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
   #          $display_box
   #          $bottom_left_pixel
   #          $bottom_right_pixel
@@ -1014,7 +1024,7 @@
   #        lambda: |-
   #          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
   #          $title_top_line
-  #          $title_botton_line
+  #          $title_bottom_line
   #          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
   #          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "68" "°");
         - id: p_i_aquarium
@@ -1026,21 +1036,21 @@
             it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
             it.draw_pixel_at(0,14);
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
             it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
         - id: p_room_tmpr
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
             it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_room_tmpr).state);
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_room_humidity
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
             it.printf($w2-3, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,   "%.0f" , id(ha_room_humidity).state);
             it.print(52,22,id(font_normal), "%");
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_i_thermostat
           lambda: |-
             it.image(8, 0, id(i_thermostat));
@@ -1050,7 +1060,7 @@
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Nest");
             it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" "°", id(ha_thermostat).state);
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_i_theme_light_dark
           lambda: |-
             it.image(8, 0, id(i_theme_light_dark));
@@ -1060,31 +1070,42 @@
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Outdoor");
             it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f"  "°", id(ha_outside_tmpr).state);
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_outdoor_humidity
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Humidity");
             it.printf($w2-3, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.0f" , id(ha_outdoor_humidity).state);
             it.print(52,22,id(font_normal), "%");
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_i_pool
           lambda: |-
             it.image(8, 0, id(i_pool));
             $display_box
         - id: p_pool_tmpr
           lambda: |-
-            it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
-            it.printf(0, ${font_tmpr_y}-2, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
-            $title_top_line
-            $title_botton_line
-            if (id(pool_heater).state){
-              it.print(40,40,id(font_small),"heat");
+            if(id(pool_status).state){
+              it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
+              $title_top_line
+              $title_bottom_line
+              it.printf(0, ${font_tmpr_y}-2, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
+              if (id(pool_heater).state){
+                it.print(40,40,id(font_small),"heat");
+              }
+              if (id(pool_pump).state){
+                it.print(40,30,id(font_small),"pump");
+              }
+              it.printf(52,28,id(font_small), "82");
+            } else {
+              it.printf($w2,  6, id(font_normal), TextAlign::CENTER,  "Pool");
+              it.printf($w2, 20, id(font_normal), TextAlign::CENTER,  "Closed");
+              it.printf($w2, 32, id(font_small), TextAlign::CENTER,  "for");
+              it.printf($w2, 42, id(font_normal), TextAlign::CENTER,  "Season");
+              $top_left_pixel
+              $top_right_pixel
+              $bottom_left_pixel
+              $bottom_right_pixel
             }
-            if (id(pool_pump).state){
-              it.print(40,30,id(font_small),"pump");
-            }
-            it.printf(52,28,id(font_small), "82");
         - id: p_i_flash
           lambda: |-
             it.image(8, 0, id(i_flash));
@@ -1095,7 +1116,7 @@
             it.printf($w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%.1f" , id(ha_comed_price).state);
             it.printf(55,30,id(font_normal), "¢");
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
         - id: p_i_garage
           lambda: |-
             it.image(8, 0, id(i_garage));
@@ -1106,11 +1127,12 @@
             }
         - id: p_i_door
           lambda: |-
-            it.image(8, 0, id(i_door_open));
+            it.image(8, -3, id(i_door_open));
             $display_box
+            it.printf($w2, 43, id(font_small), TextAlign::CENTER, id(open_door_name).state.c_str());
             if(id(blink_2).state){
-              it.filled_rectangle(10,6,18,33, COLOR_OFF);
-              it.filled_rectangle(40,23,3,3);
+              it.filled_rectangle(10,3,18,33, COLOR_OFF);
+              it.filled_rectangle(40,20,3,3);
             }
         - id: p_i_pipe_leak
           lambda: |-
@@ -1138,7 +1160,7 @@
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "${voltage_name}");
             it.printf($w2-4, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER,  "%3.0f" , id(analog).state);
             $title_top_line
-            $title_botton_line
+            $title_bottom_line
             it.print(52,40, id(font_small), "mV");
 
         - id: p_1
@@ -1149,14 +1171,15 @@
             it.printf($w2, 43, id(font_small), TextAlign::CENTER,           id(ha_msg_3).state.c_str());
             it.line(0, 16, $w, 16);
             it.line(0,  0, $w,  0);
-        - id: p_i_home_thermometer
+        - id: p_i_esphome
           lambda: |-
-            it.image(  -2,  -1, id(i_home_thermometer));
-            it.printf(39,   2, id(font_small), TextAlign::LEFT, "${version}");
+            it.image(  2,  3, id(i_esphome));
+            it.printf(37,   4, id(font_small), TextAlign::LEFT, "${version}");
             it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
             $display_box
             if(id(blink_2).state){
-              it.filled_rectangle(17, 12, 11, 24, COLOR_ON);
+              it.filled_rectangle(8, 14, 22, 20, COLOR_ON);
+              it.filled_circle(18,15,8);
             }
 #            $display_box
 #it.printf(40,  35, id(font_small), TextAlign::LEFT, "%s", id(ip_addr).state.c_str());
