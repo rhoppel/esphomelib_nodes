@@ -13,6 +13,8 @@
 #       - add substitions for pages for consistency
 #       - add pool sensors for heat & pump
 #       - add additional devices
+#       - alternate screens if value os 'nan'
+#       - animate door, and alarms with single image
 # 0.9    functionally complete
 #       - monitor and "door open" status
 #       - monitor "garage open" staus
@@ -39,7 +41,7 @@
     board: d1_mini_pro
 
   substitutions:
-    version: "1.0d"
+    version: "1.0e"
   
   #  devicename: davros
   #  upper_devicename: Davros
@@ -563,13 +565,13 @@
                   state: 'outside_temperature'
               then: 
                 display.page.show: p_outside_tmpr
-  #        - if:
-  #            condition:
-  #              text_sensor.state:
-  #                id: p_sel
-  #                state: 'temperature'
-  #            then: 
-  #              display.page.show: p_tmpr
+          - if:
+              condition:
+                text_sensor.state:
+                  id: p_sel
+                  state: 'temperature'
+              then: 
+                display.page.show: p_tmpr
 #          - if:
 #              condition:
 #                text_sensor.state:
@@ -912,8 +914,8 @@
       glyphs: 'MTWFSadehionrstuy'
   
   image:
-#    - file: icons/esphome_54_48.png
-#      id: i_ha
+    - file: icons/esphome_54_48.png
+      id: i_ha
     - file: icons/fish_48_48.png
       id: i_fish
     - file: icons/fish_36_28.png
@@ -1020,12 +1022,16 @@
             it.image(8, 0, id(i_thermometer));
             it.print(3, 2, id(font_normal),  "°F");
             $display_box
-  #      - id: p_tmpr
-  #        lambda: |-
-  #          it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
-  #          $title_top_line
-  #          $title_bottom_line
-  #          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+        - id: p_tmpr
+          lambda: |-
+            if (isnan(id(t_1).state)){
+              it.image(5, 0, id(i_ha));
+            } else {
+              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
+              $title_top_line
+              $title_bottom_line
+              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+            }
   #          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "68" "°");
         - id: p_i_aquarium
           lambda: |-
@@ -1033,11 +1039,15 @@
             $display_box
         - id: p_aquarium_tmpr
           lambda: |-
-            it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
-            it.draw_pixel_at(0,14);
-            $title_top_line
-            $title_bottom_line
-            it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
+            if (isnan(id(ha_aquarium).state)){
+              it.image(5, 0, id(i_ha));
+            } else {
+              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+              it.draw_pixel_at(0,14);
+              $title_top_line
+              $title_bottom_line
+              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
+            }
         - id: p_room_tmpr
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -1178,8 +1188,8 @@
             it.printf($w2, 43, id(font_small), TextAlign::CENTER, "${upper_devicename}");
             $display_box
             if(id(blink_2).state){
-              it.filled_rectangle(8, 14, 22, 20, COLOR_ON);
-              it.filled_circle(18,15,8);
+              it.filled_rectangle(8, 15, 22, 20, COLOR_ON);
+              it.filled_circle(18,16,8);
             }
 #            $display_box
 #it.printf(40,  35, id(font_small), TextAlign::LEFT, "%s", id(ip_addr).state.c_str());
