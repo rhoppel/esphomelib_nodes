@@ -1,0 +1,161 @@
+# ======================================================
+# WeMoS D1 Mini / ESPhome Template
+# v.1
+# changelog:
+#   inital: 5/14/2020
+# ======================================================
+# Changelog
+# ---------
+# 0.01    Release !!!
+
+# ------------------------------------------------------
+# ======================================================
+#   WeMOS D1 mini PIN Usage
+# ======================================================
+# insert the following into a Markdown page
+# ------------------------------------------------------
+# # Davros [esphome]
+# ### 192.168.111.116
+#                          ___________
+#                    [RST] |Reset  RX| [RX]
+#            PhotoResistor |A0     TX| [TX]
+#                      [O] |D0     D1| [SCL] OLED
+#                      [O] |D5     D2| [SDA] OLED
+#               Buzzer [O] |D6     D3| [I]   pushbutton
+#    OneWire Thermmtr  [S] |D7     D4| [O]   Blue LED
+#             RGB LED  [L] |D8      G| GND
+#                          |3V3    5V| +5V
+#                          |_________|
+#        I/input O/output L/light S/sensor SCL/SDA/I2C bus
+#                             _________________
+#                       [RST] |Reset        RX| [RXD]
+#    PhotoResistor [Max 3.3V] |A0           TX| [TXD]
+#                  [O/GPIO16] |D0           D1| [SCL/GPIO5] OLED
+#                  [O/GPIO14] |D5           D2| [SDA/GPIO4] OLED
+#           Buzzer [O/GPIO12] |D6      [PU] D3| [I/GPIO0]   pushbutton
+# OneWire Thermmtr [T/GPIO13] |D7  [PU,LED] D4| [O/GPIO2]   Blue LED
+#         RGB LED  [L/GPIO15] |D8 [PD]       G| Ground
+#                       3.3V  |3V3          5V| +5V
+#                             |_______________|
+#  Available Pin Modes:
+#  INPUT / OUTPUT / OUTPUT_OPEN_DRAIN / #  INPUT_PULLUP 
+#  INPUT_PULLDOWN (only on ESP8266 and only on GPIO16)
+
+  esphome:
+    name: $devicename
+    platform: ESP8266
+    board: d1_mini
+
+  substitutions:
+    version: "0.1a"
+  
+    devicename: pool
+    upper_devicename: Pool
+    pin_prefix_upper: P_D
+    pin_prefix: p_d
+
+
+      
+      #sun:    # replace by getting infor frpm HA
+      #  latitude:   !secret  my_latitude
+      #  longitude:  !secret  my_longitude
+      
+  wifi:
+    ssid:     !secret wifi_ssid
+    password: !secret wifi_password
+#    power_save_mode: light
+    manual_ip:
+      static_ip: 192.168.111.163
+      gateway: 192.168.111.1
+      subnet: 255.255.255.0
+  
+  mqtt:
+    broker: '192.168.111.250'
+    username: ''
+    password: ''
+    discovery: True
+    birth_message:
+    will_message:
+    on_message:
+      - topic: pool/ota_mode
+        payload: 'ON'
+        then:
+          - logger.log: 'pool/ota_mode = ON'
+          - deep_sleep.prevent: deep_sleep_1
+      - topic: pool/sleep_mode
+        payload: 'ON'
+        then:
+          - logger.log: 'pool/sleep_mode = ON'
+          - deep_sleep.enter: deep_sleep_1
+
+#  time:
+#    #  - platform: homeassistant
+#    #    id: ha_time
+#      - platform: sntp
+#        id: sntp_time
+#        timezone: America/Chicago
+
+  deep_sleep:
+    run_duration: 10s
+    sleep_duration: 720s
+    id: deep_sleep_1
+    
+  #api: # enable API communication
+  
+  logger: # enable logging
+    level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+  
+  ota: # enable OTA over the air updates
+  
+  sensor:
+    - platform: adc
+      pin: VCC
+      name: vcc_$devicename
+      id: analog
+      update_interval: 10s
+#      filters:
+#        - multiply: 1000
+    - platform: dallas
+#      address: 0x810416846B52FF28   # aquarium sensor
+      index: 0
+      name: t_$devicename
+      filters:  #       Convert Centrigrade to Farenheit
+        - lambda: return x * (9.0/5.0) + 32.0;
+      unit_of_measurement: '°F'
+
+
+  dallas:
+    - pin: D7
+      id: dallas_hub
+      update_interval: 10s
+
+  text_sensor:
+    - platform: wifi_info
+      ip_address:
+        name: ip_address_$devicename
+        id: ip_addr
+
+  switch:
+    - platform: gpio
+      name: "${pin_prefix_upper}4_LED"
+      id: blue_led
+      internal: true
+      pin:
+        number: D4
+        inverted: True
+        mode: OUTPUT
+
+  interval:
+    - interval: 400ms
+      then:
+        if:
+          condition:
+            wifi.connected:
+          then:
+            - switch.turn_on: blue_led
+            - logger.log: WiFi is connected!
+            - delay: 50ms
+            - switch.turn_off: blue_led
+#          else:
+#            - switch.turn_off: blue_led
+#            - logger.log: WiFi is disconnected!
