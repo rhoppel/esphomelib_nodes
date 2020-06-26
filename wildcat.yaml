@@ -5,7 +5,7 @@
 #   inital: 4/1/2020
 # ======================================================
 substitutions:
-  version: "0.6.5"
+  version: "0.7.0"
   devicename: wildcat
   upper_devicename: Wildcat
   pin_prefix_upper: W_D
@@ -26,6 +26,10 @@ esphome:
 wifi:
   ssid:     !secret wifi_ssid
   password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.111.116
+    gateway: 192.168.111.1
+    subnet: 255.255.255.0
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
@@ -267,6 +271,12 @@ binary_sensor:
 # -------------------------------------------------------
 
 text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ip_address_$devicename
+      id: ip_addr
+    ssid: 
+      name: SSID_$devicename
   - platform: template
     id: next_page
   - platform: homeassistant
@@ -468,24 +478,24 @@ light:
 # IIC Address: 0x3C or 0x3D
 # PINS D1[SCL] ; D2[SDA] ; 3.3V; GND
 font:
-  - file: "arial.ttf"
+  - file: "fonts/arial.ttf"
     id: font_small
     size: 10
-  - file: "arial.ttf"
+  - file: "fonts/arial.ttf"
     id: font_normal
     size: 14
-  - file: "arial.ttf"
+  - file: "fonts/arial.ttf"
     id: font_time
     size: 21
-  - file: "arial.ttf"
+  - file: "fonts/arial.ttf"
     id: font_large
     size: 32
 image:
-  - file: "esphome_2a_54_48.png"
+  - file: "icons/esphome_54_48.png"
     id: image_ha
-  - file: "fish_48_48.png"
+  - file: "icons/fish_48_48.png"
     id: image_fish
-  - file: "fish_36_28.png"
+  - file: "icons/fish_36_28.png"
     id: image_fish_2
 #    resize: 48x48
 i2c:
