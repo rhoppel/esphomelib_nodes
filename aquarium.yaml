@@ -1,12 +1,22 @@
 esphome:
-  name: aquarium
+  name: $devicename
   platform: ESP8266
-  board: d1
+  board: d1_mini
+
+substitutions:
+  version: "1.0a"
+  devicename: aquarium
+  upper_devicename: Aquarium
+  pin_prefix_upper: AQ_D
+  pin_prefix: aq_d
 
 wifi:
-  ssid: !secret lodge_ssid
-  password: !secret lodge_password
-  
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.111.121
+    gateway: 192.168.111.1
+    subnet: 255.255.255.0  
 #mqtt:
 #  broker: '192.168.111.250'
 #  username: ''
@@ -16,21 +26,17 @@ wifi:
 api:
 
 # Enable logging
-logger:
+# Enable logging
+logger: # enable logging
+  level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
 
 ota:
 
-# Example configuration entry
-#dallas:
-#  - pin: GPIO15
-#  - pin: D0
-
-# Individual sensors
-#sensor:
-#  - platform: dallas
-#    address: 0x1C0000031EDD2A28
-#    index: 0
-#    name: "TEMP_aquarium"
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ip_address_$devicename
+      id: ip_addr
 
 switch:
 #   pin: D0
