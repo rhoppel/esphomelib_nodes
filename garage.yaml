@@ -1,247 +1,215 @@
-esphome:
-  name: garage
-  platform: ESP8266
-  board: d1
+ # ======================================================
+# WeMoS D1 Mini / ESPhome Template
+# v.1
+# changelog:
+#   inital: 5/14/2020
+# ======================================================
+# Changelog
+# ---------
+# 1.0
 
-wifi:
-  ssid: !secret lodge_ssid
-  password: !secret lodge_password
-
-#mqtt:
-#  broker: '192.168.111.250'
-#  username: ''
-#  password: ''
-#  discovery: clean
-
-api:
-
-# Enable logging
-logger:
-
-ota:
-
-# Example configuration entry
-#dallas:
-#  - pin: GPIO15
-#  - pin: D0
-
-# Individual sensors
-#sensor:
-#  - platform: dallas
-#    address: 0x1C0000031EDD2A28
-#    index: 0
-#    name: "TEMP_aquarium"
-
-#  Available Pin Modes:
-#  
-#  INPUT
-#  OUTPUT
-#  OUTPUT_OPEN_DRAIN
-#  ANALOG (only on ESP32)
-#  INPUT_PULLUP
-#  INPUT_PULLDOWN (only on ESP32)
-#  INPUT_PULLDOWN_16 (only on ESP8266 and only on GPIO16)
-
-switch:
-#   pin: D0
-  - platform: gpio
-    name: "G_D0"
-    id: g_D0
-    pin: 
-        number: GPIO16  
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D1
-  - platform: gpio
-    name: "G_D1_Relay"
-    id: g_D1
-    pin:
-        number: GPIO5 
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D2
-  - platform: gpio
-    name: "G_D2"
-    id: g_D2
-    pin: 
-        number: GPIO4
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D3
-  - platform: gpio
-    name: "G_D3"
-    id: g_D3
-    pin: 
-        number: GPIO0  
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D4
-  - platform: gpio
-    name: "G_D4_LED"
-    id: g_D4
-    pin:
-        number: GPIO2
-        inverted: True
-        mode: OUTPUT
-
-#   pin: D5
-#  - platform: gpio
-#    name: "G_D5"
-#    id: g_D5
-#    pin: 
-#        number: GPIO14 
-#        inverted: False
-#        mode: OUTPUT
-
-#   pin: D6
-  - platform: gpio
-    name: "G_D6"
-    id: g_D6
-    pin: 
-        number: GPIO12  
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D7
-  - platform: gpio
-    name: "G_D7"
-    id: g_D7
-    pin: 
-        number: GPIO13 
-        inverted: False
-        mode: OUTPUT
-
-#   pin: D8
-  - platform: gpio
-    name: "G_D8"
-    id: g_D8
-    pin: 
-        number: GPIO15  
-        inverted: False
-        mode: OUTPUT
-
-binary_sensor:
-#   pin: D5
-  - platform: gpio
-    name: "G_D5_Garage_Open"
-    device_class: garage_door
-    id: g_D5_sense
-    pin: 
-        number: GPIO14 
-        inverted: False
-        mode: INPUT_PULLUP
-    filters:
-      - delayed_on_off: 100ms
-    on_press:
-      then:
-        - switch.turn_off: g_D4
-    on_release:
-      then:
-        - switch.turn_on: g_D4    
+# ------------------------------------------------------
+  esphome:
+    name: $devicename
+    platform: ESP8266
+    board: d1_mini
+  
+  substitutions:
+    version: "1.0a"
+    devicename: garage
+    upper_devicename: Garage
+    pin_prefix_upper: G_D
+    pin_prefix: g_D
+  
+  wifi:
+    ssid:     !secret wifi_ssid
+    password: !secret wifi_password
+    manual_ip:
+      static_ip: 192.168.111.115
+      gateway: 192.168.111.1
+      subnet: 255.255.255.0
+  
+  #mqtt:
+  #  broker: '192.168.111.250'
+  #  username: ''
+  #  password: ''
+  #  discovery: clean
+  
+  api:
+  
+  # Enable logging
+  logger: # enable logging
+    level: DEBUG # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+  
+  ota:
+  
+  # ======================================================
+  #   WeMOS D1 mini PIN Usage
+  # ======================================================
+  # insert the following into a Markdown page
+  # ------------------------------------------------------
+  # # garage [esphome]
+  # ### 192.168.111.116
+  #                          ___________
+  #                    [RST] |Reset  RX| [RX]
+  #            PhotoResistor |A0     TX| [TX]
+  #                      [O] |D0     D1| 
+  #      Magnetic Switch [I] |D5     D2| 
+  #               Buzzer [O] |D6     D3| [I]   pushbutton
+  #                          |D7     D4| [O]   Blue LED
+  #                          |D8      G| GND
+  #                          |3V3    5V| +5V
+  #                          |_________|
+  #        I/input O/output L/light S/sensor SCL/SDA/I2C bus
+  #                             _________________
+  #                       [RST] |Reset        RX| [RXD]
+  #    PhotoResistor [Max 3.3V] |A0           TX| [TXD]
+  #                  [O/GPIO16] |D0           D1| [SCL/GPIO5] 
+  #  Magnetic Switch [O/GPIO14] |D5           D2| [SDA/GPIO4] 
+  #                  [O/GPIO12] |D6      [PU] D3| [I/GPIO0]   
+  # OneWire Thermmtr [T/GPIO13] |D7  [PU,LED] D4| [O/GPIO2]   Blue LED
+  #                  [L/GPIO15] |D8 [PD]       G| Ground
+  #                       3.3V  |3V3          5V| +5V
+  #                             |_______________|
+  #  Available Pin Modes:
+  #  INPUT / OUTPUT / OUTPUT_OPEN_DRAIN / #  INPUT_PULLUP 
+  #  INPUT_PULLDOWN (only on ESP8266 and only on GPIO16)
+  
+  # =======================================================
+  #  WeMos Modules
+  # =======================================================
+  #  Motor Shield    D1	SCL (I2C)
+  #                  D2	SDA (I2C)
+  #                  RST	RST
+  #                  VM: Motor power supply + (Max 15Vdc)
+  #                  GND: Motor power supply -
+  #                  1-A-2: Motor A
+  #                  2-B-1: Motor B
+  #  OLED display    D1	SCL (I2C)
+  #                  D2	SDA (I2C)
+  #  DHT Shield      D1	SCL (I2C)
+  #                  D2	SDA
+  #  Relay           D1	Relay
+  #  WS2812B RGB     D2	WS2812B
+  #  DS18B20         D2 Temperature
+  #  1 Button        D3 Button
+  #  SD Card         D5	CLK
+  #                  D6	MISO
+  #                  D7	MOSI
+  #                  D8	CS
+  
+  # ======================================================
+  # INPUTS
+  # ======================================================
+  
+  binary_sensor:
+    #   pin: D5
+      - platform: gpio
+        name: "G_D5_Garage_Open"
+        device_class: garage_door
+        id: g_D5_sense
+        pin: 
+            number: GPIO14 
+            inverted: False
+            mode: INPUT_PULLUP
+        filters:
+          - delayed_on_off: 100ms
+        on_press:
+          then:
+            - switch.turn_off: g_D4
+        on_release:
+          then:
+            - switch.turn_on: g_D4    
         
-#light:
-#  - platform: fastled_clockless
-#    chipset: WS2812B
-#    pin: D2
-#    num_leds: 1
-#    rgb_order: BRG
-#    id: d2
-#    name: "FastLED WS2811 Light"
+  text_sensor:
+    - platform: wifi_info
+      ip_address:
+        name: ip_address_$devicename
+        id: ip_addr
+                  
+  # ======================================================
+  # OUTPUTS
+  # ======================================================
 
-#sensor:
-#  - platform: dht
-#    pin: D9
-#    humidity:
-#      name: "ManCave Humidity"
-#      on_value_range:
-#        - above: 65.0
-#          then:
-#            - switch.turn_on: d1
-#        - below: 50.0
-#          then:
-#            - switch.turn_off: d1
-#    temperature:
-#      name: "ManCave Temperature"
-#
-#light:
-#  - platform: fastled_clockless
-#    chipset: WS2812B
-#    pin: D2
-#    num_leds: 1
-#    rgb_order: BRG
-#    id: d2
-#    name: "FastLED WS2811 Light"
-
-#sensor:
-#  - platform: dht
-#    pin: D9
-#    humidity:
-#      name: "ManCave Humidity"
-#      on_value_range:
-#        - above: 65.0
-#          then:
-#            - switch.turn_on: d1
-#        - below: 50.0
-#          then:
-#            - switch.turn_off: d1
-#    temperature:
-#      name: "ManCave Temperature"
-#
-
-#   WeMos D1mini Pins
-#   ==================
-#   Pin     Function        ESP-8266 Pin
-#   ---     ---------       -------------
-#   TX	    TXD             TXD
-#   RX	    RXD             RXD
-#   A0	    Analog input,   A0
-#           max 3.3V input
-#   D0	    IO              GPIO16
-#   D1	    IO, SCL         GPIO5
-#   D2	    IO, SDA         GPIO4
-#   D3	    IO, 10k Pull-up GPIO0
-#   D4	    IO, 10k Pull-up,
-#               BUILTIN_LED  GPIO2
-#   D5	    IO, SCK         GPIO14
-#   D6	    IO, MISO        GPIO12
-#   D7	    IO, MOSI        GPIO13
-#   D8	    IO, 10k         GPIO15
-#           Pull-down, SS
-#   G	    Ground          GND
-#   5V	    5V	-
-#   3V3	    3.3V            3.3V
-#   RST	    Reset           RST
-
-#  WeMos Modules
-#  =============
-#  Motor Shield    D1	SCL (I2C)
-#                  D2	SDA (I2C)
-#                  RST	RST
-#                               VM: Motor power supply + (Max 15Vdc)
-#                               GND: Motor power supply -
-#                               1-A-2: Motor A
-#                               2-B-1: Motor B
-#  
-#  OLED Screen     D1	SCL (I2C)
-#                  D2	SDA (I2C)
-#  
-#  DHT Shield      D1	SCL (I2C)
-#                  D2	SDA
-#  
-#  Relay           D1	Relay
-#  
-#  WS2812B RGB     D2	WS2812B
-#  
-#  1 Button        D3   Button
-#  
-#  DS18B20         D2   Temperature
-#
-#  SD Card         D5	CLK
-#                  D6	MISO
-#                  D7	MOSI
-#                  D8	CS   
-
+  switch:
+  #   pin: D0
+    - platform: gpio
+      name: "G_D0"
+      id: g_D0
+      pin: 
+          number: GPIO16  
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D1
+    - platform: gpio
+      name: "G_D1_Relay"
+      id: g_D1
+      pin:
+          number: GPIO5 
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D2
+    - platform: gpio
+      name: "G_D2"
+      id: g_D2
+      pin: 
+          number: GPIO4
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D3
+    - platform: gpio
+      name: "G_D3"
+      id: g_D3
+      pin: 
+          number: GPIO0  
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D4
+    - platform: gpio
+      name: "G_D4_LED"
+      id: g_D4
+      pin:
+          number: GPIO2
+          inverted: True
+          mode: OUTPUT
+  
+  #   pin: D5
+  #  - platform: gpio
+  #    name: "G_D5"
+  #    id: g_D5
+  #    pin: 
+  #        number: GPIO14 
+  #        inverted: False
+  #        mode: OUTPUT
+  
+  #   pin: D6
+    - platform: gpio
+      name: "G_D6"
+      id: g_D6
+      pin: 
+          number: GPIO12  
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D7
+    - platform: gpio
+      name: "G_D7"
+      id: g_D7
+      pin: 
+          number: GPIO13 
+          inverted: False
+          mode: OUTPUT
+  
+  #   pin: D8
+    - platform: gpio
+      name: "G_D8"
+      id: g_D8
+      pin: 
+          number: GPIO15  
+          inverted: False
+          mode: OUTPUT
+  
