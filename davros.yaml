@@ -8,7 +8,7 @@
 # ---------
 # 1.0    Release !!!
 #       - change temperature and humidity sources
-#       - add COMED price alarm
+#       - add COMED price alert
 #       - sharpen page clarity & consistency
 #       - add substitions for pages for consistency
 #       - add pool sensors for heat & pump
@@ -16,6 +16,7 @@
 #       - alternate screens if value os 'nan'
 #       - animate door, and alarms with single image
 #       - add water leak detection page
+#       - change to sensor.temperature_aquarium
 # 0.9    functionally complete
 #       - monitor and "door open" status
 #       - monitor "garage open" staus
@@ -42,35 +43,35 @@
     board: d1_mini_pro
 
   substitutions:
-    version: "1.0f"
+    version: "1.0h"
   
     devicename: davros
     upper_devicename: Davros
     pin_prefix_upper: D_D
     pin_prefix: d_d
+ 
+#    devicename: drwho
+#    upper_devicename: DrWho
+#    pin_prefix_upper: Dr_D
+#    pin_prefix: dr_d
   
-  #  devicename: drwho
-  #  upper_devicename: DrWho
-  #  pin_prefix_upper: Dr_D
-  #  pin_prefix: dr_d
-  
- #  devicename: cyberman
- #  upper_devicename: CyberMan
- #  pin_prefix_upper: C_D
- #  pin_prefix: c_d
-  
-  #  devicename: dalek
-  #  upper_devicename: Dalek
-  #  pin_prefix_upper: dk_D
-  #  pin_prefix: dk_d
-  
+#    devicename: cyberman
+#    upper_devicename: CyberMan
+#    pin_prefix_upper: C_D
+#    pin_prefix: c_d
+
+#    devicename: dalek
+#    upper_devicename: Dalek
+#    pin_prefix_upper: dk_D
+#    pin_prefix: dk_d
+
     font: lucon.ttf
     font_number: arial.ttf
     voltage_name: Illumin
     pool_tmpr:            input_number.pool_tmpr       # HA sensor fpr pool temperature
     pool_thrmst:          input_number.pool_thrmst
     outside_temperature:  sensor.clc_temperature       # use this for page "Outside"
-    aquarium_temperature: sensor.temperature_wildcat   # include on a page "Aquarium"
+    aquarium_temperature: sensor.temperature_aquarium   # include on a page "Aquarium"
     outside_humidity:     sensor.clc_humidity
   
   # display page substitutions
@@ -272,9 +273,9 @@
       internal: true
       entity_id: input_boolean.pool_pump
     - platform: homeassistant
-      id: comed_alarm
+      id: comed_alert
       internal: true
-      entity_id: input_boolean.comed_alarm
+      entity_id: input_boolean.comed_alert
     - platform: template
       id: blink
       internal: true
@@ -345,12 +346,12 @@
                       entity_id: input_boolean.alarm_$devicename
           - if:
               condition:
-                binary_sensor.is_on: comed_alarm
+                binary_sensor.is_on: comed_alert
               then:
                 - homeassistant.service:
                     service: input_boolean.turn_off
                     data:
-                      entity_id: input_boolean.comed_alarm
+                      entity_id: input_boolean.comed_alert
           - if:
               condition:
                 text_sensor.state:
@@ -1254,7 +1255,7 @@
                   else:
                     - if:
                         condition:
-                          binary_sensor.is_on: comed_alarm
+                          binary_sensor.is_on: comed_alert
                         then:
                           - display.page.show: p_i_flash
                           - component.update: this_display
