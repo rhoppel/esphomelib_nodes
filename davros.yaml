@@ -2,10 +2,17 @@
 # WeMoS D1 Mini / ESPhome Template
 # v.1
 # changelog:
-#   inital: 5/14/2020
+#   inital: 5/27/2021
 # ======================================================
+# Problem: 
+#  - RESOLVED: [13:27:40][W][homeassistant.sensor:014]: Can't convert 'unknown' to number!
+#    due to aquarium thermometer & screen, removed code
+#  - cycling through screen needs help
+
 # Changelog
 # ---------
+# 2.0   - add OTA: with ERROR log
+#       - changed pool sensors and switches 
 # 1.0    Release !!!
 #       - change temperature and humidity sources
 #       - add COMED price alert
@@ -17,6 +24,8 @@
 #       - animate door, and alarms with single image
 #       - add water leak detection page
 #       - change to sensor.temperature_aquarium
+#       - k: change pool temperature sensor; removed dallas temp & screen
+#         removed aquarium thermometer reading
 # 0.9    functionally complete
 #       - monitor and "door open" status
 #       - monitor "garage open" staus
@@ -43,7 +52,7 @@
     board: d1_mini_pro
 
   substitutions:
-    version: "1.0h"
+    version: "2.0"
   
     devicename: davros
     upper_devicename: Davros
@@ -55,10 +64,10 @@
 #    pin_prefix_upper: Dr_D
 #    pin_prefix: dr_d
   
-#    devicename: cyberman
+#    devicename: cybermn
 #    upper_devicename: CyberMan
-#    pin_prefix_upper: C_D
-#    pin_prefix: c_d
+#    pin_prefix_upper: CY_D
+#    pin_prefix: cy_d
 
 #    devicename: dalek
 #    upper_devicename: Dalek
@@ -68,10 +77,11 @@
     font: lucon.ttf
     font_number: arial.ttf
     voltage_name: Illumin
-    pool_tmpr:            input_number.pool_tmpr       # HA sensor fpr pool temperature
+#    pool_tmpr:            input_number.pool_tmpr       # HA sensor fpr pool temperature
+    pool_tmpr:            sensor.pool_temperature       # HA sensor fpr pool temperature 
     pool_thrmst:          input_number.pool_thrmst
     outside_temperature:  sensor.clc_temperature       # use this for page "Outside"
-    aquarium_temperature: sensor.temperature_aquarium   # include on a page "Aquarium"
+#    aquarium_temperature: sensor.t_aquarium   # include on a page "Aquarium"
     outside_humidity:     sensor.clc_humidity
   
   # display page substitutions
@@ -108,9 +118,9 @@
   
   api: # enable API communication
   logger: # enable logging
-    level: INFO # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
+    level: ERROR # NONE, ERROR, WARN, INFO, DEBUG(default), VERBOSE, VERY_VERBOSE
   
-  #ota: # enable OTA over the air updates
+  ota: # enable OTA over the air updates
   
   # ======================================================
   #   WeMOS D1 mini PIN Usage
@@ -267,11 +277,11 @@
     - platform: homeassistant
       id: pool_heater
       internal: true
-      entity_id: input_boolean.pool_heater
+      entity_id: switch.pool_heater
     - platform: homeassistant
       id: pool_pump
       internal: true
-      entity_id: input_boolean.pool_pump
+      entity_id: switch.pool_pump
     - platform: homeassistant
       id: comed_alert
       internal: true
@@ -369,16 +379,17 @@
               then: 
                 - text_sensor.template.publish:
                     id: next_page
-                    state: temperature
-          - if:
-              condition:
-                text_sensor.state:
-                  id: p_sel
-                  state: temperature
-              then: 
-                - text_sensor.template.publish:
-                    id: next_page
-                    state: comed
+#                    state: temperature
+                    state: comed                    
+#          - if:
+#              condition:
+#                text_sensor.state:
+#                  id: p_sel
+#                  state: temperature
+#              then: 
+#                - text_sensor.template.publish:
+#                    id: next_page
+#                    state: comed
           - if:
               condition:
                 text_sensor.state:
@@ -571,13 +582,13 @@
                   state: 'outside_temperature'
               then: 
                 display.page.show: p_outside_tmpr
-          - if:
-              condition:
-                text_sensor.state:
-                  id: p_sel
-                  state: 'temperature'
-              then: 
-                display.page.show: p_tmpr
+#          - if:
+#              condition:
+#                text_sensor.state:
+#                  id: p_sel
+#                  state: 'temperature'
+#              then: 
+#                display.page.show: p_tmpr
 #          - if:
 #              condition:
 #                text_sensor.state:
@@ -592,13 +603,13 @@
                   state: 'i_aquarium'
               then: 
                 display.page.show: p_i_aquarium
-          - if:
-              condition:
-                text_sensor.state:
-                  id: p_sel
-                  state: 'aquarium_temperature'
-              then: 
-                display.page.show: p_aquarium_tmpr
+#          - if:
+#              condition:
+#                text_sensor.state:
+#                  id: p_sel
+#                  state: 'aquarium_temperature'
+#              then: 
+#                display.page.show: p_aquarium_tmpr
           - if:
               condition:
                 text_sensor.state:
@@ -766,10 +777,10 @@
       id: ha_outdoor_humidity
       entity_id: $outside_humidity
       internal: true
-    - platform: homeassistant
-      id: ha_aquarium
-      entity_id: $aquarium_temperature
-      internal: true
+#    - platform: homeassistant
+#      id: ha_aquarium
+#      entity_id: $aquarium_temperature
+#      internal: true
     - platform: homeassistant
       id: ha_room_tmpr
       entity_id: sensor.lodge_thermostat_temperature
@@ -782,10 +793,10 @@
       id: ha_pool_tmpr
       entity_id: $pool_tmpr
       internal: true
-  #  - platform: homeassistant
-  #    id: ha_pool_thrmst
-  #    entity_id: $pool_thrmst
-  #    internal: true
+    - platform: homeassistant
+      id: ha_pool_thrmst
+      entity_id: $pool_thrmst
+      internal: true
     - platform: homeassistant
       id: ha_comed_price
       entity_id: sensor.comed_price
@@ -812,19 +823,19 @@
   #      name: $upper_devicename Temperature
   # -------------------------------------------------------
   # [Temperature] DS18B20 configuration
-    - platform: dallas
-      address: 0x810416846B52FF28   # aquarium sensor
-  #    address: 0x440416640685FF28   # PCB sensor
-  #    index: 0
-      name: t_$devicename
-      id: t_1
-      filters:  #       Convert Centrigrade to Farenheit
-        - lambda: return x * (9.0/5.0) + 32.0;
-      unit_of_measurement: '°F'
-  dallas:
-    - pin: D7
-      id: dallas_hub
-      update_interval: 120s
+  #  - platform: dallas
+  #    address: 0x810416846B52FF28   # aquarium sensor
+  ##    address: 0x440416640685FF28   # PCB sensor
+  ##    index: 0
+  #    name: t_$devicename
+  #    id: t_1
+  #    filters:  #       Convert Centrigrade to Farenheit
+  #      - lambda: return x * (9.0/5.0) + 32.0;
+  #    unit_of_measurement: '°F'
+  #dallas:
+  #  - pin: D7
+  #    id: dallas_hub
+  #    update_interval: 120s
   
   # ======================================================
   # DISPLAYs
@@ -1029,34 +1040,34 @@
             it.image(8, 0, id(i_thermometer));
             it.print(3, 2, id(font_normal),  "°F");
             $display_box
-        - id: p_tmpr
-          lambda: |-
-            if (isnan(id(t_1).state)){
-              it.image(9, 0, id(i_ha));
-              it.print(0, 40, id(font_small),  "thermometer");
-            } else {
-              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
-              $title_top_line
-              $title_bottom_line
-              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
-            }
+#        - id: p_tmpr
+#          lambda: |-
+#            if (isnan(id(t_1).state)){
+#              it.image(9, 0, id(i_ha));
+#              it.print(0, 40, id(font_small),  "thermometer");
+#            } else {
+#              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "${upper_devicename}");
+#              $title_top_line
+#              $title_bottom_line
+#              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(t_1).state);
+#            }
   #          it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "68" "°");
         - id: p_i_aquarium
           lambda: |-
             it.image(7, 0, id(i_fish));
             $display_box
-        - id: p_aquarium_tmpr
-          lambda: |-
-            if (isnan(id(ha_aquarium).state)){
-              it.image(9, 0, id(i_ha));
-              it.print(0, 40, id(font_small),  " aquarium");
-            } else {
-              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
-              it.draw_pixel_at(0,14);
-              $title_top_line
-              $title_bottom_line
-              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
-            }
+#        - id: p_aquarium_tmpr
+#          lambda: |-
+#            if (isnan(id(ha_aquarium).state)){
+#              it.image(9, 0, id(i_ha));
+#              it.print(0, 40, id(font_small),  " aquarium");
+#            } else {
+#              it.printf($w2, 10, id(font_normal),TextAlign::CENTER, "Aquarium");
+#              it.draw_pixel_at(0,14);
+#              $title_top_line
+#              $title_bottom_line
+#              it.printf( $w2, ${font_tmpr_y}, id(font_tmpr), TextAlign::CENTER, "%.1f" "°", id(ha_aquarium).state);
+#            }
         - id: p_room_tmpr
           lambda: |-
             it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Room");
@@ -1107,14 +1118,14 @@
               it.printf($w2, 10, id(font_normal), TextAlign::CENTER,  "Pool");
               $title_top_line
               $title_bottom_line
-              it.printf(0, ${font_tmpr_y}-2, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
+              it.printf(0, ${font_tmpr_y}-15, id(font_tmpr),  "%.0f"  "°", id(ha_pool_tmpr).state);
               if (id(pool_heater).state){
                 it.print(40,40,id(font_small),"heat");
               }
               if (id(pool_pump).state){
                 it.print(40,30,id(font_small),"pump");
               }
-              it.printf(52,28,id(font_small), "82");
+              it.printf(52,22,id(font_small), "%.0f",  id(ha_pool_thrmst).state);
             } else {
               it.printf($w2,  6, id(font_normal), TextAlign::CENTER,  "Pool");
               it.printf($w2, 20, id(font_normal), TextAlign::CENTER,  "Closed");
